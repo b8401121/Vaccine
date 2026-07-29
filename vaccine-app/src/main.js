@@ -87,8 +87,12 @@ function displayVaccines(data) {
         const tagClass = v.category === 'Routine' ? 'routine' : 'high-risk';
         const tagText = v.category === 'Routine' ? '常規建議' : '高風險對象';
 
+        const isCurrent = m.status === 'Current';
+        const cardHighlightClass = isCurrent ? 'current-vaccine-card' : '';
+        const currentBadge = isCurrent ? '<span class="due-now-badge">🔥 目前應施打</span>' : '';
+
         cardsHtml += `
-          <div class="timeline-vaccine-card">
+          <div class="timeline-vaccine-card ${cardHighlightClass}">
             <div class="card-header">
               <h4>${v.name}</h4>
               <span class="tag ${tagClass}">${tagText}</span>
@@ -96,6 +100,7 @@ function displayVaccines(data) {
             <div class="meta-badges">
               <span class="dose-badge">💉 ${v.dose_info}</span>
               <span class="timing-badge">📅 ${v.timing_info}</span>
+              ${currentBadge}
             </div>
             <p class="dose-desc">${v.description}</p>
           </div>
