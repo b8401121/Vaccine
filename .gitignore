@@ -1,0 +1,9 @@
+# Rust build output
+**/target/
+
+# Node / IDE / OS
+node_modules/
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
