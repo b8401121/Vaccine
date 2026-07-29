@@ -69,12 +69,12 @@ function scrollToCurrentNode() {
 }
 
 function displayVaccines(data) {
-  const { age_display, milestones } = data;
+  const { age_display, child_age_detail, milestones } = data;
   const resultsDiv = document.getElementById('results');
   const timelineContainer = document.getElementById('timeline-container');
   const ageBadge = document.getElementById('age-badge');
 
-  ageBadge.textContent = `目前計算年齡：${age_display}`;
+  ageBadge.textContent = `目前計算年齡：${child_age_detail || age_display}`;
   timelineContainer.innerHTML = '';
 
   if (!milestones || milestones.length === 0) {
@@ -124,6 +124,10 @@ function displayVaccines(data) {
         `;
       });
 
+      const currentAgeTag = m.status === 'Current' 
+        ? `<div class="current-age-tag">👶 當前個案年齡：<strong>${child_age_detail || age_display}</strong></div>` 
+        : '';
+
       node.innerHTML = `
         <div class="timeline-marker">
           <div class="marker-dot">${nodeIcon}</div>
@@ -133,6 +137,7 @@ function displayVaccines(data) {
             <h3 class="milestone-title">${m.title}</h3>
             <span class="status-pill ${statusClass}-pill">${statusLabel}</span>
           </div>
+          ${currentAgeTag}
           <div class="timeline-cards-grid">
             ${cardsHtml}
           </div>

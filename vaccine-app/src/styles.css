@@ -284,6 +284,20 @@ input:checked + .slider:before {
   font-weight: 700;
 }
 
+.current-age-tag {
+  background: rgba(56, 189, 248, 0.15);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  color: #38bdf8;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  font-size: 0.95rem;
+}
+
+.current-age-tag strong {
+  color: #fef08a;
+}
+
 .timeline-cards-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));

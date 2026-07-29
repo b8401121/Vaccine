@@ -27,6 +27,7 @@ struct TimelineMilestone {
 #[derive(Serialize, Deserialize, Clone)]
 struct VaccineResponse {
     age_display: String,
+    child_age_detail: String,
     milestones: Vec<TimelineMilestone>,
 }
 
@@ -76,6 +77,16 @@ fn get_eligible_vaccines(
         }
     } else {
         format!("{} 個月", age_months.max(0))
+    };
+
+    let child_age_detail = if total_months <= 120 {
+        if age_years > 0 {
+            format!("{} 歲 {} 個月 (相當於 {} 個月大)", age_years, age_months, total_months)
+        } else {
+            format!("{} 個月大", age_months.max(0))
+        }
+    } else {
+        format!("{} 歲", age_years)
     };
 
     let mut milestones_out = Vec::new();
@@ -305,7 +316,6 @@ fn get_eligible_vaccines(
         },
     ];
 
-    // 如果未滿 18 歲，計算兒童時間軸
     if total_months <= 120 {
         for spec in child_specs {
             let status = if total_months >= spec.max_month {
@@ -325,7 +335,6 @@ fn get_eligible_vaccines(
         }
     }
 
-    // 如果 18 歲以上，計算成人時間軸節點
     if age_years >= 18 {
         let mut adult_routine = vec![
             VaccineItem {
@@ -405,7 +414,6 @@ fn get_eligible_vaccines(
             vaccines: adult_routine,
         });
 
-        // 成人自費與高風險
         let adult_high_risk = vec![
             VaccineItem {
                 name: "麻疹腮腺炎德國麻疹疫苗 (MMR)".into(),
@@ -418,7 +426,7 @@ fn get_eligible_vaccines(
             VaccineItem {
                 name: "B 型肝炎疫苗".into(),
                 dose_info: "共 3 劑 (按 0-1-6 月時程)".into(),
-                timing_info: "抗體陰性/高風險".into(),
+                timing_info: "抗體阴性/高風險".into(),
                 category: "HighRisk".into(),
                 description: "經檢驗為 B 肝抗體陰性者建議自費補打".into(),
                 audience: "Adults".into(),
@@ -451,6 +459,7 @@ fn get_eligible_vaccines(
 
     Ok(VaccineResponse {
         age_display,
+        child_age_detail,
         milestones: milestones_out,
     })
 }
