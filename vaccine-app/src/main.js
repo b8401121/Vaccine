@@ -49,7 +49,24 @@ document.addEventListener('DOMContentLoaded', () => {
       alert(`錯誤: ${error}`);
     }
   });
+
+  const jumpBtn = document.getElementById('jump-to-current');
+  if (jumpBtn) {
+    jumpBtn.addEventListener('click', scrollToCurrentNode);
+  }
 });
+
+function scrollToCurrentNode() {
+  const currentNode = document.querySelector('.current-node');
+  if (currentNode) {
+    currentNode.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  } else {
+    const results = document.getElementById('results');
+    if (results) {
+      results.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }
+}
 
 function displayVaccines(data) {
   const { age_display, milestones } = data;
@@ -126,4 +143,7 @@ function displayVaccines(data) {
   }
 
   resultsDiv.classList.remove('hidden');
+
+  // 自動平滑捲動到當前站點
+  setTimeout(scrollToCurrentNode, 200);
 }

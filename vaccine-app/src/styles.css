@@ -337,6 +337,17 @@ input:checked + .slider:before {
   }
 }
 
+.clickable {
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  user-select: none;
+}
+
+.clickable:hover {
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 4px 15px rgba(56, 189, 248, 0.4);
+}
+
 .status-pill {
   font-size: 0.75rem;
   font-weight: 600;
