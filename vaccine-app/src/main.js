@@ -52,64 +52,71 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function displayVaccines(data) {
-  const { age_display, groups } = data;
+  const { age_display, milestones } = data;
   const resultsDiv = document.getElementById('results');
-  const groupListDiv = document.getElementById('group-list');
+  const timelineContainer = document.getElementById('timeline-container');
   const ageBadge = document.getElementById('age-badge');
 
   ageBadge.textContent = `目前計算年齡：${age_display}`;
-  groupListDiv.innerHTML = '';
+  timelineContainer.innerHTML = '';
 
-  if (!groups || groups.length === 0) {
-    groupListDiv.innerHTML = '<p class="empty" style="color: #94a3b8; grid-column: 1 / -1;">目前無特定建議施打的疫苗。</p>';
+  if (!milestones || milestones.length === 0) {
+    timelineContainer.innerHTML = '<p class="empty" style="color: #94a3b8;">目前無特定時間軸資料。</p>';
   } else {
-    groups.forEach(g => {
-      const card = document.createElement('div');
-      card.className = 'group-card fade-in';
+    milestones.forEach(m => {
+      const node = document.createElement('div');
+      
+      let statusClass = 'next-node';
+      let nodeIcon = '⏳';
+      let statusLabel = '未來預計';
 
-      const tagClass = g.category === 'Routine' ? 'routine' : 'high-risk';
-      const tagText = g.category === 'Routine' ? '常規建議' : '高風險對象';
+      if (m.status === 'Past') {
+        statusClass = 'past-node';
+        nodeIcon = '✓';
+        statusLabel = '歷史已過期點';
+      } else if (m.status === 'Current') {
+        statusClass = 'current-node';
+        nodeIcon = '📍';
+        statusLabel = '當前推薦站點';
+      }
 
-      let dosesHtml = '';
-      g.doses.forEach(d => {
-        let statusBadge = '';
-        let statusClass = '';
-        if (d.status === 'Past') {
-          statusBadge = '✓ 歷史應完成';
-          statusClass = 'past-pill';
-        } else if (d.status === 'Current') {
-          statusBadge = '📍 當前應接種';
-          statusClass = 'current-pill';
-        } else {
-          statusBadge = '⏳ 未來預計';
-          statusClass = 'next-pill';
-        }
+      node.className = `timeline-item fade-in ${statusClass}`;
 
-        dosesHtml += `
-          <div class="dose-row ${statusClass}-row">
-            <div class="dose-left">
-              <span class="dose-title">💉 ${d.dose_info}</span>
-              <span class="timing-badge">📅 ${d.timing_info}</span>
+      let cardsHtml = '';
+      m.vaccines.forEach(v => {
+        const tagClass = v.category === 'Routine' ? 'routine' : 'high-risk';
+        const tagText = v.category === 'Routine' ? '常規建議' : '高風險對象';
+
+        cardsHtml += `
+          <div class="timeline-vaccine-card">
+            <div class="card-header">
+              <h4>${v.name}</h4>
+              <span class="tag ${tagClass}">${tagText}</span>
             </div>
-            <span class="status-pill ${statusClass}">${statusBadge}</span>
+            <div class="meta-badges">
+              <span class="dose-badge">💉 ${v.dose_info}</span>
+              <span class="timing-badge">📅 ${v.timing_info}</span>
+            </div>
+            <p class="dose-desc">${v.description}</p>
           </div>
-          <p class="dose-desc">${d.description}</p>
         `;
       });
 
-      card.innerHTML = `
-        <div class="card-header">
-          <h3>${g.name}</h3>
-          <span class="tag ${tagClass}">${tagText}</span>
+      node.innerHTML = `
+        <div class="timeline-marker">
+          <div class="marker-dot">${nodeIcon}</div>
         </div>
-        <div class="doses-container">
-          ${dosesHtml}
-        </div>
-        <div class="audience-icon" style="margin-top: 1rem;">
-          ${g.audience === 'Children' ? '🧸 幼兒/兒童疫苗' : '🧑 成人/長者疫苗'}
+        <div class="timeline-content">
+          <div class="timeline-header">
+            <h3 class="milestone-title">${m.title}</h3>
+            <span class="status-pill ${statusClass}-pill">${statusLabel}</span>
+          </div>
+          <div class="timeline-cards-grid">
+            ${cardsHtml}
+          </div>
         </div>
       `;
-      groupListDiv.appendChild(card);
+      timelineContainer.appendChild(node);
     });
   }
 

@@ -7,40 +7,34 @@ use chrono::{Datelike, Local, NaiveDate};
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Clone)]
-struct DoseItem {
-    dose_info: String,    // 例如 "第 1 劑", "第 2 劑", "追加劑 (第 5 劑)"
-    timing_info: String,  // 例如 "出生 24 小時內", "滿 2 個月", "滿 5 歲至入學前"
-    status: String,       // "Past", "Current", "Next"
+struct VaccineItem {
+    name: String,
+    dose_info: String,
+    timing_info: String,
+    category: String,
     description: String,
+    audience: String,
 }
 
 #[derive(Serialize, Deserialize, Clone)]
-struct VaccineGroup {
-    name: String,
-    category: String,     // "Routine" 或 "HighRisk"
-    audience: String,     // "Children" 或 "Adults"
-    doses: Vec<DoseItem>,
+struct TimelineMilestone {
+    title: String,
+    age_months: i32,
+    status: String, // "Past", "Current", "Next"
+    vaccines: Vec<VaccineItem>,
 }
 
 #[derive(Serialize, Deserialize, Clone)]
 struct VaccineResponse {
     age_display: String,
-    groups: Vec<VaccineGroup>,
+    milestones: Vec<TimelineMilestone>,
 }
 
-struct DoseSpec {
+struct MilestoneSpec {
+    title: &'static str,
     min_month: i32,
     max_month: i32,
-    dose_info: &'static str,
-    timing_info: &'static str,
-    description: &'static str,
-}
-
-struct GroupSpec {
-    name: &'static str,
-    category: &'static str,
-    audience: &'static str,
-    doses: Vec<DoseSpec>,
+    vaccines: Vec<VaccineItem>,
 }
 
 #[tauri::command]
@@ -84,260 +78,380 @@ fn get_eligible_vaccines(
         format!("{} 個月", age_months.max(0))
     };
 
-    let mut groups_out = Vec::new();
+    let mut milestones_out = Vec::new();
 
-    // -- 兒童疫苗群組定義 (按年齡區間動態標註狀態) --
+    // 兒童垂直時間軸節點定義
+    let child_specs = vec![
+        MilestoneSpec {
+            title: "出生 24 小時內",
+            min_month: 0,
+            max_month: 1,
+            vaccines: vec![VaccineItem {
+                name: "B 型肝炎疫苗".into(),
+                dose_info: "第 1 劑".into(),
+                timing_info: "出生 24 小時內".into(),
+                category: "Routine".into(),
+                description: "新生兒出生後儘速施打".into(),
+                audience: "Children".into(),
+            }],
+        },
+        MilestoneSpec {
+            title: "出生滿 1 個月",
+            min_month: 1,
+            max_month: 2,
+            vaccines: vec![VaccineItem {
+                name: "B 型肝炎疫苗".into(),
+                dose_info: "第 2 劑".into(),
+                timing_info: "滿 1 個月".into(),
+                category: "Routine".into(),
+                description: "基礎劑第 2 劑".into(),
+                audience: "Children".into(),
+            }],
+        },
+        MilestoneSpec {
+            title: "出生滿 2 個月",
+            min_month: 2,
+            max_month: 4,
+            vaccines: vec![
+                VaccineItem {
+                    name: "五合一疫苗 (DTaP-Hib-IPV)".into(),
+                    dose_info: "第 1 劑".into(),
+                    timing_info: "滿 2 個月".into(),
+                    category: "Routine".into(),
+                    description: "預防白喉、破傷風、百日咳、B型嗜血桿菌、小兒麻痺".into(),
+                    audience: "Children".into(),
+                },
+                VaccineItem {
+                    name: "13 價結合型肺炎鏈球菌疫苗 (PCV13)".into(),
+                    dose_info: "第 1 劑".into(),
+                    timing_info: "滿 2 個月".into(),
+                    category: "Routine".into(),
+                    description: "基礎劑第 1 劑".into(),
+                    audience: "Children".into(),
+                },
+            ],
+        },
+        MilestoneSpec {
+            title: "出生滿 4 個月",
+            min_month: 4,
+            max_month: 5,
+            vaccines: vec![
+                VaccineItem {
+                    name: "五合一疫苗 (DTaP-Hib-IPV)".into(),
+                    dose_info: "第 2 劑".into(),
+                    timing_info: "滿 4 個月".into(),
+                    category: "Routine".into(),
+                    description: "基礎劑第 2 劑".into(),
+                    audience: "Children".into(),
+                },
+                VaccineItem {
+                    name: "13 價結合型肺炎鏈球菌疫苗 (PCV13)".into(),
+                    dose_info: "第 2 劑".into(),
+                    timing_info: "滿 4 個月".into(),
+                    category: "Routine".into(),
+                    description: "基礎劑第 2 劑".into(),
+                    audience: "Children".into(),
+                },
+            ],
+        },
+        MilestoneSpec {
+            title: "出生滿 5-8 個月",
+            min_month: 5,
+            max_month: 6,
+            vaccines: vec![VaccineItem {
+                name: "卡介苗 (BCG)".into(),
+                dose_info: "單劑".into(),
+                timing_info: "滿 5-8 個月".into(),
+                category: "Routine".into(),
+                description: "建議於滿 5-8 個月施打".into(),
+                audience: "Children".into(),
+            }],
+        },
+        MilestoneSpec {
+            title: "出生滿 6 個月",
+            min_month: 6,
+            max_month: 12,
+            vaccines: vec![
+                VaccineItem {
+                    name: "五合一疫苗 (DTaP-Hib-IPV)".into(),
+                    dose_info: "第 3 劑".into(),
+                    timing_info: "滿 6 個月".into(),
+                    category: "Routine".into(),
+                    description: "基礎劑第 3 劑".into(),
+                    audience: "Children".into(),
+                },
+                VaccineItem {
+                    name: "B 型肝炎疫苗".into(),
+                    dose_info: "第 3 劑".into(),
+                    timing_info: "滿 6 個月".into(),
+                    category: "Routine".into(),
+                    description: "基礎劑第 3 劑".into(),
+                    audience: "Children".into(),
+                },
+            ],
+        },
+        MilestoneSpec {
+            title: "出生滿 12 個月",
+            min_month: 12,
+            max_month: 15,
+            vaccines: vec![
+                VaccineItem {
+                    name: "水痘疫苗 (Varicella)".into(),
+                    dose_info: "第 1 劑".into(),
+                    timing_info: "滿 12 個月".into(),
+                    category: "Routine".into(),
+                    description: "滿 12 個月施打 1 劑".into(),
+                    audience: "Children".into(),
+                },
+                VaccineItem {
+                    name: "麻疹腮腺炎德國麻疹混合疫苗 (MMR)".into(),
+                    dose_info: "第 1 劑".into(),
+                    timing_info: "滿 12 個月".into(),
+                    category: "Routine".into(),
+                    description: "滿 12 個月施打第 1 劑".into(),
+                    audience: "Children".into(),
+                },
+                VaccineItem {
+                    name: "13 價結合型肺炎鏈球菌疫苗 (PCV13)".into(),
+                    dose_info: "第 3 劑 (追加劑)".into(),
+                    timing_info: "滿 12-15 個月".into(),
+                    category: "Routine".into(),
+                    description: "滿 12-15 個月施打追加劑".into(),
+                    audience: "Children".into(),
+                },
+            ],
+        },
+        MilestoneSpec {
+            title: "出生滿 15 個月",
+            min_month: 15,
+            max_month: 18,
+            vaccines: vec![VaccineItem {
+                name: "日本腦炎疫苗 (JE)".into(),
+                dose_info: "第 1 劑".into(),
+                timing_info: "滿 15 個月".into(),
+                category: "Routine".into(),
+                description: "滿 15 個月施打第 1 劑".into(),
+                audience: "Children".into(),
+            }],
+        },
+        MilestoneSpec {
+            title: "出生滿 18 個月",
+            min_month: 18,
+            max_month: 27,
+            vaccines: vec![
+                VaccineItem {
+                    name: "五合一疫苗 (DTaP-Hib-IPV)".into(),
+                    dose_info: "第 4 劑 (追加劑)".into(),
+                    timing_info: "滿 18 個月".into(),
+                    category: "Routine".into(),
+                    description: "滿 18 個月追加第 4 劑".into(),
+                    audience: "Children".into(),
+                },
+                VaccineItem {
+                    name: "A 型肝炎疫苗 (Hep A)".into(),
+                    dose_info: "第 1 劑".into(),
+                    timing_info: "滿 18 個月".into(),
+                    category: "Routine".into(),
+                    description: "滿 18 個月施打第 1 劑".into(),
+                    audience: "Children".into(),
+                },
+            ],
+        },
+        MilestoneSpec {
+            title: "出生滿 27 個月",
+            min_month: 27,
+            max_month: 60,
+            vaccines: vec![
+                VaccineItem {
+                    name: "日本腦炎疫苗 (JE)".into(),
+                    dose_info: "第 2 劑".into(),
+                    timing_info: "滿 27 個月".into(),
+                    category: "Routine".into(),
+                    description: "與第 1 劑隔至少 12 個月".into(),
+                    audience: "Children".into(),
+                },
+                VaccineItem {
+                    name: "A 型肝炎疫苗 (Hep A)".into(),
+                    dose_info: "第 2 劑".into(),
+                    timing_info: "滿 27 個月".into(),
+                    category: "Routine".into(),
+                    description: "與第 1 劑隔至少 6 個月".into(),
+                    audience: "Children".into(),
+                },
+            ],
+        },
+        MilestoneSpec {
+            title: "滿 5 歲至國小入學前",
+            min_month: 60,
+            max_month: 85,
+            vaccines: vec![
+                VaccineItem {
+                    name: "麻疹腮腺炎德國麻疹混合疫苗 (MMR)".into(),
+                    dose_info: "第 2 劑".into(),
+                    timing_info: "滿 5 歲至國小入學前".into(),
+                    category: "Routine".into(),
+                    description: "入學前完成施打第 2 劑".into(),
+                    audience: "Children".into(),
+                },
+                VaccineItem {
+                    name: "白喉破傷風百日咳及小兒麻痺疫苗 (DTaP-IPV)".into(),
+                    dose_info: "追加劑 (第 5 劑)".into(),
+                    timing_info: "滿 5 歲至國小入學前".into(),
+                    category: "Routine".into(),
+                    description: "入學前追加 1 劑".into(),
+                    audience: "Children".into(),
+                },
+            ],
+        },
+    ];
+
+    // 如果未滿 18 歲，計算兒童時間軸
     if total_months <= 120 {
-        let child_specs = vec![
-            GroupSpec {
-                name: "B 型肝炎疫苗 (Hep B)",
-                category: "Routine",
-                audience: "Children",
-                doses: vec![
-                    DoseSpec { min_month: 0, max_month: 1, dose_info: "第 1 劑", timing_info: "出生 24 小時內", description: "出生後儘速接種" },
-                    DoseSpec { min_month: 1, max_month: 6, dose_info: "第 2 劑", timing_info: "出生滿 1 個月", description: "滿 1 個月施打" },
-                    DoseSpec { min_month: 6, max_month: 120, dose_info: "第 3 劑", timing_info: "出生滿 6 個月", description: "滿 6 個月施打" },
-                ],
-            },
-            GroupSpec {
-                name: "五合一 / 百日咳混合疫苗 (DTaP-Hib-IPV / DTaP-IPV)",
-                category: "Routine",
-                audience: "Children",
-                doses: vec![
-                    DoseSpec { min_month: 2, max_month: 4, dose_info: "第 1 劑", timing_info: "出生滿 2 個月", description: "基礎劑第 1 劑" },
-                    DoseSpec { min_month: 4, max_month: 6, dose_info: "第 2 劑", timing_info: "出生滿 4 個月", description: "基礎劑第 2 劑" },
-                    DoseSpec { min_month: 6, max_month: 18, dose_info: "第 3 劑", timing_info: "出生滿 6 個月", description: "基礎劑第 3 劑" },
-                    DoseSpec { min_month: 18, max_month: 60, dose_info: "第 4 劑 (追加劑)", timing_info: "出生滿 18 個月", description: "滿 18 個月追加" },
-                    DoseSpec { min_month: 60, max_month: 85, dose_info: "第 5 劑 (追加劑)", timing_info: "滿 5 歲至國小入學前", description: "國小入學前完成" },
-                ],
-            },
-            GroupSpec {
-                name: "13 價結合型肺炎鏈球菌疫苗 (PCV13)",
-                category: "Routine",
-                audience: "Children",
-                doses: vec![
-                    DoseSpec { min_month: 2, max_month: 4, dose_info: "第 1 劑", timing_info: "出生滿 2 個月", description: "基礎劑第 1 劑" },
-                    DoseSpec { min_month: 4, max_month: 12, dose_info: "第 2 劑", timing_info: "出生滿 4 個月", description: "基礎劑第 2 劑" },
-                    DoseSpec { min_month: 12, max_month: 120, dose_info: "第 3 劑 (追加劑)", timing_info: "出生滿 12-15 個月", description: "滿 12-15 個月追加" },
-                ],
-            },
-            GroupSpec {
-                name: "卡介苗 (BCG)",
-                category: "Routine",
-                audience: "Children",
-                doses: vec![
-                    DoseSpec { min_month: 5, max_month: 9, dose_info: "單劑", timing_info: "出生滿 5-8 個月", description: "建議滿 5-8 個月接種" },
-                ],
-            },
-            GroupSpec {
-                name: "水痘疫苗 (Varicella)",
-                category: "Routine",
-                audience: "Children",
-                doses: vec![
-                    DoseSpec { min_month: 12, max_month: 120, dose_info: "第 1 劑", timing_info: "出生滿 12 個月", description: "滿 12 個月施打" },
-                ],
-            },
-            GroupSpec {
-                name: "麻疹腮腺炎德國麻疹混合疫苗 (MMR)",
-                category: "Routine",
-                audience: "Children",
-                doses: vec![
-                    DoseSpec { min_month: 12, max_month: 60, dose_info: "第 1 劑", timing_info: "出生滿 12 個月", description: "滿 12 個月施打" },
-                    DoseSpec { min_month: 60, max_month: 85, dose_info: "第 2 劑", timing_info: "滿 5 歲至國小入學前", description: "入學前施打第 2 劑" },
-                ],
-            },
-            GroupSpec {
-                name: "日本腦炎疫苗 (JE)",
-                category: "Routine",
-                audience: "Children",
-                doses: vec![
-                    DoseSpec { min_month: 15, max_month: 27, dose_info: "第 1 劑", timing_info: "出生滿 15 個月", description: "滿 15 個月施打" },
-                    DoseSpec { min_month: 27, max_month: 120, dose_info: "第 2 劑", timing_info: "出生滿 27 個月", description: "與第 1 劑隔至少 12 個月" },
-                ],
-            },
-            GroupSpec {
-                name: "A 型肝炎疫苗 (Hep A)",
-                category: "Routine",
-                audience: "Children",
-                doses: vec![
-                    DoseSpec { min_month: 18, max_month: 27, dose_info: "第 1 劑", timing_info: "出生滿 18 個月", description: "滿 18 個月施打" },
-                    DoseSpec { min_month: 27, max_month: 120, dose_info: "第 2 劑", timing_info: "出生滿 27 個月", description: "與第 1 劑隔至少 6 個月" },
-                ],
-            },
-        ];
+        for spec in child_specs {
+            let status = if total_months >= spec.max_month {
+                "Past"
+            } else if total_months >= spec.min_month && total_months < spec.max_month {
+                "Current"
+            } else {
+                "Next"
+            };
 
-        for g in child_specs {
-            let mut doses = Vec::new();
-            for d in g.doses {
-                let status = if total_months >= d.max_month {
-                    "Past"
-                } else if total_months >= d.min_month && total_months < d.max_month {
-                    "Current"
-                } else {
-                    "Next"
-                };
-
-                doses.push(DoseItem {
-                    dose_info: d.dose_info.to_string(),
-                    timing_info: d.timing_info.to_string(),
-                    status: status.to_string(),
-                    description: d.description.to_string(),
-                });
-            }
-
-            groups_out.push(VaccineGroup {
-                name: g.name.to_string(),
-                category: g.category.to_string(),
-                audience: g.audience.to_string(),
-                doses,
+            milestones_out.push(TimelineMilestone {
+                title: spec.title.to_string(),
+                age_months: spec.min_month,
+                status: status.to_string(),
+                vaccines: spec.vaccines,
             });
         }
     }
 
-    // -- 成人疫苗群組 --
+    // 如果 18 歲以上，計算成人時間軸節點
     if age_years >= 18 {
-        // 常規系列
-        groups_out.push(VaccineGroup {
-            name: "季節性流感疫苗".to_string(),
-            category: "Routine".to_string(),
-            audience: "Adults".to_string(),
-            doses: vec![DoseItem {
-                dose_info: "每年 1 劑".to_string(),
-                timing_info: "秋冬流感季".to_string(),
-                status: "Current".to_string(),
-                description: "所有成人每年建議施打 1 劑".to_string(),
-            }],
-        });
-
-        groups_out.push(VaccineGroup {
-            name: "新冠疫苗 (COVID-19)".to_string(),
-            category: "Routine".to_string(),
-            audience: "Adults".to_string(),
-            doses: vec![DoseItem {
-                dose_info: "依政策 1-2 劑".to_string(),
-                timing_info: "定期追加".to_string(),
-                status: "Current".to_string(),
-                description: "提升對抗主流病毒株之免疫保護力".to_string(),
-            }],
-        });
-
-        groups_out.push(VaccineGroup {
-            name: "減量破傷風、白喉、百日咳疫苗 (Tdap)".to_string(),
-            category: "Routine".to_string(),
-            audience: "Adults".to_string(),
-            doses: vec![DoseItem {
-                dose_info: "第 1 劑 / 每10年追加".to_string(),
-                timing_info: "成人常規".to_string(),
-                status: "Current".to_string(),
-                description: "建議完成 1 劑 Tdap，之後每 10 年追加 1 劑".to_string(),
-            }],
-        });
+        let mut adult_routine = vec![
+            VaccineItem {
+                name: "季節性流感疫苗".into(),
+                dose_info: "每年 1 劑".into(),
+                timing_info: "秋冬流感季".into(),
+                category: "Routine".into(),
+                description: "所有成人每年建議施打 1 劑".into(),
+                audience: "Adults".into(),
+            },
+            VaccineItem {
+                name: "新冠疫苗 (COVID-19)".into(),
+                dose_info: "依政策 1-2 劑".into(),
+                timing_info: "定期追加".into(),
+                category: "Routine".into(),
+                description: "提升對抗主流病毒株之免疫保護力".into(),
+                audience: "Adults".into(),
+            },
+            VaccineItem {
+                name: "減量破傷風、白喉、百日咳疫苗 (Tdap)".into(),
+                dose_info: "第 1 劑 / 每10年追加".into(),
+                timing_info: "成人常規".into(),
+                category: "Routine".into(),
+                description: "建議完成 1 劑 Tdap，之後每 10 年追加 1 劑".into(),
+                audience: "Adults".into(),
+            },
+        ];
 
         if age_years >= 19 && age_years <= 45 {
-            groups_out.push(VaccineGroup {
-                name: "人類乳突病毒疫苗 (HPV)".to_string(),
-                category: if age_years <= 26 { "Routine".to_string() } else { "HighRisk".to_string() },
-                audience: "Adults".to_string(),
-                doses: vec![
-                    DoseItem { dose_info: "第 1 劑".to_string(), timing_info: "0 個月".to_string(), status: "Current".to_string(), description: "第 1 劑接種".to_string() },
-                    DoseItem { dose_info: "第 2 劑".to_string(), timing_info: "2 個月後".to_string(), status: "Next".to_string(), description: "與第 1 劑隔 2 個月".to_string() },
-                    DoseItem { dose_info: "第 3 劑".to_string(), timing_info: "6 個月後".to_string(), status: "Next".to_string(), description: "與第 1 劑隔 6 個月".to_string() },
-                ],
+            adult_routine.push(VaccineItem {
+                name: "人類乳突病毒疫苗 (HPV)".into(),
+                dose_info: "共 3 劑 (0-2-6 個月)".into(),
+                timing_info: if age_years <= 26 { "19-26 歲常規" } else { "27-45 歲高風險" }.into(),
+                category: if age_years <= 26 { "Routine".into() } else { "HighRisk".into() },
+                description: "預防 HPV 感染引起之相關病變".into(),
+                audience: "Adults".into(),
             });
         }
 
         if age_years >= 50 {
-            groups_out.push(VaccineGroup {
-                name: "非活性帶狀疱疹疫苗 (Shingles)".to_string(),
-                category: "Routine".to_string(),
-                audience: "Adults".to_string(),
-                doses: vec![
-                    DoseItem { dose_info: "第 1 劑".to_string(), timing_info: "50 歲以上".to_string(), status: "Current".to_string(), description: "第 1 劑接種".to_string() },
-                    DoseItem { dose_info: "第 2 劑".to_string(), timing_info: "隔 2-6 個月".to_string(), status: "Next".to_string(), description: "與第 1 劑間隔 2-6 個月".to_string() },
-                ],
+            adult_routine.push(VaccineItem {
+                name: "非活性帶狀疱疹疫苗 (Shingles)".into(),
+                dose_info: "共 2 劑 (隔 2-6 月)".into(),
+                timing_info: "50 歲以上".into(),
+                category: "Routine".into(),
+                description: "預防帶狀疱疹及疱疹後神經痛".into(),
+                audience: "Adults".into(),
             });
         }
 
         if age_years >= 65 || (age_years >= 55 && age_years <= 64) {
-            groups_out.push(VaccineGroup {
-                name: "肺炎鏈球菌疫苗 (PCV13/20 & PPV23)".to_string(),
-                category: "Routine".to_string(),
-                audience: "Adults".to_string(),
-                doses: vec![
-                    DoseItem {
-                        dose_info: "公費 1-2 劑".to_string(),
-                        timing_info: if age_years >= 65 { "65 歲以上長者" } else { "55-64 歲原住民" }.to_string(),
-                        status: "Current".to_string(),
-                        description: "建議施打 1 劑 PCV20 或 PCV13 銜接 PPV23".to_string(),
-                    },
-                ],
+            adult_routine.push(VaccineItem {
+                name: "肺炎鏈球菌疫苗 (PCV13/20 & PPV23)".into(),
+                dose_info: "公費 1-2 劑".into(),
+                timing_info: if age_years >= 65 { "65 歲以上" } else { "55-64 歲原住民" }.into(),
+                category: "Routine".into(),
+                description: "公費提供 1 劑 PCV20 或 PCV13 銜接 PPV23".into(),
+                audience: "Adults".into(),
             });
         }
 
         if age_years >= 75 || age_years >= 60 {
-            groups_out.push(VaccineGroup {
-                name: "呼吸道細胞融合病毒 (RSV) 疫苗".to_string(),
-                category: if age_years >= 75 { "Routine".to_string() } else { "HighRisk".to_string() },
-                audience: "Adults".to_string(),
-                doses: vec![DoseItem {
-                    dose_info: "1 劑".to_string(),
-                    timing_info: if age_years >= 75 { "75 歲以上" } else { "60-74 歲高風險" }.to_string(),
-                    status: "Current".to_string(),
-                    description: "預防 RSV 引發之下呼吸道疾病".to_string(),
-                }],
+            adult_routine.push(VaccineItem {
+                name: "呼吸道細胞融合病毒 (RSV) 疫苗".into(),
+                dose_info: "1 劑".into(),
+                timing_info: if age_years >= 75 { "75 歲以上" } else { "60-74 歲高風險" }.into(),
+                category: if age_years >= 75 { "Routine".into() } else { "HighRisk".into() },
+                description: "預防 RSV 引發之下呼吸道疾病".into(),
+                audience: "Adults".into(),
             });
         }
 
-        // 高風險
-        groups_out.push(VaccineGroup {
-            name: "麻疹腮腺炎德國麻疹疫苗 (MMR)".to_string(),
-            category: "HighRisk".to_string(),
-            audience: "Adults".to_string(),
-            doses: vec![DoseItem {
-                dose_info: "1-2 劑".to_string(),
-                timing_info: "1966年後出生/無抗體者".to_string(),
-                status: "Current".to_string(),
-                description: "育齡婦女、醫療人員或出國高風險對象補打".to_string(),
-            }],
+        milestones_out.push(TimelineMilestone {
+            title: format!("成人常規與建議疫苗 ({})", age_display),
+            age_months: total_months,
+            status: "Current".to_string(),
+            vaccines: adult_routine,
         });
-        groups_out.push(VaccineGroup {
-            name: "B 型肝炎疫苗".to_string(),
-            category: "HighRisk".to_string(),
-            audience: "Adults".to_string(),
-            doses: vec![DoseItem {
-                dose_info: "共 3 劑".to_string(),
-                timing_info: "按 0-1-6 月時程".to_string(),
-                status: "Current".to_string(),
-                description: "經檢驗為 B 肝抗體陰性者建議自費補打".to_string(),
-            }],
-        });
-        groups_out.push(VaccineGroup {
-            name: "A 型肝炎疫苗".to_string(),
-            category: "HighRisk".to_string(),
-            audience: "Adults".to_string(),
-            doses: vec![DoseItem {
-                dose_info: "共 2 劑".to_string(),
-                timing_info: "間隔 6-12 個月".to_string(),
-                status: "Current".to_string(),
-                description: "慢性肝病或頻繁赴流行地區者".to_string(),
-            }],
-        });
-        groups_out.push(VaccineGroup {
-            name: "M 痘 (Mpox) 疫苗".to_string(),
-            category: "HighRisk".to_string(),
-            audience: "Adults".to_string(),
-            doses: vec![DoseItem {
-                dose_info: "共 2 劑".to_string(),
-                timing_info: "間隔 4 週".to_string(),
-                status: "Current".to_string(),
-                description: "暴露前/後預防與風險行為者施打".to_string(),
-            }],
+
+        // 成人自費與高風險
+        let adult_high_risk = vec![
+            VaccineItem {
+                name: "麻疹腮腺炎德國麻疹疫苗 (MMR)".into(),
+                dose_info: "1-2 劑 (間隔28天以上)".into(),
+                timing_info: "1966年後出生/無抗體者".into(),
+                category: "HighRisk".into(),
+                description: "育齡婦女、醫療人員或出國高風險對象補打".into(),
+                audience: "Adults".into(),
+            },
+            VaccineItem {
+                name: "B 型肝炎疫苗".into(),
+                dose_info: "共 3 劑 (按 0-1-6 月時程)".into(),
+                timing_info: "抗體陰性/高風險".into(),
+                category: "HighRisk".into(),
+                description: "經檢驗為 B 肝抗體陰性者建議自費補打".into(),
+                audience: "Adults".into(),
+            },
+            VaccineItem {
+                name: "A 型肝炎疫苗".into(),
+                dose_info: "共 2 劑 (間隔6-12個月)".into(),
+                timing_info: "高風險/赴流行區".into(),
+                category: "HighRisk".into(),
+                description: "慢性肝病或頻繁赴流行地區者".into(),
+                audience: "Adults".into(),
+            },
+            VaccineItem {
+                name: "M 痘 (Mpox) 疫苗".into(),
+                dose_info: "共 2 劑 (間隔4週)".into(),
+                timing_info: "具風險行為者".into(),
+                category: "HighRisk".into(),
+                description: "暴露前/後預防與風險行為者施打".into(),
+                audience: "Adults".into(),
+            },
+        ];
+
+        milestones_out.push(TimelineMilestone {
+            title: "特定對象與高風險評估疫苗".to_string(),
+            age_months: total_months + 1,
+            status: "Current".to_string(),
+            vaccines: adult_high_risk,
         });
     }
 
     Ok(VaccineResponse {
         age_display,
-        groups: groups_out,
+        milestones: milestones_out,
     })
 }
 

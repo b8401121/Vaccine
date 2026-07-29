@@ -45,18 +45,16 @@
 
       <div id="results" class="results-container hidden">
         <div class="results-header">
-          <h2>疫苗分類檢視</h2>
+          <h2>疫苗垂直時間軸 (Timeline)</h2>
           <div id="age-badge" class="age-badge">目前年齡：--</div>
         </div>
         <div class="legend">
-          <span class="tag routine">常規建議</span>
-          <span class="tag high-risk">高風險 / 特定對象</span>
-          <span class="status-pill past-pill">✓ 歷史劑次</span>
-          <span class="status-pill current-pill">📍 當前應打</span>
-          <span class="status-pill next-pill">⏳ 未來續接</span>
+          <span class="status-pill past-pill">✓ 歷史已過站點</span>
+          <span class="status-pill current-pill">📍 當前推薦站點</span>
+          <span class="status-pill next-pill">⏳ 未來預計站點</span>
         </div>
 
-        <div id="group-list" class="group-grid"></div>
+        <div id="timeline-container" class="vertical-timeline"></div>
       </div>
     </main>
   </div>
