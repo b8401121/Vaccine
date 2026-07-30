@@ -124,9 +124,9 @@ function displayVaccines(data) {
         `;
       });
 
-      const currentAgeTag = m.status === 'Current' 
-        ? `<div class="current-age-tag">👶 當前個案年齡：<strong>${child_age_detail || age_display}</strong></div>` 
-        : '';
+      const titleDisplay = m.status === 'Current'
+        ? `${m.title} <div class="timeline-age-banner">📍 目前計算年齡：<strong>${child_age_detail || age_display}</strong></div>`
+        : m.title;
 
       node.innerHTML = `
         <div class="timeline-marker">
@@ -134,10 +134,9 @@ function displayVaccines(data) {
         </div>
         <div class="timeline-content">
           <div class="timeline-header">
-            <h3 class="milestone-title">${m.title}</h3>
+            <h3 class="milestone-title">${titleDisplay}</h3>
             <span class="status-pill ${statusClass}-pill">${statusLabel}</span>
           </div>
-          ${currentAgeTag}
           <div class="timeline-cards-grid">
             ${cardsHtml}
           </div>

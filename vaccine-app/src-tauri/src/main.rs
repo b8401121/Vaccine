@@ -408,7 +408,7 @@ fn get_eligible_vaccines(
         }
 
         milestones_out.push(TimelineMilestone {
-            title: format!("成人常規與建議疫苗 ({})", age_display),
+            title: format!("成人常規與建議疫苗 (當前年齡：{})", age_display),
             age_months: total_months,
             status: "Current".to_string(),
             vaccines: adult_routine,
@@ -426,7 +426,7 @@ fn get_eligible_vaccines(
             VaccineItem {
                 name: "B 型肝炎疫苗".into(),
                 dose_info: "共 3 劑 (按 0-1-6 月時程)".into(),
-                timing_info: "抗體阴性/高風險".into(),
+                timing_info: "抗體陰性/高風險".into(),
                 category: "HighRisk".into(),
                 description: "經檢驗為 B 肝抗體陰性者建議自費補打".into(),
                 audience: "Adults".into(),
