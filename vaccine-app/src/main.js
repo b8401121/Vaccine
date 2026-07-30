@@ -938,7 +938,7 @@ function prepareAndPrintReport(data, selectedCurrent, selectedNext) {
   }
 
   if (printCurrentVisitInfo) {
-    printCurrentVisitInfo.textContent = `${current_visit_milestone || '當前階段'} (建議日期：${current_visit_date || '即日起符合'})`;
+    printCurrentVisitInfo.textContent = `${current_visit_milestone || '當前階段'} (注射日期：${current_visit_date || '即日起符合'})`;
   }
   if (printNextVisitInfo) {
     printNextVisitInfo.textContent = `${next_visit_milestone || '定期保養追蹤'} (預估日期：${next_visit_date || '定期常規'})`;
