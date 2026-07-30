@@ -2,77 +2,143 @@
 <html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
-  <title>疫苗查詢系統</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>台灣疫苗接種建議時程查詢</title>
   <link rel="stylesheet" href="styles.css">
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
 </head>
 <body>
-  <div class="container">
-    <header>
-      <h1>疫苗查詢系統</h1>
-      <p>請輸入您的出生年月日，為您列出建議施打的疫苗</p>
+  <div class="app-container">
+    <header class="app-header">
+      <div class="logo">
+        <span class="icon">💉</span>
+        <h1>台灣預防接種指南助手</h1>
+      </div>
+      <p class="subtitle">自動試算兒童與成人公自費疫苗時程 ‧ 衛福部疾管署官方標準</p>
+      
+      <!-- 頂部頁籤分頁導覽 -->
+      <nav class="top-nav-tabs">
+        <button class="tab-btn active" data-target="tab-calculator">🗓️ 生日試算與時間軸</button>
+        <button class="tab-btn" data-target="tab-library" id="tab-btn-library">📚 疫苗大百科與完整時程庫</button>
+      </nav>
     </header>
 
-    <main>
-      <div class="card form-card">
-        <form id="dob-form">
-          <div class="toggle-container">
-            <label class="toggle">
-              <input type="checkbox" id="calendar-toggle">
-              <span class="slider"></span>
-            </label>
-            <span id="calendar-label">目前使用：西元</span>
-          </div>
+    <main class="main-content">
+      <!-- 分頁 1：生日試算與時間軸 -->
+      <section id="tab-calculator" class="tab-page active">
+        <div class="card search-card">
+          <h2>📅 請選擇出生日期與性別</h2>
+          
+          <form id="dob-form">
+            <div class="calendar-switch">
+              <span class="switch-label">曆法選取：</span>
+              <label class="toggle">
+                <input type="checkbox" id="calendar-toggle">
+                <span class="slider"></span>
+              </label>
+              <span id="calendar-type-text" class="type-text">西元年 (AD)</span>
+            </div>
 
-          <div class="input-group">
-            <div class="field">
-              <label for="year">年份</label>
-              <input type="number" id="year" required placeholder="如: 1990">
-            </div>
-            <div class="field">
-              <label for="month">月份</label>
-              <select id="month" required></select>
-            </div>
-            <div class="field">
-              <label for="day">日期</label>
-              <select id="day" required></select>
-            </div>
-            <div class="field">
-              <label>性別</label>
-              <div class="gender-radio-group">
-                <label class="radio-label">
-                  <input type="radio" name="gender" value="female" checked>
-                  <span>♀ 女性</span>
-                </label>
-                <label class="radio-label">
-                  <input type="radio" name="gender" value="male">
-                  <span>♂ 男性</span>
-                </label>
+            <div class="input-group">
+              <div class="field">
+                <label for="year">年份</label>
+                <input type="number" id="year" required placeholder="如: 1990">
+              </div>
+              <div class="field">
+                <label for="month">月份</label>
+                <select id="month" required></select>
+              </div>
+              <div class="field">
+                <label for="day">日期</label>
+                <select id="day" required></select>
+              </div>
+              <div class="field">
+                <label>性別</label>
+                <div class="gender-radio-group">
+                  <label class="radio-label">
+                    <input type="radio" name="gender" value="female" checked>
+                    <span>♀ 女性</span>
+                  </label>
+                  <label class="radio-label">
+                    <input type="radio" name="gender" value="male">
+                    <span>♂ 男性</span>
+                  </label>
+                </div>
               </div>
             </div>
+            
+            <button type="submit" class="btn-primary">查詢疫苗時程</button>
+          </form>
+        </div>
+
+        <div id="results" class="results-container hidden">
+          <div class="results-header">
+            <h3>疫苗接種時間軸</h3>
+            <div id="age-badge" class="age-badge">目前年齡：--</div>
           </div>
-          
-          <button type="submit" class="btn-primary">查詢疫苗</button>
-        </form>
-      </div>
+          <div class="legend">
+            <span class="tag routine">公費常規</span>
+            <span class="tag self-paid">自費建議</span>
+            <span class="status-pill past-pill">✓ 歷史已過站點</span>
+            <span class="status-pill current-pill clickable" id="jump-to-current" title="點擊直接跳轉至當前站點">📍 當前推薦站點 🎯</span>
+            <span class="status-pill next-pill">⏳ 未來預計站點</span>
+          </div>
 
-      <div id="results" class="results-container hidden">
-        <div class="results-header">
-          <h2>疫苗垂直時間軸 (Timeline)</h2>
-          <div id="age-badge" class="age-badge">目前年齡：--</div>
+          <!-- 垂直時間軸容器 -->
+          <div class="vertical-timeline" id="timeline-container">
+            <!-- 由 JS 動態渲染卡片與站點 -->
+          </div>
         </div>
-        <div class="legend">
-          <span class="tag routine">公費常規</span>
-          <span class="tag self-paid">自費建議</span>
-          <span class="status-pill past-pill">✓ 歷史已過站點</span>
-          <span class="status-pill current-pill clickable" id="jump-to-current" title="點擊直接跳轉至當前站點">📍 當前推薦站點 🎯</span>
-          <span class="status-pill next-pill">⏳ 未來預計站點</span>
+      </section>
+
+      <!-- 分頁 2：疫苗大百科與完整時程庫 -->
+      <section id="tab-library" class="tab-page hidden">
+        <div class="card library-header-card">
+          <div class="library-top-bar">
+            <h2>📚 全台疫苗總覽與衛教資訊大百科</h2>
+            <p>點擊任何疫苗卡片即可查閱詳細預防疾病、公自費資格、劑次與施打禁忌。</p>
+          </div>
+
+          <div class="library-filter-bar">
+            <div class="search-input-wrapper">
+              <span class="search-icon">🔍</span>
+              <input type="text" id="library-search" placeholder="搜尋疫苗名稱、別名或預防疾病 (如: HPV, 腸病毒, 帶狀疱疹)...">
+            </div>
+
+            <div class="filter-chips">
+              <button class="chip active" data-filter="all">全部疫苗</button>
+              <button class="chip" data-filter="Routine">公費常規</button>
+              <button class="chip" data-filter="SelfPaid">自費建議</button>
+              <button class="chip" data-filter="child">兒童/幼兒</button>
+              <button class="chip" data-filter="adult">成人/長者</button>
+            </div>
+          </div>
         </div>
 
-        <div id="timeline-container" class="vertical-timeline"></div>
-      </div>
+        <!-- 疫苗圖鑑網格 -->
+        <div id="library-grid" class="library-grid">
+          <!-- 由 JS 動態填入疫苗卡片 -->
+        </div>
+      </section>
     </main>
+
+    <!-- 疫苗詳細介紹與時程 Modal 彈出視窗 -->
+    <div id="vaccine-modal" class="modal-overlay hidden">
+      <div class="modal-card fade-in">
+        <button class="modal-close-btn" id="modal-close">✕</button>
+        <div id="modal-content">
+          <!-- 內容由 JS 動態生成 -->
+        </div>
+      </div>
+    </div>
+
+    <footer class="app-footer">
+      <p>資料來源：衛生福利部疾病管制署 (Taiwan CDC) 預防接種時程與自費疫苗建議指引</p>
+    </footer>
   </div>
-  <script src="main.js"></script>
+
+  <script type="module" src="main.js"></script>
 </body>
 </html>

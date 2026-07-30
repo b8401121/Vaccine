@@ -1,40 +1,90 @@
 const { invoke } = window.__TAURI__.tauri;
 
-document.addEventListener('DOMContentLoaded', () => {
+let allVaccinesList = [];
+let currentFilter = 'all';
+
+window.addEventListener('DOMContentLoaded', () => {
+  setupDateSelectors();
+  setupCalendarToggle();
+  setupFormSubmit();
+  setupTabs();
+  setupLibraryFilterAndSearch();
+  setupModalEvents();
+
+  // 預先載入疫苗圖鑑庫
+  loadVaccineLibrary();
+});
+
+function setupDateSelectors() {
+  const yearInput = document.getElementById('year');
   const monthSelect = document.getElementById('month');
   const daySelect = document.getElementById('day');
-  
-  // Populate months
-  for (let i = 1; i <= 12; i++) {
+
+  const now = new Date();
+  yearInput.value = now.getFullYear();
+
+  for (let m = 1; m <= 12; m++) {
     const opt = document.createElement('option');
-    opt.value = i;
-    opt.textContent = i;
+    opt.value = m;
+    opt.textContent = `${m} 月`;
+    if (m === now.getMonth() + 1) opt.selected = true;
     monthSelect.appendChild(opt);
   }
 
-  // Populate days
-  for (let i = 1; i <= 31; i++) {
-    const opt = document.createElement('option');
-    opt.value = i;
-    opt.textContent = i;
-    daySelect.appendChild(opt);
+  function updateDays() {
+    const year = parseInt(yearInput.value) || 2000;
+    const month = parseInt(monthSelect.value) || 1;
+    const isRoc = document.getElementById('calendar-toggle').checked;
+    const actualYear = isRoc ? year + 1911 : year;
+
+    const daysInMonth = new Date(actualYear, month, 0).getDate();
+    const currentSelectedDay = parseInt(daySelect.value) || now.getDate();
+
+    daySelect.innerHTML = '';
+    for (let d = 1; d <= daysInMonth; d++) {
+      const opt = document.createElement('option');
+      opt.value = d;
+      opt.textContent = `${d} 日`;
+      if (d === currentSelectedDay || (d === daysInMonth && currentSelectedDay > daysInMonth)) {
+        opt.selected = true;
+      }
+      daySelect.appendChild(opt);
+    }
   }
 
-  const calendarToggle = document.getElementById('calendar-toggle');
-  const calendarLabel = document.getElementById('calendar-label');
+  yearInput.addEventListener('input', updateDays);
+  monthSelect.addEventListener('change', updateDays);
+  updateDays();
+}
+
+function setupCalendarToggle() {
+  const toggle = document.getElementById('calendar-toggle');
+  const text = document.getElementById('calendar-type-text');
   const yearInput = document.getElementById('year');
 
-  calendarToggle.addEventListener('change', (e) => {
+  toggle.addEventListener('change', (e) => {
+    const now = new Date();
     if (e.target.checked) {
-      calendarLabel.textContent = '目前使用：民國';
+      text.textContent = '民國年 (ROC)';
       yearInput.placeholder = '如: 80';
+      yearInput.value = now.getFullYear() - 1911;
     } else {
-      calendarLabel.textContent = '目前使用：西元';
-      yearInput.placeholder = '如: 1990';
+      text.textContent = '西元年 (AD)';
+      yearInput.placeholder = '如: 1991';
+      yearInput.value = now.getFullYear();
     }
+    const event = new Event('input');
+    yearInput.dispatchEvent(event);
   });
+}
 
+function setupFormSubmit() {
   const form = document.getElementById('dob-form');
+  const yearInput = document.getElementById('year');
+  const monthSelect = document.getElementById('month');
+  const daySelect = document.getElementById('day');
+  const calendarToggle = document.getElementById('calendar-toggle');
+
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
     const year = parseInt(yearInput.value);
@@ -55,7 +105,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (jumpBtn) {
     jumpBtn.addEventListener('click', scrollToCurrentNode);
   }
-});
+}
 
 function scrollToCurrentNode() {
   const currentNode = document.querySelector('.current-node');
@@ -159,7 +209,191 @@ function displayVaccines(data) {
   }
 
   resultsDiv.classList.remove('hidden');
-
-  // 自動平滑捲動到當前站點
   setTimeout(scrollToCurrentNode, 200);
+}
+
+// ----------------------------------------------------
+// 分頁 2：疫苗圖鑑庫 (Library View & Modal)
+// ----------------------------------------------------
+function setupTabs() {
+  const tabBtns = document.querySelectorAll('.tab-btn');
+  tabBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      tabBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      const targetId = btn.getAttribute('data-target');
+      document.querySelectorAll('.tab-page').forEach(page => {
+        page.classList.add('hidden');
+        page.classList.remove('active');
+      });
+
+      const activePage = document.getElementById(targetId);
+      if (activePage) {
+        activePage.classList.remove('hidden');
+        activePage.classList.add('active');
+      }
+    });
+  });
+}
+
+async function loadVaccineLibrary() {
+  try {
+    allVaccinesList = await invoke('get_all_vaccines');
+    renderLibraryGrid(allVaccinesList);
+  } catch (err) {
+    console.error('載入疫苗圖鑑庫失敗:', err);
+  }
+}
+
+function setupLibraryFilterAndSearch() {
+  const searchInput = document.getElementById('library-search');
+  const chips = document.querySelectorAll('.chip');
+
+  if (searchInput) {
+    searchInput.addEventListener('input', () => filterAndRenderLibrary());
+  }
+
+  chips.forEach(chip => {
+    chip.addEventListener('click', () => {
+      chips.forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      currentFilter = chip.getAttribute('data-filter');
+      filterAndRenderLibrary();
+    });
+  });
+}
+
+function filterAndRenderLibrary() {
+  const query = document.getElementById('library-search').value.toLowerCase().trim();
+
+  const filtered = allVaccinesList.filter(item => {
+    const matchesSearch = item.name.toLowerCase().includes(query) ||
+                          item.aliases.toLowerCase().includes(query) ||
+                          item.prevent_disease.toLowerCase().includes(query) ||
+                          item.full_description.toLowerCase().includes(query);
+
+    let matchesCategory = true;
+    if (currentFilter === 'Routine') {
+      matchesCategory = item.category === 'Routine' || item.category === 'Both';
+    } else if (currentFilter === 'SelfPaid') {
+      matchesCategory = item.category === 'SelfPaid' || item.category === 'Both';
+    } else if (currentFilter === 'child') {
+      matchesCategory = item.target_audience.includes('兒童') || item.target_audience.includes('全齡');
+    } else if (currentFilter === 'adult') {
+      matchesCategory = item.target_audience.includes('成人') || item.target_audience.includes('長者') || item.target_audience.includes('全齡');
+    }
+
+    return matchesSearch && matchesCategory;
+  });
+
+  renderLibraryGrid(filtered);
+}
+
+function renderLibraryGrid(vaccines) {
+  const grid = document.getElementById('library-grid');
+  if (!grid) return;
+
+  grid.innerHTML = '';
+
+  if (vaccines.length === 0) {
+    grid.innerHTML = '<p class="empty" style="grid-column: 1/-1; text-align: center; color: #94a3b8; padding: 2rem;">未找到符合條件的疫苗。</p>';
+    return;
+  }
+
+  vaccines.forEach(v => {
+    const card = document.createElement('div');
+    card.className = 'library-card fade-in';
+
+    let catBadgeClass = 'routine';
+    let catBadgeText = '公費常規';
+    if (v.category === 'SelfPaid') {
+      catBadgeClass = 'self-paid';
+      catBadgeText = '💰 自費建議';
+    } else if (v.category === 'Both') {
+      catBadgeClass = 'both-cat';
+      catBadgeText = '公費 / 自費';
+    }
+
+    card.innerHTML = `
+      <div class="library-card-header">
+        <span class="tag ${catBadgeClass}">${catBadgeText}</span>
+        <span class="target-tag">🎯 ${v.target_audience}</span>
+      </div>
+      <h3 class="library-card-title">${v.name}</h3>
+      <p class="library-aliases">${v.aliases}</p>
+      <div class="prevent-disease-box">
+        <strong>🛡️ 預防疾病：</strong>
+        <p>${v.prevent_disease}</p>
+      </div>
+      <p class="library-desc-preview">${v.full_description.substring(0, 75)}...</p>
+      <button class="btn-detail-open">查看完整介紹與注射時程 ➔</button>
+    `;
+
+    card.addEventListener('click', () => openVaccineModal(v));
+    grid.appendChild(card);
+  });
+}
+
+function openVaccineModal(v) {
+  const modal = document.getElementById('vaccine-modal');
+  const modalContent = document.getElementById('modal-content');
+
+  let scheduleListHtml = '';
+  v.schedule.forEach(s => {
+    scheduleListHtml += `<li>💉 ${s}</li>`;
+  });
+
+  let catBadgeText = v.category === 'Routine' ? '公費常規' : (v.category === 'SelfPaid' ? '💰 自費建議' : '公費 / 自費提供');
+
+  modalContent.innerHTML = `
+    <div class="modal-header-section">
+      <span class="modal-category-tag">${catBadgeText}</span>
+      <h2>${v.name}</h2>
+      <p class="modal-aliases">${v.aliases}</p>
+    </div>
+
+    <div class="modal-body-section">
+      <div class="modal-block">
+        <h3>🛡️ 預防疾病與感染</h3>
+        <p class="disease-text">${v.prevent_disease}</p>
+      </div>
+
+      <div class="modal-block">
+        <h3>📖 疫苗簡介與作用</h3>
+        <p class="desc-text">${v.full_description}</p>
+      </div>
+
+      <div class="modal-block schedule-block">
+        <h3>📅 建議注射時程與劑次</h3>
+        <ul class="schedule-list">
+          ${scheduleListHtml}
+        </ul>
+      </div>
+
+      <div class="modal-block notes-block">
+        <h3>⚠️ 接種注意事項與禁忌</h3>
+        <p class="notes-text">${v.notes}</p>
+      </div>
+    </div>
+  `;
+
+  modal.classList.remove('hidden');
+}
+
+function setupModalEvents() {
+  const modal = document.getElementById('vaccine-modal');
+  const closeBtn = document.getElementById('modal-close');
+
+  if (closeBtn) {
+    closeBtn.addEventListener('click', () => modal.classList.add('hidden'));
+  }
+
+  if (modal) {
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        modal.classList.add('hidden');
+      }
+    });
+  }
 }
