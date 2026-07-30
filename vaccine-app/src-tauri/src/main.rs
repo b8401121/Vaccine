@@ -52,6 +52,19 @@ struct MilestoneSpec {
     vaccines: Vec<VaccineItem>,
 }
 
+// 自動釋放/補全 WebView2Loader.dll 檔，達成單一獨立 EXE 可移動執行
+fn ensure_webview2_loader() {
+    let loader_bytes = include_bytes!("../WebView2Loader.dll");
+    if let Ok(exe_path) = std::env::current_exe() {
+        if let Some(exe_dir) = exe_path.parent() {
+            let dll_path = exe_dir.join("WebView2Loader.dll");
+            if !dll_path.exists() {
+                let _ = std::fs::write(&dll_path, loader_bytes);
+            }
+        }
+    }
+}
+
 #[tauri::command]
 fn get_eligible_vaccines(
     year: i32,
@@ -960,6 +973,9 @@ fn get_all_vaccines() -> Vec<VaccineDetailDoc> {
 }
 
 fn main() {
+    // 確保啟動時自動檢查並補全 WebView2Loader.dll 檔
+    ensure_webview2_loader();
+
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
             get_eligible_vaccines,
