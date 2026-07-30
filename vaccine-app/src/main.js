@@ -200,6 +200,21 @@ function displayVaccines(data) {
         ? `<div class="standalone-current-age-banner">📍 目前計算年齡：<strong>${child_age_detail || age_display}</strong></div>`
         : '';
 
+      let coAdminHtml = '';
+      if (m.co_admin_guide && m.co_admin_guide.length > 0) {
+        coAdminHtml = `
+          <div class="co-admin-box">
+            <div class="co-admin-header">
+              <span>💉</span>
+              <strong>同次同時接種組合與施打部位指南 (Co-administration Guide)：</strong>
+            </div>
+            <ul class="co-admin-list">
+              ${m.co_admin_guide.map(guide => `<li>${guide}</li>`).join('')}
+            </ul>
+          </div>
+        `;
+      }
+
       node.innerHTML = `
         ${currentAgeBannerHtml}
         <div class="timeline-marker">
@@ -218,6 +233,7 @@ function displayVaccines(data) {
           <div class="timeline-cards-grid">
             ${cardsHtml}
           </div>
+          ${coAdminHtml}
         </div>
       `;
       timelineContainer.appendChild(node);

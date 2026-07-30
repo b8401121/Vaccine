@@ -594,6 +594,48 @@ input:checked + .slider:before {
   border: 1px solid #fecdd3;
 }
 
+/* 同時接種組合與部位指南 Co-administration Box */
+.co-admin-box {
+  margin-top: 1rem;
+  background: #f0f9ff;
+  border: 1.5px solid #bae6fd;
+  border-radius: 10px;
+  padding: 0.85rem 1.15rem;
+}
+
+.co-admin-header {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: #0369a1;
+  font-size: 0.92rem;
+  margin-bottom: 0.4rem;
+}
+
+.co-admin-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding-left: 0.2rem;
+}
+
+.co-admin-list li {
+  font-size: 0.88rem;
+  color: #334155;
+  line-height: 1.45;
+  position: relative;
+  padding-left: 1.1rem;
+}
+
+.co-admin-list li::before {
+  content: '▸';
+  position: absolute;
+  left: 0;
+  color: #0284c7;
+  font-weight: bold;
+}
+
 /* ---------------------------------------------------- */
 /* 分頁 2：疫苗大百科與圖鑑庫 (Library & Filter) */
 /* ---------------------------------------------------- */
