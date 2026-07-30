@@ -732,6 +732,7 @@ function displayTravelAdvisoryResult(data) {
 
 // ----------------------------------------------------
 // 一鍵列印 / 匯出衛教建議單 (Print Report)
+// 點擊後先彈出疫苗勾選 Modal，確認後再列印
 // ----------------------------------------------------
 function setupPrintButton() {
   const printBtn = document.getElementById('print-report-btn');
@@ -742,12 +743,121 @@ function setupPrintButton() {
       alert('請先選擇生日進行查詢，再行列印衛教建議單。');
       return;
     }
-    prepareAndPrintReport(lastQueryData);
+    openPrintSelectModal(lastQueryData);
   });
 }
 
-function prepareAndPrintReport(data) {
-  const { age_display, child_age_detail, gender_display, location_display, current_visit_date, current_visit_milestone, next_visit_date, next_visit_milestone, milestones } = data;
+// 收集所有疫苗選項，開啟勾選 Modal
+function openPrintSelectModal(data) {
+  const { milestones } = data;
+
+  // 建立疫苗列表：current + next 各自標記
+  const vaccineItems = [];
+  let currentMilestoneTitle = '';
+  let nextMilestoneTitle = '';
+
+  milestones.forEach(m => {
+    if (m.status === 'Current' && currentMilestoneTitle === '') {
+      currentMilestoneTitle = m.title;
+      m.vaccines.forEach(v => {
+        vaccineItems.push({ ...v, section: 'current', milestoneTitle: m.title });
+      });
+    } else if (m.status === 'Next' && nextMilestoneTitle === '') {
+      nextMilestoneTitle = m.title;
+      m.vaccines.forEach(v => {
+        vaccineItems.push({ ...v, section: 'next', milestoneTitle: m.title });
+      });
+    }
+  });
+
+  // 渲染勾選清單
+  const listEl = document.getElementById('print-select-list');
+  if (!listEl) return;
+
+  let html = '';
+  if (vaccineItems.filter(v => v.section === 'current').length > 0) {
+    html += `<div class="print-select-section-label">📍 當前階段：${currentMilestoneTitle}</div>`;
+    vaccineItems.filter(v => v.section === 'current').forEach((v, i) => {
+      const id = `ps-current-${i}`;
+      let catLabel = '公費常規';
+      if (v.category === 'Subsidized') catLabel = '縣市補助';
+      else if (v.category === 'SelfPaid') catLabel = '自費建議';
+      html += `
+        <label class="print-select-item" for="${id}">
+          <input type="checkbox" id="${id}" class="ps-checkbox" checked data-section="current" data-idx="${i}">
+          <span class="ps-vaccine-name">${v.name}</span>
+          <span class="ps-cat-badge ps-cat-${v.category?.toLowerCase() || 'routine'}">${catLabel}</span>
+          <span class="ps-dose-info">${v.dose_info}</span>
+        </label>`;
+    });
+  }
+
+  if (vaccineItems.filter(v => v.section === 'next').length > 0) {
+    html += `<div class="print-select-section-label" style="margin-top:0.5rem;">⏳ 下一階段：${nextMilestoneTitle}</div>`;
+    vaccineItems.filter(v => v.section === 'next').forEach((v, i) => {
+      const id = `ps-next-${i}`;
+      let catLabel = '公費常規';
+      if (v.category === 'Subsidized') catLabel = '縣市補助';
+      else if (v.category === 'SelfPaid') catLabel = '自費建議';
+      html += `
+        <label class="print-select-item" for="${id}">
+          <input type="checkbox" id="${id}" class="ps-checkbox" checked data-section="next" data-idx="${i}">
+          <span class="ps-vaccine-name">${v.name}</span>
+          <span class="ps-cat-badge ps-cat-${v.category?.toLowerCase() || 'routine'}">${catLabel}</span>
+          <span class="ps-dose-info">${v.dose_info}</span>
+        </label>`;
+    });
+  }
+
+  listEl.innerHTML = html || '<div style="padding:1rem;color:#718096;">無疫苗項目可列印。</div>';
+
+  // 更新計數
+  const updateCount = () => {
+    const total = document.querySelectorAll('.ps-checkbox:checked').length;
+    const countEl = document.getElementById('print-select-count');
+    if (countEl) countEl.textContent = `已勾選 ${total} 項`;
+  };
+  updateCount();
+  listEl.querySelectorAll('.ps-checkbox').forEach(cb => cb.addEventListener('change', updateCount));
+
+  // 全選 / 全部取消
+  document.getElementById('print-select-all-btn').onclick = () => {
+    listEl.querySelectorAll('.ps-checkbox').forEach(cb => { cb.checked = true; });
+    updateCount();
+  };
+  document.getElementById('print-deselect-all-btn').onclick = () => {
+    listEl.querySelectorAll('.ps-checkbox').forEach(cb => { cb.checked = false; });
+    updateCount();
+  };
+
+  // 確認列印
+  document.getElementById('print-select-confirm-btn').onclick = () => {
+    const checkedCurrent = [...listEl.querySelectorAll('.ps-checkbox[data-section="current"]:checked')]
+      .map(cb => vaccineItems.filter(v => v.section === 'current')[parseInt(cb.dataset.idx)]);
+    const checkedNext = [...listEl.querySelectorAll('.ps-checkbox[data-section="next"]:checked')]
+      .map(cb => vaccineItems.filter(v => v.section === 'next')[parseInt(cb.dataset.idx)]);
+
+    closePrintSelectModal();
+    prepareAndPrintReport(data, checkedCurrent, checkedNext);
+  };
+
+  // 關閉
+  document.getElementById('print-select-modal-close').onclick = closePrintSelectModal;
+  document.getElementById('print-select-cancel-btn').onclick = closePrintSelectModal;
+  document.getElementById('print-select-modal').addEventListener('click', (e) => {
+    if (e.target === document.getElementById('print-select-modal')) closePrintSelectModal();
+  }, { once: true });
+
+  document.getElementById('print-select-modal').classList.remove('hidden');
+}
+
+function closePrintSelectModal() {
+  const modal = document.getElementById('print-select-modal');
+  if (modal) modal.classList.add('hidden');
+}
+
+function prepareAndPrintReport(data, selectedCurrent, selectedNext) {
+  const { age_display, child_age_detail, gender_display, location_display, current_visit_date, current_visit_milestone, next_visit_date, next_visit_milestone } = data;
 
   const printDate = document.getElementById('print-date');
   const printMeta = document.getElementById('print-meta-info');
@@ -773,57 +883,49 @@ function prepareAndPrintReport(data) {
     printNextVisitInfo.textContent = `${next_visit_milestone || '定期保養追蹤'} (預估日期：${next_visit_date || '定期常規'})`;
   }
 
+  // 填入勾選的疫苗
   currentTbody.innerHTML = '';
   nextTbody.innerHTML = '';
 
-  let currentFound = false;
-  let nextFound = false;
-
-  milestones.forEach(m => {
-    if (m.status === 'Current') {
-      currentFound = true;
-      m.vaccines.forEach(v => {
-        const tr = document.createElement('tr');
-        let categoryLabel = '公費常規';
-        if (v.category === 'Subsidized') categoryLabel = '🏛️ 地方縣市補助';
-        else if (v.category === 'SelfPaid') categoryLabel = '💰 自費建議';
-
-        tr.innerHTML = `
-          <td style="font-weight: bold; color: #1e293b;">${v.name}</td>
-          <td>${v.dose_info}</td>
-          <td>${categoryLabel}</td>
-          <td>${v.description}</td>
-        `;
-        currentTbody.appendChild(tr);
-      });
-    } else if (m.status === 'Next' && !nextFound) {
-      nextFound = true;
-      m.vaccines.forEach(v => {
-        const tr = document.createElement('tr');
-        let categoryLabel = '公費常規';
-        if (v.category === 'Subsidized') categoryLabel = '🏛️ 地方縣市補助';
-        else if (v.category === 'SelfPaid') categoryLabel = '💰 自費建議';
-
-        tr.innerHTML = `
-          <td style="font-weight: bold; color: #1e293b;">${v.name} (${m.title})</td>
-          <td>${v.dose_info}</td>
-          <td>${categoryLabel}</td>
-          <td>${v.description}</td>
-        `;
-        nextTbody.appendChild(tr);
-      });
-    }
-  });
-
-  if (!currentFound) {
-    currentTbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #64748b;">當前年齡無特定推薦項目</td></tr>';
+  if (selectedCurrent && selectedCurrent.length > 0) {
+    selectedCurrent.forEach(v => {
+      const tr = document.createElement('tr');
+      let categoryLabel = '🏥 公費常規';
+      if (v.category === 'Subsidized') categoryLabel = '🏛️ 縣市補助';
+      else if (v.category === 'SelfPaid') categoryLabel = '💰 自費建議';
+      tr.innerHTML = `
+        <td style="font-weight:bold;">${v.name}</td>
+        <td>${v.dose_info}</td>
+        <td>${categoryLabel}</td>
+        <td>${v.description}</td>
+      `;
+      currentTbody.appendChild(tr);
+    });
+  } else {
+    currentTbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#718096;">（本次無勾選當前階段項目）</td></tr>';
   }
-  if (!nextFound) {
-    nextTbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #64748b;">無後續預計階段項目</td></tr>';
+
+  if (selectedNext && selectedNext.length > 0) {
+    selectedNext.forEach(v => {
+      const tr = document.createElement('tr');
+      let categoryLabel = '🏥 公費常規';
+      if (v.category === 'Subsidized') categoryLabel = '🏛️ 縣市補助';
+      else if (v.category === 'SelfPaid') categoryLabel = '💰 自費建議';
+      tr.innerHTML = `
+        <td style="font-weight:bold;">${v.name}</td>
+        <td>${v.dose_info}</td>
+        <td>${categoryLabel}</td>
+        <td>${v.description}</td>
+      `;
+      nextTbody.appendChild(tr);
+    });
+  } else {
+    nextTbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#718096;">（本次無勾選下一階段項目）</td></tr>';
   }
 
   window.print();
 }
+
 
 // ----------------------------------------------------
 // 手機行事曆與 QR Code 提醒功能 (Google Calendar URL Generator)

@@ -322,7 +322,35 @@
       </div>
     </div>
 
-    <!-- 專屬列印 / PDF 匯出報表範本 (Print-only Report Template) -->
+    <!-- 列印前疫苗勾選 Modal -->
+    <div id="print-select-modal" class="modal-overlay hidden">
+      <div class="modal-card fade-in" style="max-width: 560px; padding: 0; overflow: hidden;">
+        <div class="print-select-modal-header">
+          <div>
+            <div style="font-size:1.5rem; font-weight:700; color:#2D5F6A;">🖨️ 選擇本次列印疫苗</div>
+            <div style="font-size:0.82rem; color:#718096; margin-top:3px;">勾選本次實際欲衛教 / 接種的疫苗項目，單張僅印勾選的。</div>
+          </div>
+          <button class="modal-close-btn" id="print-select-modal-close" style="position:relative; top:0; right:0;">✕</button>
+        </div>
+
+        <div class="print-select-toolbar">
+          <button id="print-select-all-btn" class="print-select-tool-btn">✔ 全選</button>
+          <button id="print-deselect-all-btn" class="print-select-tool-btn">☐ 全部取消</button>
+          <span id="print-select-count" class="print-select-count-badge">已勾選 0 項</span>
+        </div>
+
+        <div id="print-select-list" class="print-select-list">
+          <!-- JS 動態填入 -->
+        </div>
+
+        <div class="print-select-footer">
+          <button id="print-select-cancel-btn" class="btn-secondary" style="flex:1;">取消</button>
+          <button id="print-select-confirm-btn" class="btn-primary" style="flex:2;">🖨️ 確認列印</button>
+        </div>
+      </div>
+    </div>
+
+
     <div id="printable-report" class="printable-report-wrapper">
       <div class="print-header">
         <div class="print-title-block">
