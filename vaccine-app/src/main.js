@@ -128,10 +128,20 @@ function scrollToCurrentNode() {
 
 function displayVaccines(data) {
   lastQueryData = data;
-  const { age_display, child_age_detail, gender_display, location_display, milestones } = data;
+  const { age_display, child_age_detail, gender_display, location_display, current_visit_date, current_visit_milestone, next_visit_date, next_visit_milestone, milestones } = data;
   const resultsDiv = document.getElementById('results');
   const timelineContainer = document.getElementById('timeline-container');
   const ageBadge = document.getElementById('age-badge');
+
+  const sumCurrentMilestone = document.getElementById('summary-current-milestone');
+  const sumCurrentDate = document.getElementById('summary-current-date');
+  const sumNextMilestone = document.getElementById('summary-next-milestone');
+  const sumNextDate = document.getElementById('summary-next-date');
+
+  if (sumCurrentMilestone) sumCurrentMilestone.textContent = `階段：${current_visit_milestone || '當前可施打'}`;
+  if (sumCurrentDate) sumCurrentDate.textContent = `📅 建議接種日期：${current_visit_date || '即日起符合'}`;
+  if (sumNextMilestone) sumNextMilestone.textContent = `階段：${next_visit_milestone || '無'}`;
+  if (sumNextDate) sumNextDate.textContent = `📅 預估接種日期：${next_visit_date || '定期保養'}`;
 
   const ageText = child_age_detail || age_display;
   const fullMetaText = `🏙️ ${location_display} | ${gender_display} | 目前計算年齡：${ageText}`;
@@ -712,10 +722,12 @@ function setupPrintButton() {
 }
 
 function prepareAndPrintReport(data) {
-  const { age_display, child_age_detail, gender_display, location_display, milestones } = data;
+  const { age_display, child_age_detail, gender_display, location_display, current_visit_date, current_visit_milestone, next_visit_date, next_visit_milestone, milestones } = data;
 
   const printDate = document.getElementById('print-date');
   const printMeta = document.getElementById('print-meta-info');
+  const printCurrentVisitInfo = document.getElementById('print-current-visit-info');
+  const printNextVisitInfo = document.getElementById('print-next-visit-info');
   const currentTbody = document.getElementById('print-current-table-body');
   const nextTbody = document.getElementById('print-next-table-body');
 
@@ -727,6 +739,13 @@ function prepareAndPrintReport(data) {
   const ageText = child_age_detail || age_display;
   if (printMeta) {
     printMeta.textContent = `居住縣市：${location_display} ｜ 性別：${gender_display} ｜ 目前計算年齡：${ageText}`;
+  }
+
+  if (printCurrentVisitInfo) {
+    printCurrentVisitInfo.textContent = `${current_visit_milestone || '當前階段'} (建議日期：${current_visit_date || '即日起符合'})`;
+  }
+  if (printNextVisitInfo) {
+    printNextVisitInfo.textContent = `${next_visit_milestone || '定期保養追蹤'} (預估日期：${next_visit_date || '定期常規'})`;
   }
 
   currentTbody.innerHTML = '';

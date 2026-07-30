@@ -311,6 +311,71 @@ input:checked + .slider:before {
   border: 1px solid #bae6fd;
 }
 
+/* 當次與下次接種日程雙卡 Summary Banner */
+.visit-schedule-banner {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.visit-schedule-card {
+  border-radius: 14px;
+  padding: 1.15rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.visit-schedule-card:hover {
+  transform: translateY(-2px);
+}
+
+.current-visit-card {
+  background: linear-gradient(135deg, #fff1f2 0%, #ffe4e6 100%);
+  border: 1.5px solid #fecdd3;
+  box-shadow: 0 4px 15px rgba(244, 63, 94, 0.12);
+}
+
+.next-visit-card {
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+  border: 1.5px solid #bae6fd;
+  box-shadow: 0 4px 15px rgba(2, 132, 199, 0.1);
+}
+
+.visit-card-badge {
+  align-self: flex-start;
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 0.25rem 0.65rem;
+  border-radius: 20px;
+}
+
+.current-badge-pill {
+  background: #f43f5e;
+  color: #ffffff;
+}
+
+.next-badge-pill {
+  background: #0284c7;
+  color: #ffffff;
+}
+
+.visit-card-milestone {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin-top: 0.2rem;
+}
+
+.visit-card-date {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #334155;
+}
+
 .legend {
   display: flex;
   align-items: center;

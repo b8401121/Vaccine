@@ -32,6 +32,10 @@ struct VaccineResponse {
     child_age_detail: String,
     gender_display: String,
     location_display: String,
+    current_visit_date: String,
+    current_visit_milestone: String,
+    next_visit_date: String,
+    next_visit_milestone: String,
     milestones: Vec<TimelineMilestone>,
 }
 
@@ -796,11 +800,39 @@ fn get_eligible_vaccines(
         });
     }
 
+    let mut current_visit_date = String::new();
+    let mut current_visit_milestone = String::new();
+    let mut next_visit_date = String::new();
+    let mut next_visit_milestone = String::new();
+
+    for m in &milestones_out {
+        if m.status == "Current" && current_visit_date.is_empty() {
+            current_visit_date = if m.target_date.is_empty() { now.format("%Y-%m-%d").to_string() } else { m.target_date.clone() };
+            current_visit_milestone = m.title.clone();
+        } else if m.status == "Next" && next_visit_date.is_empty() {
+            next_visit_date = m.target_date.clone();
+            next_visit_milestone = m.title.clone();
+        }
+    }
+
+    if current_visit_date.is_empty() {
+        current_visit_date = now.format("%Y-%m-%d").to_string();
+        current_visit_milestone = "當前階段 (即日起符合常規施打)".into();
+    }
+    if next_visit_date.is_empty() {
+        next_visit_date = "定期常規追蹤 / 每年秋冬流感季".into();
+        next_visit_milestone = "年度定期保養 / 每年秋冬".into();
+    }
+
     Ok(VaccineResponse {
         age_display,
         child_age_detail,
         gender_display,
         location_display,
+        current_visit_date,
+        current_visit_milestone,
+        next_visit_date,
+        next_visit_milestone,
         milestones: milestones_out,
     })
 }
