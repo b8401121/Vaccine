@@ -22,6 +22,7 @@
       <nav class="top-nav-tabs">
         <button class="tab-btn active" data-target="tab-calculator">🗓️ 年齡接種時間軸</button>
         <button class="tab-btn" data-target="tab-catchup">⏱️ 遲打/補打間隔試算</button>
+        <button class="tab-btn" data-target="tab-travel">✈️ 出國旅遊留學疫苗速查</button>
         <button class="tab-btn" data-target="tab-library">📚 疫苗大百科與圖鑑</button>
       </nav>
     </header>
@@ -179,6 +180,47 @@
 
         <div id="catchup-result" class="results-container hidden" style="margin-top: 1.5rem;">
           <!-- 試算結果內容由 JS 動態生成 -->
+        </div>
+      </section>
+
+      <!-- 分頁 4：出國旅遊留學疫苗速查 -->
+      <section id="tab-travel" class="tab-page hidden">
+        <div class="card search-card">
+          <h2>✈️ 出國旅遊醫學與留學疫苗速查</h2>
+          <p style="color: #94a3b8; font-size: 0.9rem; margin-bottom: 1.25rem;">
+            依據衛生福利部疾病管制署旅遊醫學與國際衛生指引，選擇目的地與出國目的，速查強制簽證疫苗與強烈建議項目。
+          </p>
+
+          <form id="travel-form">
+            <div class="input-group">
+              <div class="field">
+                <label for="travel-destination">目的地國家 / 地區</label>
+                <select id="travel-destination" required>
+                  <option value="us_eu_study" selected>🇺🇸 🇬🇧 🇨🇦 🇪🇺 歐美留學 (美國 / 英國 / 加拿大 / 歐洲)</option>
+                  <option value="japan_korea">🇯🇵 🇰🇷 日本 / 韓國 (觀光 / 留學 / 工作假期)</option>
+                  <option value="southeast_asia">🇹🇭 🇻🇳 🇮🇩 🇮🇳 東南亞 / 南亞 (泰國 / 越南 / 印尼 / 印度)</option>
+                  <option value="saudi_hajj">🇸🇦 中東 / 沙烏地阿拉伯 (麥加朝聖 Hajj/Umrah)</option>
+                  <option value="africa_latam">🇦🇫 🇧🇷 🇰🇪 非洲 / 中南美洲 (黃熱病流行區 / 旅遊)</option>
+                </select>
+              </div>
+
+              <div class="field">
+                <label for="travel-purpose">出國目的 / 身分</label>
+                <select id="travel-purpose" required>
+                  <option value="study" selected>🎓 留學 / 學校宿舍入住 (需英文體檢疫苗單)</option>
+                  <option value="travel">✈️ 觀光旅遊 / 自由行 / 假期</option>
+                  <option value="hajj">🕌 國際朝聖 / 宗教活動 (需黃皮書簽證)</option>
+                  <option value="work">💼 長期駐點 / 工作派遣</option>
+                </select>
+              </div>
+            </div>
+
+            <button type="submit" class="btn-primary">查詢出國必備與建議疫苗</button>
+          </form>
+        </div>
+
+        <div id="travel-result" class="results-container hidden" style="margin-top: 1.5rem;">
+          <!-- 查詢結果內容由 JS 動態生成 -->
         </div>
       </section>
 

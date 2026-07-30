@@ -9,6 +9,7 @@ window.addEventListener('DOMContentLoaded', () => {
   setupCalendarToggle();
   setupFormSubmit();
   setupCatchupFormSubmit();
+  setupTravelFormSubmit();
   setupTabs();
   setupLibraryFilterAndSearch();
   setupModalEvents();
@@ -523,6 +524,133 @@ function displayCatchupResult(data) {
         <div class="rule-text">${acip_rule_summary}</div>
       </div>
 
+      ${notesHtml}
+    </div>
+  `;
+}
+
+// ----------------------------------------------------
+// 分頁 4：出國旅遊醫學與留學疫苗速查 (Travel Medicine Advisory)
+// ----------------------------------------------------
+function setupTravelFormSubmit() {
+  const form = document.getElementById('travel-form');
+  if (!form) return;
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const destination = document.getElementById('travel-destination').value;
+    const purpose = document.getElementById('travel-purpose').value;
+
+    try {
+      const res = await invoke('get_travel_advisory', { destination, purpose });
+      displayTravelAdvisoryResult(res);
+    } catch (err) {
+      alert(`查詢失敗: ${err}`);
+    }
+  });
+}
+
+function displayTravelAdvisoryResult(data) {
+  const container = document.getElementById('travel-result');
+  if (!container) return;
+
+  container.classList.remove('hidden');
+
+  const { destination_name, purpose_name, mandatory_items, recommended_items, booster_items, travel_clinic_notes } = data;
+
+  let mandatoryHtml = '';
+  if (mandatory_items && mandatory_items.length > 0) {
+    mandatoryHtml = `
+      <div class="travel-section mandatory-section">
+        <h4 class="travel-section-title mandatory-title">
+          <span>🔴</span> 入境簽證 / 入學宿舍強制要求疫苗 (Mandatory Requirements)
+        </h4>
+        <div class="travel-cards-list">
+          ${mandatory_items.map(item => `
+            <div class="travel-item-card mandatory-card">
+              <div class="travel-card-top">
+                <span class="travel-badge mandatory-badge">${item.yellow_book_required ? '📜 需國際黃皮書 (Yellow Book)' : '📋 入學體檢表強制填報'}</span>
+                <h5>${item.name}</h5>
+              </div>
+              <p class="travel-timing">⏱️ 建議時程：${item.timing_note}</p>
+              <p class="travel-desc">${item.description}</p>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `;
+  }
+
+  let recommendedHtml = '';
+  if (recommended_items && recommended_items.length > 0) {
+    recommendedHtml = `
+      <div class="travel-section recommended-section">
+        <h4 class="travel-section-title recommended-title">
+          <span>🟡</span> 旅遊與留學強烈建議自費疫苗 (Highly Recommended)
+        </h4>
+        <div class="travel-cards-list">
+          ${recommended_items.map(item => `
+            <div class="travel-item-card recommended-card">
+              <div class="travel-card-top">
+                <span class="travel-badge recommended-badge">💰 自費強烈建議</span>
+                <h5>${item.name}</h5>
+              </div>
+              <p class="travel-timing">⏱️ 建議時程：${item.timing_note}</p>
+              <p class="travel-desc">${item.description}</p>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `;
+  }
+
+  let boosterHtml = '';
+  if (booster_items && booster_items.length > 0) {
+    boosterHtml = `
+      <div class="travel-section booster-section">
+        <h4 class="travel-section-title booster-title">
+          <span>🔵</span> 出國前常規追加疫苗 (Routine Booster)
+        </h4>
+        <div class="travel-cards-list">
+          ${booster_items.map(item => `
+            <div class="travel-item-card booster-card">
+              <div class="travel-card-top">
+                <span class="travel-badge booster-badge">💉 常規/定期追加</span>
+                <h5>${item.name}</h5>
+              </div>
+              <p class="travel-timing">⏱️ 建議時程：${item.timing_note}</p>
+              <p class="travel-desc">${item.description}</p>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `;
+  }
+
+  let notesHtml = '';
+  if (travel_clinic_notes && travel_clinic_notes.length > 0) {
+    notesHtml = `
+      <div class="travel-notes-box">
+        <h4 style="margin-bottom: 0.5rem; color: #fbbf24; display: flex; align-items: center; gap: 0.4rem;">
+          <span>🏥</span> 衛福部旅遊醫學門診特別提醒與藥物資訊：
+        </h4>
+        <ul style="padding-left: 1.25rem; margin: 0; color: #cbd5e1; font-size: 0.92rem; line-height: 1.6;">
+          ${travel_clinic_notes.map(note => `<li style="margin-bottom: 0.35rem;">${note}</li>`).join('')}
+        </ul>
+      </div>
+    `;
+  }
+
+  container.innerHTML = `
+    <div class="card travel-result-card fade-in">
+      <div class="travel-header-banner">
+        <h3>${destination_name}</h3>
+        <span class="travel-purpose-badge">${purpose_name}</span>
+      </div>
+
+      ${mandatoryHtml}
+      ${recommendedHtml}
+      ${boosterHtml}
       ${notesHtml}
     </div>
   `;

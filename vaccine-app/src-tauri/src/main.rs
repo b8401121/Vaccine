@@ -1203,6 +1203,234 @@ fn calculate_catch_up(
     })
 }
 
+#[derive(Serialize, Deserialize, Clone)]
+struct TravelVaccineItem {
+    name: String,
+    requirement_type: String, // "Mandatory" | "Recommended" | "Booster"
+    timing_note: String,
+    yellow_book_required: bool,
+    description: String,
+}
+
+#[derive(Serialize, Deserialize, Clone)]
+struct TravelAdvisoryResponse {
+    destination_name: String,
+    purpose_name: String,
+    mandatory_items: Vec<TravelVaccineItem>,
+    recommended_items: Vec<TravelVaccineItem>,
+    booster_items: Vec<TravelVaccineItem>,
+    travel_clinic_notes: Vec<String>,
+}
+
+#[tauri::command]
+fn get_travel_advisory(
+    destination: String,
+    purpose: String,
+) -> Result<TravelAdvisoryResponse, String> {
+    let mut mandatory_items = Vec::new();
+    let mut recommended_items = Vec::new();
+    let mut booster_items = Vec::new();
+    let mut travel_clinic_notes = Vec::new();
+
+    let dest_name = match destination.as_str() {
+        "us_eu_study" => "歐美留學 (美國 / 英國 / 加拿大 / 歐洲)",
+        "japan_korea" => "日本 / 韓國 (觀光 / 留學 / 工作假期)",
+        "southeast_asia" => "東南亞 / 南亞 (泰國 / 越南 / 印尼 / 印度 / 菲律賓)",
+        "saudi_hajj" => "中東 / 沙烏地阿拉伯 (麥加朝聖 Hajj/Umrah / 工作)",
+        "africa_latam" => "非洲 / 中南美洲 (黃熱病流行區 / 旅遊)",
+        _ => "其他國際地區",
+    }.to_string();
+
+    let purpose_name = match purpose.as_str() {
+        "study" => "🎓 留學 / 學校宿舍入住",
+        "hajj" => "🕌 國際朝聖 / 宗教活動",
+        "travel" => "✈️ 觀光旅遊 / 自由行",
+        "work" => "💼 長期駐點 / 工作派遣",
+        _ => "一般出國",
+    }.to_string();
+
+    match destination.as_str() {
+        "us_eu_study" => {
+            mandatory_items.push(TravelVaccineItem {
+                name: "腦膜炎雙球菌疫苗 (MenACWY)".into(),
+                requirement_type: "Mandatory".into(),
+                timing_note: "入住宿舍前 2-4 週完成 (保護力 5 年)".into(),
+                yellow_book_required: false,
+                description: "美國、加拿大及歐洲絕大多數大學強制要求入住學校宿舍之學生出示 1 劑 MenACWY 接種證明。".into(),
+            });
+            mandatory_items.push(TravelVaccineItem {
+                name: "麻疹腮腺炎德國麻疹疫苗 (MMR)".into(),
+                requirement_type: "Mandatory".into(),
+                timing_note: "入學前完成 2 劑紀錄或血清抗體陽性報告".into(),
+                yellow_book_required: false,
+                description: "歐美大學幾乎 100% 強制要求提交完整 2 劑 MMR 紀錄或抽血抗體證明。".into(),
+            });
+            mandatory_items.push(TravelVaccineItem {
+                name: "水痘疫苗 (Varicella)".into(),
+                requirement_type: "Mandatory".into(),
+                timing_note: "入學前完成 2 劑紀錄或抗體報告".into(),
+                yellow_book_required: false,
+                description: "學校體檢表強制要求出示 2 劑水痘紀錄或幼時確診紀錄證明。".into(),
+            });
+
+            recommended_items.push(TravelVaccineItem {
+                name: "B 型腦膜炎雙球菌疫苗 (MenB)".into(),
+                requirement_type: "Recommended".into(),
+                timing_note: "出國前按 0, 1 個月施打 2 劑".into(),
+                yellow_book_required: false,
+                description: "防範 B 型腦膜炎雙球菌，歐美名校宿舍常強烈建議追加。".into(),
+            });
+            recommended_items.push(TravelVaccineItem {
+                name: "九價人類乳突病毒疫苗 (HPV 9價)".into(),
+                requirement_type: "Recommended".into(),
+                timing_note: "按 0, 2, 6 個月完成 3 劑".into(),
+                yellow_book_required: false,
+                description: "建議出國前完成全套 3 劑，海外醫療費用昂貴自費負擔重。".into(),
+            });
+
+            booster_items.push(TravelVaccineItem {
+                name: "減量破傷風白喉百日咳疫苗 (Tdap)".into(),
+                requirement_type: "Booster".into(),
+                timing_note: "近 10 年內需追加 1 劑".into(),
+                yellow_book_required: false,
+                description: "學校體檢表通常要求提供過去 10 年內之 Tdap 追加紀錄。".into(),
+            });
+
+            travel_clinic_notes.push("建議提前 1 至 2 個月至旅遊醫學門診請醫師協助填寫並簽署國外大學英文體檢與疫苗表格 (Immunization Form)。".into());
+        }
+        "saudi_hajj" => {
+            mandatory_items.push(TravelVaccineItem {
+                name: "四價腦膜炎雙球菌疫苗 (MenACWY)".into(),
+                requirement_type: "Mandatory".into(),
+                timing_note: "入境前至少 10 天於指定門診施打".into(),
+                yellow_book_required: true,
+                description: "沙烏地阿拉伯政府強制規定：赴麥加朝聖 (Hajj / Umrah) 入境簽證必須出示黃皮書 (國際預防接種證明書)！".into(),
+            });
+
+            recommended_items.push(TravelVaccineItem {
+                name: "A 型肝炎疫苗 (HepA)".into(),
+                requirement_type: "Recommended".into(),
+                timing_note: "出發前 2 週施打第 1 劑 (隔6-12月打第2劑)".into(),
+                yellow_book_required: false,
+                description: "中東地區外食與水質風險，建議預先施打獲得保護力。".into(),
+            });
+            recommended_items.push(TravelVaccineItem {
+                name: "季節性流感疫苗".into(),
+                requirement_type: "Recommended".into(),
+                timing_note: "出發前 2 週施打 1 劑".into(),
+                yellow_book_required: false,
+                description: "朝聖數百萬上百國人潮密集聚集，極易引發呼吸道傳染病爆發。".into(),
+            });
+
+            booster_items.push(TravelVaccineItem {
+                name: "COVID-19 最新株疫苗".into(),
+                requirement_type: "Booster".into(),
+                timing_note: "依最新沙烏地入境規定提示施打".into(),
+                yellow_book_required: false,
+                description: "建議於出國前完成最新株疫苗追加。".into(),
+            });
+
+            travel_clinic_notes.push("前往沙烏地朝聖之民眾，必須至衛生福利部授權之「旅遊醫學門診」施打並領取蓋章之「國際預防接種證明書 (黃皮書)」。".into());
+        }
+        "africa_latam" => {
+            mandatory_items.push(TravelVaccineItem {
+                name: "黃熱病疫苗 (Yellow Fever)".into(),
+                requirement_type: "Mandatory".into(),
+                timing_note: "入境前至少 10 天施打 (終生有效)".into(),
+                yellow_book_required: true,
+                description: "非洲 (如肯亞、衣索比亞) 及中南美洲 (如巴西、祕魯、哥倫比亞) 特定國家強制要求黃皮書入境簽證！未出示可能被拒絕入境或隔離。".into(),
+            });
+
+            recommended_items.push(TravelVaccineItem {
+                name: "傷寒疫苗 (Typhoid Vaccine)".into(),
+                requirement_type: "Recommended".into(),
+                timing_note: "出發前 2 週施打 1 劑 (效期3年)".into(),
+                yellow_book_required: false,
+                description: "防範經由污染飲食與水質感染之傷寒桿菌。".into(),
+            });
+            recommended_items.push(TravelVaccineItem {
+                name: "A 型肝炎疫苗 (HepA)".into(),
+                requirement_type: "Recommended".into(),
+                timing_note: "出發前 2 週施打第 1 劑".into(),
+                yellow_book_required: false,
+                description: "熱帶疫區飲食衛生感染風險極高，強烈建議施打。".into(),
+            });
+            recommended_items.push(TravelVaccineItem {
+                name: "狂犬病疫苗 (Rabies)".into(),
+                requirement_type: "Recommended".into(),
+                timing_note: "按 0, 7, 21-28 天完成 3 劑暴露前預防".into(),
+                yellow_book_required: false,
+                description: "前往野生動物或犬隻狂犬病高風險熱帶叢林野外活動建議預先接種。".into(),
+            });
+
+            travel_clinic_notes.push("抗瘧疾預防藥物提示：非洲與中南美洲多數地區有瘧疾流行，建議於旅遊醫學門診由醫師開立預防用藥 (如 Malarone 莫可樂或 Doxycycline) 於出發前開始服用。".into());
+            travel_clinic_notes.push("黃熱病疫苗施打後需 10 天方能產生有效保護力並生效黃皮書。".into());
+        }
+        "southeast_asia" => {
+            recommended_items.push(TravelVaccineItem {
+                name: "A 型肝炎疫苗 (HepA)".into(),
+                requirement_type: "Recommended".into(),
+                timing_note: "出發前 2 週施打第 1 劑".into(),
+                yellow_book_required: false,
+                description: "東南亞 (泰國、越南、印尼、菲律賓) 飲食、路邊攤與冰塊水質 A 肝風險高，強烈建議自費接種。".into(),
+            });
+            recommended_items.push(TravelVaccineItem {
+                name: "傷寒疫苗 (Typhoid Vaccine)".into(),
+                requirement_type: "Recommended".into(),
+                timing_note: "出發前 2 週施打 1 劑".into(),
+                yellow_book_required: false,
+                description: "赴印度、尼泊爾、東南亞偏遠地區，防範傷寒桿菌水質污染。".into(),
+            });
+            recommended_items.push(TravelVaccineItem {
+                name: "麻疹腮腺炎德國麻疹疫苗 (MMR)".into(),
+                requirement_type: "Recommended".into(),
+                timing_note: "出發前 2 週自費補打 1 劑".into(),
+                yellow_book_required: false,
+                description: "東南亞為麻疹流行高風險區，成人抗體衰退者建議出國前補打。".into(),
+            });
+
+            travel_clinic_notes.push("防蚊提醒：東南亞地區登革熱、屈公病及寨卡病毒活躍，請準備含 DEET 或 Picaridin 成分之有效防蚊液。".into());
+            travel_clinic_notes.push("前往印度、印尼偏遠山區，建議諮詢旅遊門診評估開立抗瘧疾藥物。".into());
+        }
+        "japan_korea" => {
+            recommended_items.push(TravelVaccineItem {
+                name: "麻疹腮腺炎德國麻疹疫苗 (MMR)".into(),
+                requirement_type: "Recommended".into(),
+                timing_note: "出發前 2 週補打 1 劑".into(),
+                yellow_book_required: false,
+                description: "日本、韓國近年偶有麻疹境外與本土流行，1966年後出生之成人抗體多已衰退，建議赴日韓前補打 1 劑。".into(),
+            });
+            recommended_items.push(TravelVaccineItem {
+                name: "季節性流感疫苗".into(),
+                requirement_type: "Recommended".into(),
+                timing_note: "秋冬季節出國前 2 週施打".into(),
+                yellow_book_required: false,
+                description: "日韓秋冬流感疫情嚴峻，出國前接種可大幅降低旅途生病風險。".into(),
+            });
+
+            booster_items.push(TravelVaccineItem {
+                name: "A 型肝炎疫苗 (HepA)".into(),
+                requirement_type: "Booster".into(),
+                timing_note: "長期打工度假/留學/外食族建議打 2 劑".into(),
+                yellow_book_required: false,
+                description: "生食海鮮 (生魚片、生蠔) 頻率高者建議獲得 A 肝完整防護。".into(),
+            });
+
+            travel_clinic_notes.push("日韓醫療費用對外國旅客昂貴，建議出國前投保包含突發疾病醫療之海外旅行平安險。".into());
+        }
+        _ => {}
+    }
+
+    Ok(TravelAdvisoryResponse {
+        destination_name: dest_name,
+        purpose_name,
+        mandatory_items,
+        recommended_items,
+        booster_items,
+        travel_clinic_notes,
+    })
+}
+
 fn main() {
     ensure_webview2_loader();
 
@@ -1210,7 +1438,8 @@ fn main() {
         .invoke_handler(tauri::generate_handler![
             get_eligible_vaccines,
             get_all_vaccines,
-            calculate_catch_up
+            calculate_catch_up,
+            get_travel_advisory
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

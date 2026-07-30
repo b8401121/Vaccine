@@ -960,6 +960,128 @@ input:checked + .slider:before {
   padding: 1rem 1.25rem;
 }
 
+/* Travel Advisory Styles */
+.travel-header-banner {
+  background: linear-gradient(135deg, rgba(30, 58, 138, 0.6) 0%, rgba(15, 23, 42, 0.8) 100%);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.travel-header-banner h3 {
+  font-size: 1.35rem;
+  color: #f8fafc;
+}
+
+.travel-purpose-badge {
+  background: rgba(99, 102, 241, 0.3);
+  color: #a5b4fc;
+  border: 1px solid rgba(99, 102, 241, 0.4);
+  padding: 0.35rem 0.85rem;
+  border-radius: 20px;
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.travel-section {
+  margin-bottom: 1.5rem;
+}
+
+.travel-section-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 0.85rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.travel-section-title.mandatory-title { color: #f87171; }
+.travel-section-title.recommended-title { color: #fbbf24; }
+.travel-section-title.booster-title { color: #38bdf8; }
+
+.travel-cards-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1rem;
+}
+
+.travel-item-card {
+  background: rgba(15, 23, 42, 0.6);
+  border-radius: 12px;
+  padding: 1.15rem;
+  border: 1px solid var(--card-border);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.travel-item-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+}
+
+.travel-item-card.mandatory-card {
+  border-left: 4px solid #ef4444;
+}
+
+.travel-item-card.recommended-card {
+  border-left: 4px solid #f59e0b;
+}
+
+.travel-item-card.booster-card {
+  border-left: 4px solid #38bdf8;
+}
+
+.travel-card-top {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-bottom: 0.5rem;
+}
+
+.travel-card-top h5 {
+  font-size: 1.05rem;
+  color: #f8fafc;
+}
+
+.travel-badge {
+  align-self: flex-start;
+  font-size: 0.72rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 6px;
+  font-weight: 600;
+}
+
+.mandatory-badge { background: rgba(239, 68, 68, 0.2); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.4); }
+.recommended-badge { background: rgba(245, 158, 11, 0.2); color: #fde047; border: 1px solid rgba(245, 158, 11, 0.4); }
+.booster-badge { background: rgba(56, 189, 248, 0.2); color: #7dd3fc; border: 1px solid rgba(56, 189, 248, 0.4); }
+
+.travel-timing {
+  font-size: 0.85rem;
+  color: #38bdf8;
+  font-weight: 600;
+  margin-bottom: 0.4rem;
+}
+
+.travel-desc {
+  font-size: 0.88rem;
+  color: #cbd5e1;
+  line-height: 1.5;
+}
+
+.travel-notes-box {
+  background: rgba(245, 158, 11, 0.1);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  border-radius: 12px;
+  padding: 1.15rem;
+  margin-top: 1.5rem;
+}
+
 .fade-in {
   animation: fadeIn 0.3s ease-in-out;
 }
