@@ -15,6 +15,7 @@ window.addEventListener('DOMContentLoaded', () => {
   setupTabs();
   setupLibraryFilterAndSearch();
   setupModalEvents();
+  setupCalendarModalEvents();
 
   // 預先載入疫苗圖鑑庫
   loadVaccineLibrary();
@@ -206,8 +207,13 @@ function displayVaccines(data) {
         </div>
         <div class="timeline-content">
           <div class="timeline-header">
-            <h3 class="milestone-title">${m.title}</h3>
-            <span class="status-pill ${statusClass}-pill">${statusLabel}</span>
+            <div class="timeline-header-title">
+              <h3 class="milestone-title">${m.title}</h3>
+              <span class="status-pill ${statusClass}-pill">${statusLabel}</span>
+            </div>
+            <button class="add-cal-btn" data-title="${m.title}" data-vaccines="${m.vaccines.map(v => v.name).join('、')}">
+              📱 📅 手機掃碼行事曆
+            </button>
           </div>
           <div class="timeline-cards-grid">
             ${cardsHtml}
@@ -215,6 +221,14 @@ function displayVaccines(data) {
         </div>
       `;
       timelineContainer.appendChild(node);
+    });
+
+    document.querySelectorAll('.add-cal-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const title = btn.getAttribute('data-title');
+        const vaccines = btn.getAttribute('data-vaccines');
+        openCalendarModal(`預防接種提醒 — ${title}`, title, `建議接種疫苗：${vaccines}`);
+      });
     });
   }
 
@@ -743,4 +757,83 @@ function prepareAndPrintReport(data) {
   }
 
   window.print();
+}
+
+// ----------------------------------------------------
+// 手機行事曆與 QR Code 提醒功能 (Google Calendar URL Generator)
+// ----------------------------------------------------
+function generateGoogleCalendarUrl(title, startDateStr, details) {
+  const dateParts = startDateStr.split('-');
+  let y = dateParts[0];
+  let m = dateParts[1] ? dateParts[1].padStart(2, '0') : '01';
+  let d = dateParts[2] ? dateParts[2].padStart(2, '0') : '01';
+
+  const startFormatted = `${y}${m}${d}T090000`;
+  const endFormatted = `${y}${m}${d}T100000`;
+
+  const baseUrl = "https://www.google.com/calendar/render";
+  const params = new URLSearchParams({
+    action: "TEMPLATE",
+    text: title,
+    dates: `${startFormatted}/${endFormatted}`,
+    details: `${details}\n\n提醒：請攜帶兒童預防接種紀錄黃卡與健保卡至診所就診。`,
+    location: "預防接種醫療診所諮詢門診"
+  });
+
+  return `${baseUrl}?${params.toString()}`;
+}
+
+function openCalendarModal(title, dateDisplayStr, details) {
+  const modal = document.getElementById('calendar-modal');
+  const modalTitle = document.getElementById('cal-modal-title');
+  const modalDate = document.getElementById('cal-modal-date');
+  const directLink = document.getElementById('cal-direct-link');
+  const copyBtn = document.getElementById('cal-copy-link-btn');
+
+  const today = new Date();
+  const dateFormatted = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+
+  const calUrl = generateGoogleCalendarUrl(title, dateFormatted, details);
+
+  if (modalTitle) modalTitle.textContent = title;
+  if (modalDate) modalDate.textContent = `${dateDisplayStr}`;
+  if (directLink) directLink.href = calUrl;
+
+  const qrContainer = document.getElementById('qrcode-container');
+  if (qrContainer && window.QRCode) {
+    new window.QRCode(qrContainer, {
+      text: calUrl,
+      width: 180,
+      height: 180
+    });
+  }
+
+  if (copyBtn) {
+    copyBtn.onclick = () => {
+      navigator.clipboard.writeText(calUrl).then(() => {
+        alert('已成功複製手機行事曆提醒連結！');
+      }).catch(() => {
+        alert('行事曆連結：' + calUrl);
+      });
+    };
+  }
+
+  if (modal) modal.classList.remove('hidden');
+}
+
+function setupCalendarModalEvents() {
+  const modal = document.getElementById('calendar-modal');
+  const closeBtn = document.getElementById('calendar-modal-close');
+
+  if (closeBtn) {
+    closeBtn.addEventListener('click', () => modal.classList.add('hidden'));
+  }
+
+  if (modal) {
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        modal.classList.add('hidden');
+      }
+    });
+  }
 }
