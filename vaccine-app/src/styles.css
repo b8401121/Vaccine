@@ -1,16 +1,16 @@
 :root {
-  --bg-gradient: linear-gradient(135deg, #fff0f3 0%, #f0f4fe 45%, #fdf2f8 100%);
-  --card-bg: rgba(255, 255, 255, 0.92);
-  --card-border: rgba(244, 114, 182, 0.25);
-  --primary-color: #f43f5e;
-  --primary-hover: #e11d48;
-  --text-main: #1e293b;
-  --text-muted: #64748b;
-  --accent-color: #0284c7;
-  --routine-bg: #dcfce7;
-  --routine-color: #15803d;
-  --high-risk-bg: #ffe4e6;
-  --high-risk-color: #be123c;
+  --bg-gradient: linear-gradient(135deg, #F5F0E8 0%, #EBF0F0 50%, #F0EBF5 100%);
+  --card-bg: rgba(255, 253, 248, 0.96);
+  --card-border: rgba(180, 170, 155, 0.3);
+  --primary-color: #4A7C88;
+  --primary-hover: #3A6270;
+  --text-main: #2D3748;
+  --text-muted: #718096;
+  --accent-color: #5B728A;
+  --routine-bg: #E8F0E9;
+  --routine-color: #3D7A5A;
+  --high-risk-bg: #F0E8E6;
+  --high-risk-color: #8B4A42;
 }
 
 * {
@@ -50,14 +50,14 @@ body {
   height: 52px;
   border-radius: 12px;
   object-fit: cover;
-  box-shadow: 0 4px 20px rgba(244, 63, 94, 0.3);
+  box-shadow: 0 4px 20px rgba(74, 124, 136, 0.3);
   border: 1.5px solid rgba(244, 114, 182, 0.4);
 }
 
 .app-header h1 {
   font-size: 2.25rem;
   font-weight: 700;
-  background: linear-gradient(to right, #e11d48, #f43f5e, #6366f1);
+  background: linear-gradient(to right, #4A7C88, #5B728A, #7A6A88);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -96,10 +96,10 @@ body {
 }
 
 .tab-btn.active {
-  background: linear-gradient(135deg, #f43f5e 0%, #fb7185 100%);
+  background: linear-gradient(135deg, #4A7C88, #5B728A);
   color: white;
   border-color: transparent;
-  box-shadow: 0 4px 15px rgba(244, 63, 94, 0.35);
+  box-shadow: 0 4px 15px rgba(74, 124, 136, 0.3);
 }
 
 .tab-page {
@@ -124,7 +124,7 @@ body {
   font-size: 1.25rem;
   font-weight: 600;
   margin-bottom: 1.25rem;
-  color: #e11d48;
+  color: #3A6270;
 }
 
 .calendar-switch {
@@ -250,33 +250,33 @@ input:checked + .slider:before {
 }
 
 .radio-label:has(input:checked) {
-  background: #ffe4e6;
+  background: #F0E8E6;
   border-color: var(--primary-color);
-  color: #be123c;
-  box-shadow: 0 0 10px rgba(244, 63, 94, 0.2);
+  color: #8B4A42;
+  box-shadow: 0 0 10px rgba(74, 124, 136, 0.15);
 }
 
 .field input:focus, .field select:focus {
   border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px rgba(244, 63, 94, 0.2);
+  box-shadow: 0 0 0 3px rgba(74, 124, 136, 0.15);
 }
 
 .btn-primary {
   width: 100%;
   padding: 0.85rem;
-  background: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%);
+  background: linear-gradient(135deg, #4A7C88, #3A6270);
   color: white;
   border: none;
   border-radius: 8px;
   font-size: 1.05rem;
   font-weight: 600;
   cursor: pointer;
-  box-shadow: 0 4px 15px rgba(244, 63, 94, 0.3);
+  box-shadow: 0 4px 15px rgba(74, 124, 136, 0.3);
   transition: transform 0.1s, box-shadow 0.2s;
 }
 
 .btn-primary:hover {
-  box-shadow: 0 6px 20px rgba(244, 63, 94, 0.45);
+  box-shadow: 0 6px 20px rgba(74, 124, 136, 0.45);
   transform: translateY(-1px);
 }
 
@@ -302,13 +302,78 @@ input:checked + .slider:before {
 }
 
 .age-badge {
-  background: #e0f2fe;
-  color: #0284c7;
+  background: #E8EEF5;
+  color: #3A5A80;
   padding: 0.4rem 0.85rem;
   border-radius: 20px;
   font-size: 0.95rem;
   font-weight: 600;
-  border: 1px solid #bae6fd;
+  border: 1px solid #A8C0D8;
+}
+
+/* 當次與下次接種日程雙卡 Summary Banner */
+.visit-schedule-banner {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.visit-schedule-card {
+  border-radius: 14px;
+  padding: 1.15rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.visit-schedule-card:hover {
+  transform: translateY(-2px);
+}
+
+.current-visit-card {
+  background: linear-gradient(135deg, #F0EDE8 0%, #E8E5DF 100%);
+  border: 1.5px solid #C8BFB0;
+  box-shadow: 0 4px 15px rgba(74, 124, 136, 0.12);
+}
+
+.next-visit-card {
+  background: linear-gradient(135deg, #EBF0F0 0%, #E0EAEA 100%);
+  border: 1.5px solid #AECDD1;
+  box-shadow: 0 4px 15px rgba(91, 114, 138, 0.1);
+}
+
+.visit-card-badge {
+  align-self: flex-start;
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 0.25rem 0.65rem;
+  border-radius: 20px;
+}
+
+.current-badge-pill {
+  background: #4A7C88;
+  color: #ffffff;
+}
+
+.next-badge-pill {
+  background: #5B728A;
+  color: #ffffff;
+}
+
+.visit-card-milestone {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin-top: 0.2rem;
+}
+
+.visit-card-date {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #334155;
 }
 
 .legend {
@@ -371,23 +436,23 @@ input:checked + .slider:before {
 
 /* 當前推薦站點 Current */
 .current-node .timeline-marker {
-  border-color: #f43f5e;
+  border-color: #4A7C88;
   color: white;
-  background: #f43f5e;
-  box-shadow: 0 0 15px rgba(244, 63, 94, 0.5);
+  background: #4A7C88;
+  box-shadow: 0 0 15px rgba(74, 124, 136, 0.5);
   animation: pulse-ring 2s infinite;
 }
 
 @keyframes pulse-ring {
-  0% { box-shadow: 0 0 0 0 rgba(244, 63, 94, 0.6); }
-  70% { box-shadow: 0 0 0 12px rgba(244, 63, 94, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(244, 63, 94, 0); }
+  0% { box-shadow: 0 0 0 0 rgba(74, 124, 136, 0.6); }
+  70% { box-shadow: 0 0 0 12px rgba(74, 124, 136, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(74, 124, 136, 0); }
 }
 
 .current-node .timeline-content {
-  border: 2px solid #f43f5e;
+  border: 2px solid #4A7C88;
   background: #fff5f7;
-  box-shadow: 0 8px 30px rgba(244, 63, 94, 0.15);
+  box-shadow: 0 8px 30px rgba(74, 124, 136, 0.15);
 }
 
 .timeline-content {
@@ -404,9 +469,56 @@ input:checked + .slider:before {
   align-items: center;
   flex-wrap: wrap;
   gap: 0.75rem;
-  margin-bottom: 1rem;
+  margin-bottom: 0.75rem;
   padding-bottom: 0.6rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid #e2e8f0;
+}
+
+/* 當次/下次接種日期列 inside milestone card */
+.milestone-visit-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 0.85rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  margin-bottom: 0.85rem;
+}
+
+.current-visit-bar {
+  background: linear-gradient(90deg, #F0EDE8 0%, #E8E5DF 100%);
+  border: 1px solid #C8BFB0;
+  border-left: 4px solid #4A7C88;
+}
+
+.next-visit-bar {
+  background: linear-gradient(90deg, #EBF0F0 0%, #E0EAEA 100%);
+  border: 1px solid #AECDD1;
+  border-left: 4px solid #5B728A;
+}
+
+.visit-bar-icon {
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.visit-bar-label {
+  color: #475569;
+  font-weight: 500;
+}
+
+.visit-bar-date {
+  color: #1e293b;
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.current-visit-bar .visit-bar-date {
+  color: #8B4A42;
+}
+
+.next-visit-bar .visit-bar-date {
+  color: #3A6270;
 }
 
 .timeline-header-title {
@@ -416,9 +528,9 @@ input:checked + .slider:before {
 }
 
 .add-cal-btn {
-  background: #e0f2fe;
-  color: #0284c7;
-  border: 1px solid #bae6fd;
+  background: #E8EEF5;
+  color: #3A5A80;
+  border: 1px solid #A8C0D8;
   padding: 0.35rem 0.75rem;
   border-radius: 8px;
   font-size: 0.82rem;
@@ -428,9 +540,9 @@ input:checked + .slider:before {
 }
 
 .add-cal-btn:hover {
-  background: #0284c7;
+  background: #4A7C88;
   color: #ffffff;
-  box-shadow: 0 0 10px rgba(2, 132, 199, 0.3);
+  box-shadow: 0 0 10px rgba(74, 124, 136, 0.3);
   transform: scale(1.03);
 }
 
@@ -442,8 +554,8 @@ input:checked + .slider:before {
 }
 
 .standalone-current-age-banner {
-  background: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%);
-  border: 1.5px solid #fb7185;
+  background: linear-gradient(135deg, #4A7C88 0%, #3A6270 100%);
+  border: 1.5px solid #4A7C88;
   color: #ffffff;
   padding: 0.6rem 1.25rem;
   border-radius: 12px;
@@ -453,7 +565,7 @@ input:checked + .slider:before {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-  box-shadow: 0 4px 20px rgba(244, 63, 94, 0.3);
+  box-shadow: 0 4px 20px rgba(74, 124, 136, 0.3);
 }
 
 .standalone-current-age-banner strong {
@@ -485,9 +597,9 @@ input:checked + .slider:before {
 }
 
 .current-vaccine-card {
-  border-color: #f43f5e;
+  border-color: #4A7C88;
   background: #ffffff;
-  box-shadow: 0 4px 15px rgba(244, 63, 94, 0.1);
+  box-shadow: 0 4px 15px rgba(74, 124, 136, 0.1);
 }
 
 .card-header {
@@ -520,8 +632,8 @@ input:checked + .slider:before {
 }
 
 .due-now-badge {
-  background: #ffe4e6;
-  color: #be123c;
+  background: #F0E8E6;
+  color: #8B4A42;
   border: 1px solid #fecdd3;
   padding: 0.2rem 0.5rem;
   border-radius: 4px;
@@ -549,12 +661,12 @@ input:checked + .slider:before {
 
 .status-pill.clickable:hover {
   transform: scale(1.05);
-  box-shadow: 0 0 10px rgba(244, 63, 94, 0.3);
+  box-shadow: 0 0 10px rgba(74, 124, 136, 0.3);
 }
 
-.past-pill { background: #f1f5f9; color: #64748b; border: 1px solid #cbd5e1; }
-.current-pill { background: #ffe4e6; color: #be123c; border: 1px solid #fb7185; }
-.next-pill { background: #e0e7ff; color: #4338ca; border: 1px solid #c7d2fe; }
+.past-pill { background: #F0EDE8; color: #8A8070; border: 1px solid #C8BFB0; }
+.current-pill { background: #E0EAEB; color: #3A6270; border: 1px solid #8AB8C0; }
+.next-pill { background: #E8EEF5; color: #3A5A80; border: 1px solid #A8C0D8; }
 
 .tag {
   padding: 0.25rem 0.6rem;
@@ -565,33 +677,75 @@ input:checked + .slider:before {
 }
 
 .tag.routine {
-  background: #dcfce7;
-  color: #15803d;
-  border: 1px solid #86efac;
+  background: #E8F0E9;
+  color: #3D7A5A;
+  border: 1px solid #A8CDB5;
 }
 
 .tag.subsidized {
-  background: #e0f2fe;
-  color: #0369a1;
-  border: 1px solid #7dd3fc;
+  background: #E8EEF5;
+  color: #3A5A80;
+  border: 1px solid #A8C0D8;
 }
 
 .tag.self-paid {
-  background: #fef3c7;
-  color: #b45309;
-  border: 1px solid #fde68a;
+  background: #F5EFE0;
+  color: #7A6030;
+  border: 1px solid #D4BC88;
 }
 
 .tag.both-cat {
-  background: #f3e8ff;
-  color: #6b21a8;
-  border: 1px solid #d8b4fe;
+  background: #EEE8F5;
+  color: #5A3A7A;
+  border: 1px solid #C0A8D8;
 }
 
 .tag.high-risk {
-  background: #ffe4e6;
-  color: #be123c;
-  border: 1px solid #fecdd3;
+  background: #F0E8E6;
+  color: #8B4A42;
+  border: 1px solid #D4A8A0;
+}
+
+/* 同時接種組合與部位指南 Co-administration Box */
+.co-admin-box {
+  margin-top: 1rem;
+  background: #EFF4F5;
+  border: 1.5px solid #B8CDD1;
+  border-radius: 10px;
+  padding: 0.85rem 1.15rem;
+}
+
+.co-admin-header {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: #3A6270;
+  font-size: 0.92rem;
+  margin-bottom: 0.4rem;
+}
+
+.co-admin-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding-left: 0.2rem;
+}
+
+.co-admin-list li {
+  font-size: 0.88rem;
+  color: #334155;
+  line-height: 1.45;
+  position: relative;
+  padding-left: 1.1rem;
+}
+
+.co-admin-list li::before {
+  content: '▸';
+  position: absolute;
+  left: 0;
+  color: #0284c7;
+  font-weight: bold;
 }
 
 /* ---------------------------------------------------- */
@@ -636,7 +790,7 @@ input:checked + .slider:before {
 
 .search-input-wrapper input:focus {
   border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px rgba(244, 63, 94, 0.2);
+  box-shadow: 0 0 0 3px rgba(74, 124, 136, 0.15);
 }
 
 .filter-chips {
@@ -662,10 +816,10 @@ input:checked + .slider:before {
 }
 
 .chip.active {
-  background: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%);
+  background: linear-gradient(135deg, #4A7C88 0%, #5B728A 100%);
   color: white;
   border-color: transparent;
-  box-shadow: 0 3px 10px rgba(244, 63, 94, 0.3);
+  box-shadow: 0 3px 10px rgba(74, 124, 136, 0.25);
 }
 
 .library-grid {
@@ -689,8 +843,8 @@ input:checked + .slider:before {
 
 .library-card:hover {
   transform: translateY(-4px);
-  border-color: #fb7185;
-  box-shadow: 0 10px 25px rgba(244, 63, 94, 0.15);
+  border-color: #4A7C88;
+  box-shadow: 0 10px 25px rgba(74, 124, 136, 0.12);
 }
 
 .library-card-header {
@@ -745,9 +899,9 @@ input:checked + .slider:before {
 }
 
 .btn-detail-open {
-  background: #ffe4e6;
-  border: 1px solid #fecdd3;
-  color: #be123c;
+  background: #E8EEF5;
+  border: 1px solid #A8C0D8;
+  color: #3A5A80;
   padding: 0.5rem;
   border-radius: 8px;
   font-size: 0.85rem;
@@ -758,9 +912,16 @@ input:checked + .slider:before {
 }
 
 .library-card:hover .btn-detail-open {
-  background: #f43f5e;
-  color: white;
-  border-color: transparent;
+  background: #E8EEF5;
+  border: 1px solid #A8C0D8;
+  color: #3A5A80;
+  padding: 0.5rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
 }
 
 /* ---------------------------------------------------- */
@@ -783,8 +944,8 @@ input:checked + .slider:before {
 }
 
 .modal-card {
-  background: #ffffff;
-  border: 1.5px solid #fecdd3;
+  background: #FDFAF6;
+  border: 1.5px solid #D4C9B8;
   border-radius: 20px;
   width: 100%;
   max-width: 650px;
@@ -792,7 +953,7 @@ input:checked + .slider:before {
   overflow-y: auto;
   padding: 2rem;
   position: relative;
-  box-shadow: 0 20px 50px rgba(244, 63, 94, 0.2);
+  box-shadow: 0 20px 50px rgba(74, 124, 136, 0.15);
 }
 
 .modal-close-btn {
@@ -823,8 +984,8 @@ input:checked + .slider:before {
 
 .modal-category-tag {
   display: inline-block;
-  background: #ffe4e6;
-  color: #be123c;
+  background: #F0E8E6;
+  color: #8B4A42;
   padding: 0.25rem 0.75rem;
   border-radius: 12px;
   font-size: 0.85rem;
@@ -881,10 +1042,10 @@ input:checked + .slider:before {
 .schedule-list li {
   font-size: 0.95rem;
   color: #1e293b;
-  background: #ffffff;
+  background: #F5F0E8;
   padding: 0.5rem 0.75rem;
   border-radius: 8px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid #D8D0C0;
 }
 
 .notes-block {
@@ -927,14 +1088,14 @@ input:checked + .slider:before {
   font-size: 0.75rem;
   padding: 0.2rem 0.6rem;
   border-radius: 6px;
-  background: #ffe4e6;
-  color: #be123c;
+  background: #F0E8E6;
+  color: #8B4A42;
   border: 1px solid #fecdd3;
 }
 
 .catchup-date-banner {
-  background: linear-gradient(135deg, #fff1f2 0%, #ffe4e6 100%);
-  border: 1.5px solid #fecdd3;
+  background: linear-gradient(135deg, #F0EDE8 0%, #E8E5DF 100%);
+  border: 1.5px solid #C8BFB0;
   border-radius: 12px;
   padding: 1.5rem;
   text-align: center;
@@ -950,7 +1111,7 @@ input:checked + .slider:before {
 .catchup-date-banner .date-value {
   font-size: 1.8rem;
   font-weight: 700;
-  color: #e11d48;
+  color: #4A7C88;
   letter-spacing: 0.05em;
   margin-bottom: 0.75rem;
 }
@@ -964,15 +1125,15 @@ input:checked + .slider:before {
 }
 
 .catchup-status-badge.ready {
-  background: #dcfce7;
-  color: #15803d;
-  border: 1px solid #86efac;
+  background: #E8F0E9;
+  color: #3D7A5A;
+  border: 1px solid #A8CDB5;
 }
 
 .catchup-status-badge.waiting {
-  background: #fef3c7;
-  color: #b45309;
-  border: 1px solid #fde68a;
+  background: #F5EFE0;
+  color: #7A6030;
+  border: 1px solid #D4BC88;
 }
 
 .catchup-rule-box {
@@ -1004,8 +1165,8 @@ input:checked + .slider:before {
 
 /* Travel Advisory Styles */
 .travel-header-banner {
-  background: linear-gradient(135deg, #fff1f2 0%, #ffe4e6 100%);
-  border: 1px solid #fecdd3;
+  background: linear-gradient(135deg, #EBF0F0 0%, #E0EAEA 100%);
+  border: 1px solid #AECDD1;
   border-radius: 12px;
   padding: 1.25rem 1.5rem;
   margin-bottom: 1.5rem;
@@ -1018,7 +1179,7 @@ input:checked + .slider:before {
 
 .travel-header-banner h3 {
   font-size: 1.35rem;
-  color: #be123c;
+  color: #2D3748;
 }
 
 .travel-purpose-badge {
@@ -1044,9 +1205,9 @@ input:checked + .slider:before {
   gap: 0.5rem;
 }
 
-.travel-section-title.mandatory-title { color: #dc2626; }
-.travel-section-title.recommended-title { color: #d97706; }
-.travel-section-title.booster-title { color: #0284c7; }
+.travel-section-title.mandatory-title { color: #8B4A42; }
+.travel-section-title.recommended-title { color: #7A6030; }
+.travel-section-title.booster-title { color: #3A5A80; }
 
 .travel-cards-list {
   display: grid;
@@ -1100,9 +1261,9 @@ input:checked + .slider:before {
   font-weight: 600;
 }
 
-.mandatory-badge { background: #ffe4e6; color: #be123c; border: 1px solid #fecdd3; }
-.recommended-badge { background: #fef3c7; color: #b45309; border: 1px solid #fde68a; }
-.booster-badge { background: #e0f2fe; color: #0369a1; border: 1px solid #7dd3fc; }
+.mandatory-badge { background: #F0E8E6; color: #8B4A42; border: 1px solid #D4A8A0; }
+.recommended-badge { background: #F5EFE0; color: #7A6030; border: 1px solid #D4BC88; }
+.booster-badge { background: #e0f2fe; color: #3A6270; border: 1px solid #7dd3fc; }
 
 .travel-timing {
   font-size: 0.85rem;
@@ -1126,7 +1287,7 @@ input:checked + .slider:before {
 }
 
 .travel-notes-box h4 {
-  color: #be123c;
+  color: #8B4A42;
 }
 
 .travel-notes-box li {
@@ -1147,18 +1308,18 @@ input:checked + .slider:before {
 .print-btn {
   font-size: 0.9rem;
   padding: 0.5rem 1rem;
-  background: #e0f2fe;
-  color: #0284c7;
-  border: 1px solid #7dd3fc;
+  background: #E8EEF5;
+  color: #3A5A80;
+  border: 1px solid #A8C0D8;
   border-radius: 10px;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .print-btn:hover {
-  background: #0284c7;
+  background: #4A7C88;
   color: #ffffff;
-  box-shadow: 0 0 12px rgba(2, 132, 199, 0.3);
+  box-shadow: 0 0 12px rgba(74, 124, 136, 0.3);
 }
 
 @media print {

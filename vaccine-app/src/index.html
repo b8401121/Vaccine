@@ -114,6 +114,21 @@
               🖨️ 一鍵列印 / 匯出衛教單
             </button>
           </div>
+
+          <!-- 當次與下次接種日程雙卡 Summary Banner -->
+          <div class="visit-schedule-banner">
+            <div class="visit-schedule-card current-visit-card">
+              <div class="visit-card-badge current-badge-pill">📍 當次建議接種 (Current Visit)</div>
+              <div class="visit-card-milestone" id="summary-current-milestone">階段：--</div>
+              <div class="visit-card-date" id="summary-current-date">📅 建議接種日期：--</div>
+            </div>
+            <div class="visit-schedule-card next-visit-card">
+              <div class="visit-card-badge next-badge-pill">📆 下次預計接種 (Next Visit)</div>
+              <div class="visit-card-milestone" id="summary-next-milestone">階段：--</div>
+              <div class="visit-card-date" id="summary-next-date">📅 預估接種日期：--</div>
+            </div>
+          </div>
+
           <div class="legend">
             <span class="tag routine">公費常規</span>
             <span class="tag subsidized">🏛️ 地方縣市補助</span>
@@ -322,6 +337,12 @@
 
       <div class="print-meta-grid">
         <div class="print-meta-item"><strong>基本資料：</strong><span id="print-meta-info">--</span></div>
+        <div class="print-meta-item" style="margin-top: 0.35rem; color: #be123c;">
+          <strong>📍 當次建議接種階段與日期：</strong><span id="print-current-visit-info">--</span>
+        </div>
+        <div class="print-meta-item" style="margin-top: 0.2rem; color: #0369a1;">
+          <strong>📆 下次預計接種階段與日期：</strong><span id="print-next-visit-info">--</span>
+        </div>
       </div>
 
       <div class="print-content-block">

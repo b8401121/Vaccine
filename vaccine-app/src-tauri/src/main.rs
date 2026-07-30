@@ -23,6 +23,7 @@ struct TimelineMilestone {
     target_date: String,
     status: String, // "Past", "Current", "Next"
     vaccines: Vec<VaccineItem>,
+    co_admin_guide: Vec<String>,
 }
 
 #[derive(Serialize, Deserialize, Clone)]
@@ -31,6 +32,10 @@ struct VaccineResponse {
     child_age_detail: String,
     gender_display: String,
     location_display: String,
+    current_visit_date: String,
+    current_visit_milestone: String,
+    next_visit_date: String,
+    next_visit_milestone: String,
     milestones: Vec<TimelineMilestone>,
 }
 
@@ -52,6 +57,86 @@ struct MilestoneSpec {
     min_month: i32,
     max_month: i32,
     vaccines: Vec<VaccineItem>,
+}
+
+fn get_co_admin_guide(min_month: i32, is_adult: bool, is_travel: bool) -> Vec<String> {
+    if is_travel {
+        return vec![
+            "黃皮書國際疫苗：黃熱病疫苗 (活性) 與腦膜炎雙球菌疫苗 (不活化) 可同天於旅遊門診不同手臂/大腿部位施打。".into(),
+            "⚠️ 活性疫苗同次規則：黃熱病疫苗為活性減毒疫苗，若與 MMR 或水痘未在同一天施打，需間隔至少 28 天 (4 週) 以上。".into(),
+            "抗瘧疾預防藥物 (Malarone / Doxycycline / Mefloquine) 經口服吸收，與針劑疫苗無相斥性，按醫囑時間服用即可。".into(),
+        ];
+    }
+
+    if is_adult {
+        return vec![
+            "💉 成人同次最佳組合：流感疫苗 (每年1劑) 可與 COVID-19 最新株、PCV20 肺炎鏈球菌疫苗或 Tdap 破傷風疫苗，於『同一次就診分左右手臂』完成施打！".into(),
+            "✅ 衛福部與 ACIP 指引：所有成人不活化疫苗 (流感、COVID-19、PCV20、Tdap、HPV、Shingrix、A肝) 均可於同次分開左右部位施打，無間隔日數限制。".into(),
+        ];
+    }
+
+    match min_month {
+        0 => vec![
+            "💉 施打部位：B型肝炎第1劑 (不活化) 於大腿前外側施打。".into(),
+            "💡 高風險提醒：母親若為 B 肝帶原者，新生兒需於 24 小時內於另一大腿部位加打 1 劑 B 肝免疫球蛋白 (HBIG)。".into(),
+        ],
+        1 => vec![
+            "💉 單獨施打 B 型肝炎第2劑 (不活化)。若 delay 可於滿 2 個月時與五合一疫苗於不同大腿部位同次補打。".into(),
+        ],
+        2 => vec![
+            "💉 左大腿：五合一疫苗 第 1 劑 (不活化)".into(),
+            "💉 右大腿：13 價肺炎鏈球菌 PCV13 第 1 劑 (不活化)".into(),
+            "🍼 口服：輪狀病毒疫苗 第 1 劑 (口服減毒，於針劑施打前後口服)".into(),
+            "💡 自費腸病毒 EV71：可同次施打於另一大腿部位 (與同腿針劑間隔至少 2.5cm)，或擇日施打。".into(),
+        ],
+        4 => vec![
+            "💉 左大腿：五合一疫苗 第 2 劑 (不活化)".into(),
+            "💉 右大腿：13 價肺炎鏈球菌 PCV13 第 2 劑 (不活化)".into(),
+            "🍼 口服：輪狀病毒疫苗 第 2 劑 (口服給藥)".into(),
+            "💡 自費腸病毒 EV71：可同次施打或擇日完成。".into(),
+        ],
+        5 => vec![
+            "💉 卡介苗 (BCG) 為活性減毒皮內注射疫苗。".into(),
+            "⚠️ 活性疫苗叮嚀：若與其他活性減毒針劑 (如水痘/MMR) 未於同天施打，必須間隔至少 28 天 (4 週) 以上。".into(),
+        ],
+        6 => vec![
+            "💉 左大腿：五合一疫苗 第 3 劑 (不活化)".into(),
+            "💉 右大腿：B 型肝炎疫苗 第 3 劑 (不活化)".into(),
+            "🍂 秋冬季節：滿6個月以上可同次追加『季節性流感疫苗』於另一部位。".into(),
+            "🍼 口服：輪狀病毒疫苗第 3 劑 (若選用 3 劑型廠牌)。".into(),
+        ],
+        12 => vec![
+            "⚠️ 活性減毒疫苗核心間隔金律：水痘疫苗與 MMR 疫苗均為活性減毒疫苗！".into(),
+            "💉 方案 A (最佳同次完成)：同一次門診完成：左手臂/大腿『MMR 第1劑』 + 右手臂/大腿『水痘 第1劑』 + 大腿『PCV13 追加劑』。".into(),
+            "⏰ 方案 B (若不同天打)：若『水痘』與『MMR』未在同一天施打，則兩者必須【間隔至少 28 天 (4 週)】以上方可施打另一支！".into(),
+            "💡 自費 A 肝疫苗：為不活化疫苗，可於同次施打於不同部位或間隔任意時間。".into(),
+        ],
+        15 => vec![
+            "💉 左手臂/大腿：日本腦炎疫苗 第 1 劑 (活性減毒)".into(),
+            "💡 活性疫苗叮嚀：活性日本腦炎疫苗可與 A 肝疫苗 (不活化) 同次施打；若與滿1歲水痘/MMR 未同天打，需間隔至少 28 天。".into(),
+        ],
+        18 => vec![
+            "💉 左大腿/手臂：五合一疫苗 第 4 劑追加劑 (不活化)".into(),
+            "💉 右大腿/手臂：A 型肝炎疫苗 第 1 劑 (公費不活化)".into(),
+            "✅ 不活化疫苗組合：可完全於同一次就診分開左右肢體接種完成！".into(),
+        ],
+        27 => vec![
+            "💉 左手臂：日本腦炎疫苗 第 2 劑 (活性減毒，與第1劑隔12個月)".into(),
+            "💉 右手臂：A 型肝炎疫苗 第 2 劑 (不活化，與第1劑隔6個月)".into(),
+            "✅ 可同次施打於左右手臂或大腿部位。".into(),
+        ],
+        48 => vec![
+            "💡 自費追加水痘第 2 劑：小兒感染症醫學會建議於 4-6 歲自費追加第 2 劑。若與 MMR 第 2 劑同時打可分左右臂；不同天打需間隔至少 28 天。".into(),
+        ],
+        60 => vec![
+            "💉 左上臂三角肌：四合一疫苗 DTaP-IPV 追加劑 (不活化)".into(),
+            "💉 右上臂三角肌：MMR 混合疫苗 第 2 劑 (活性減毒)".into(),
+            "✅ 國小入學前兩大重要疫苗，建議於幼兒園大班升國小暑假同次於左右上臂完成施打！".into(),
+        ],
+        _ => vec![
+            "💉 凡不活化疫苗均可於同一次就診在不同部位同時接種；活性減毒疫苗若不同天打需間隔 28 天以上。".into(),
+        ],
+    }
 }
 
 fn ensure_webview2_loader() {
@@ -525,12 +610,14 @@ fn get_eligible_vaccines(
             let target_day = dob.day().min(28);
             let target_date_str = format!("{:04}-{:02}-{:02}", target_year, target_month, target_day);
 
+            let co_guide = get_co_admin_guide(spec.min_month, false, false);
             milestones_out.push(TimelineMilestone {
                 title: spec.title.to_string(),
                 age_months: spec.min_month,
                 target_date: target_date_str,
                 status: status.to_string(),
                 vaccines: spec.vaccines,
+                co_admin_guide: co_guide,
             });
         }
     }
@@ -629,12 +716,14 @@ fn get_eligible_vaccines(
             });
         }
 
+        let adult_co_guide = get_co_admin_guide(total_months, true, false);
         milestones_out.push(TimelineMilestone {
             title: format!("成人常規與自費建議疫苗 ({}, {}, {})", age_display, gender_display, location_display),
             age_months: total_months,
             target_date: now.format("%Y-%m-%d").to_string(),
             status: "Current".to_string(),
             vaccines: adult_routine,
+            co_admin_guide: adult_co_guide,
         });
 
         let travel_specs = vec![
@@ -700,13 +789,42 @@ fn get_eligible_vaccines(
             },
         ];
 
+        let travel_co_guide = get_co_admin_guide(total_months + 1, false, true);
         milestones_out.push(TimelineMilestone {
             title: "旅遊醫學與特定自費疫苗 (CDC 清單)".to_string(),
             age_months: total_months + 1,
             target_date: now.format("%Y-%m-%d").to_string(),
             status: "Current".to_string(),
             vaccines: travel_specs,
+            co_admin_guide: travel_co_guide,
         });
+    }
+
+    let mut current_visit_date = String::new();
+    let mut current_visit_milestone = String::new();
+    let mut next_visit_date = String::new();
+    let mut next_visit_milestone = String::new();
+
+    let today_str = now.format("%Y-%m-%d").to_string();
+
+    for m in &milestones_out {
+        if m.status == "Current" && current_visit_date.is_empty() {
+            // 當次 → 一律使用程式執行當天日期
+            current_visit_date = today_str.clone();
+            current_visit_milestone = m.title.clone();
+        } else if m.status == "Next" && next_visit_date.is_empty() {
+            next_visit_date = m.target_date.clone();
+            next_visit_milestone = m.title.clone();
+        }
+    }
+
+    if current_visit_date.is_empty() {
+        current_visit_date = today_str.clone();
+        current_visit_milestone = "當前階段 (即日起符合常規施打)".into();
+    }
+    if next_visit_date.is_empty() {
+        next_visit_date = "定期常規追蹤 / 每年秋冬流感季".into();
+        next_visit_milestone = "年度定期保養 / 每年秋冬".into();
     }
 
     Ok(VaccineResponse {
@@ -714,6 +832,10 @@ fn get_eligible_vaccines(
         child_age_detail,
         gender_display,
         location_display,
+        current_visit_date,
+        current_visit_milestone,
+        next_visit_date,
+        next_visit_milestone,
         milestones: milestones_out,
     })
 }
