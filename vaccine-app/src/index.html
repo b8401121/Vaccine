@@ -345,38 +345,52 @@
         </div>
       </div>
 
-      <div class="print-content-block">
-        <h3 class="print-section-heading">📍 當前階段推薦接種疫苗項目</h3>
-        <table class="print-table">
-          <thead>
-            <tr>
-              <th style="width: 25%;">疫苗名稱</th>
-              <th style="width: 15%;">劑次/時程</th>
-              <th style="width: 15%;">類別標示</th>
-              <th style="width: 45%;">說明與衛生局補助衛教</th>
-            </tr>
-          </thead>
-          <tbody id="print-current-table-body">
-            <!-- JS 動態寫入表格 -->
-          </tbody>
-        </table>
-      </div>
+      <div class="print-tables-row">
+        <div class="print-content-block">
+          <h3 class="print-section-heading">📍 當前階段推薦接種疫苗項目</h3>
+          <table class="print-table">
+            <colgroup>
+              <col style="width:28%">
+              <col style="width:15%">
+              <col style="width:13%">
+              <col style="width:44%">
+            </colgroup>
+            <thead>
+              <tr>
+                <th>疫苗名稱</th>
+                <th>劑次/時程</th>
+                <th>類別</th>
+                <th>說明與補助衛教</th>
+              </tr>
+            </thead>
+            <tbody id="print-current-table-body">
+              <!-- JS 動態寫入表格 -->
+            </tbody>
+          </table>
+        </div>
 
-      <div class="print-content-block" style="margin-top: 1rem;">
-        <h3 class="print-section-heading">⏳ 下一階段預計疫苗項目</h3>
-        <table class="print-table">
-          <thead>
-            <tr>
-              <th style="width: 25%;">疫苗名稱</th>
-              <th style="width: 15%;">劑次/時程</th>
-              <th style="width: 15%;">類別標示</th>
-              <th style="width: 45%;">說明與注意事項</th>
-            </tr>
-          </thead>
-          <tbody id="print-next-table-body">
-            <!-- JS 動態寫入表格 -->
-          </tbody>
-        </table>
+        <div class="print-content-block">
+          <h3 class="print-section-heading">⏳ 下一階段預計疫苗項目</h3>
+          <table class="print-table">
+            <colgroup>
+              <col style="width:28%">
+              <col style="width:15%">
+              <col style="width:13%">
+              <col style="width:44%">
+            </colgroup>
+            <thead>
+              <tr>
+                <th>疫苗名稱</th>
+                <th>劑次/時程</th>
+                <th>類別</th>
+                <th>說明與注意事項</th>
+              </tr>
+            </thead>
+            <tbody id="print-next-table-body">
+              <!-- JS 動態寫入表格 -->
+            </tbody>
+          </table>
+        </div>
       </div>
 
       <div class="print-notes-block">
