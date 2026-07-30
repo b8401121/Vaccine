@@ -135,17 +135,18 @@ function displayVaccines(data) {
         `;
       });
 
-      const titleDisplay = m.status === 'Current'
-        ? `${m.title} <div class="timeline-age-banner">📍 目前計算年齡：<strong>${child_age_detail || age_display}</strong></div>`
-        : m.title;
+      const currentAgeBannerHtml = m.status === 'Current'
+        ? `<div class="standalone-current-age-banner">📍 目前計算年齡：<strong>${child_age_detail || age_display}</strong></div>`
+        : '';
 
       node.innerHTML = `
+        ${currentAgeBannerHtml}
         <div class="timeline-marker">
           <div class="marker-dot">${nodeIcon}</div>
         </div>
         <div class="timeline-content">
           <div class="timeline-header">
-            <h3 class="milestone-title">${titleDisplay}</h3>
+            <h3 class="milestone-title">${m.title}</h3>
             <span class="status-pill ${statusClass}-pill">${statusLabel}</span>
           </div>
           <div class="timeline-cards-grid">
