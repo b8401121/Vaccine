@@ -11,7 +11,7 @@ struct VaccineItem {
     name: String,
     dose_info: String,
     timing_info: String,
-    category: String, // "Routine" (公費/常規) 或 "SelfPaid" (自費/建議)
+    category: String, // "Routine" (公費常規) | "SelfPaid" (自費建議) | "Subsidized" (縣市補助)
     description: String,
     audience: String,
 }
@@ -29,6 +29,7 @@ struct VaccineResponse {
     age_display: String,
     child_age_detail: String,
     gender_display: String,
+    location_display: String,
     milestones: Vec<TimelineMilestone>,
 }
 
@@ -52,7 +53,6 @@ struct MilestoneSpec {
     vaccines: Vec<VaccineItem>,
 }
 
-// 自動釋放/補全 WebView2Loader.dll 檔，達成單一獨立 EXE 可移動執行
 fn ensure_webview2_loader() {
     let loader_bytes = include_bytes!("../WebView2Loader.dll");
     if let Ok(exe_path) = std::env::current_exe() {
@@ -72,6 +72,7 @@ fn get_eligible_vaccines(
     day: u32,
     is_roc: bool,
     gender: String,
+    location: String,
 ) -> Result<VaccineResponse, String> {
     let actual_year = if is_roc { year + 1911 } else { year };
     
@@ -119,6 +120,28 @@ fn get_eligible_vaccines(
 
     let is_female = gender == "female";
     let gender_display = if is_female { "女性 ♀" } else { "男性 ♂" }.to_string();
+    let location_display = if location.is_empty() { "全國標準".into() } else { location.clone() };
+
+    let is_taipei = location.contains("台北") || location.contains("臺北");
+    let is_new_taipei = location.contains("新北");
+    let is_taoyuan = location.contains("桃園");
+    let is_taichung = location.contains("台中") || location.contains("臺中");
+    let is_tainan = location.contains("台南") || location.contains("臺南");
+    let is_kaohsiung = location.contains("高雄");
+    let is_island = location.contains("金門") || location.contains("連江") || location.contains("澎湖");
+
+    // 輪狀病毒縣市補助描述
+    let rotavirus_desc = if is_taipei {
+        "🏛️ 台北市獨家定額補助：設籍台北市一般幼兒定額補助 2,100 元！低收/中低收/罕病/第3胎以上全額公費免費。".to_string()
+    } else if is_new_taipei || is_taoyuan || is_taichung || is_tainan || is_kaohsiung {
+        format!("🏛️ {}弱勢補助：低收、中低收入戶及特定山地原住民區幼兒享全額免費補助，一般幼兒自費口服。", location)
+    } else if is_island {
+        format!("🏛️ {}離島補助：離島地區提供弱勢及特定幼兒全額免費補助，一般幼兒自費口服。", location)
+    } else {
+        "自費口服疫苗 (2劑型或3劑型)。註：多數縣市針對低收/中低收/第3胎以上幼兒提供全額公費補助。".to_string()
+    };
+
+    let rotavirus_cat = if is_taipei { "Subsidized" } else { "SelfPaid" };
 
     let mut milestones_out = Vec::new();
 
@@ -172,10 +195,10 @@ fn get_eligible_vaccines(
                 },
                 VaccineItem {
                     name: "輪狀病毒疫苗 (Rotavirus)".into(),
-                    dose_info: "自費口服第 1 劑".into(),
+                    dose_info: if is_taipei { "北市補助 / 自費第 1 劑" } else { "自費口服第 1 劑" }.into(),
                     timing_info: "滿 2 個月".into(),
-                    category: "SelfPaid".into(),
-                    description: "自費口服疫苗 (2劑型或3劑型)，預防輪狀病毒嚴重腹瀉".into(),
+                    category: rotavirus_cat.into(),
+                    description: rotavirus_desc.clone(),
                     audience: "Children".into(),
                 },
                 VaccineItem {
@@ -211,10 +234,10 @@ fn get_eligible_vaccines(
                 },
                 VaccineItem {
                     name: "輪狀病毒疫苗 (Rotavirus)".into(),
-                    dose_info: "自費口服第 2 劑".into(),
+                    dose_info: if is_taipei { "北市補助 / 自費第 2 劑" } else { "自費口服第 2 劑" }.into(),
                     timing_info: "滿 4 個月".into(),
-                    category: "SelfPaid".into(),
-                    description: "自費口服第 2 劑 (2劑型此劑完成，3劑型需於6個月再服)".into(),
+                    category: rotavirus_cat.into(),
+                    description: rotavirus_desc.clone(),
                     audience: "Children".into(),
                 },
                 VaccineItem {
@@ -399,6 +422,9 @@ fn get_eligible_vaccines(
         },
     ];
 
+    // 男國中生 HPV 縣市政策判斷
+    let hpv_boy_subsidized = is_taipei || is_new_taipei || is_taoyuan;
+
     let hpv_adolescent_routine = if is_female {
         vec![
             VaccineItem {
@@ -419,14 +445,35 @@ fn get_eligible_vaccines(
             },
         ]
     } else {
-        vec![VaccineItem {
-            name: "人類乳突病毒疫苗 (HPV)".into(),
-            dose_info: "自費 2 劑 (按 0, 6 個月)".into(),
-            timing_info: "9-14 歲男性青少年".into(),
-            category: "SelfPaid".into(),
-            description: "9-14 歲男性建議自費接種 2 劑 4價或9價 HPV 疫苗，預防尖形濕疣(菜花)及陰莖癌/肛門癌等".into(),
-            audience: "Children".into(),
-        }]
+        if hpv_boy_subsidized {
+            vec![
+                VaccineItem {
+                    name: "人類乳突病毒疫苗 (HPV)".into(),
+                    dose_info: format!("{}公費 2 劑 (按 0, 6 個月)", location),
+                    timing_info: "國中男生 (約12-15歲)".into(),
+                    category: "Subsidized".into(),
+                    description: format!("🏛️ {}地方政府擴大福利：提供國中男學生與女學生同享免費公費施打 9 價 HPV 疫苗！", location),
+                    audience: "Children".into(),
+                },
+                VaccineItem {
+                    name: "人類乳突病毒疫苗 (HPV)".into(),
+                    dose_info: "自費 2 劑 (按 0, 6 個月)".into(),
+                    timing_info: "9-14 歲男性青少年".into(),
+                    category: "SelfPaid".into(),
+                    description: "非公費補助學校之 9-14 歲男性，建議自費接種 2 劑 4價或9價 HPV 疫苗。".into(),
+                    audience: "Children".into(),
+                },
+            ]
+        } else {
+            vec![VaccineItem {
+                name: "人類乳突病毒疫苗 (HPV)".into(),
+                dose_info: "自費 2 劑 (按 0, 6 個月)".into(),
+                timing_info: "9-14 歲男性青少年".into(),
+                category: "SelfPaid".into(),
+                description: "9-14 歲男性建議自費接種 2 劑 4價或9價 HPV 疫苗，預防尖形濕疣(菜花)及陰莖癌/肛門癌等".into(),
+                audience: "Children".into(),
+            }]
+        }
     };
 
     child_specs.push(MilestoneSpec {
@@ -525,12 +572,18 @@ fn get_eligible_vaccines(
         }
 
         if age_years >= 50 || age_years >= 18 {
+            let shingles_desc = if is_taoyuan || is_island {
+                format!("🏛️ {}福利：65歲以上低收/中低收入長者享地方政府補助！一般人自費 2 劑 (隔 2-6 月)。", location)
+            } else {
+                "預防帶狀疱疹(皮蛇)及疱疹後神經痛，防護率達90%以上。按 0, 2-6 個月施打 2 劑。".to_string()
+            };
+
             adult_routine.push(VaccineItem {
                 name: "非活性帶狀疱疹疫苗 (Shingrix)".into(),
                 dose_info: "自費共 2 劑 (隔 2-6 月)".into(),
                 timing_info: "50 歲以上或 18 歲以上高風險".into(),
-                category: "SelfPaid".into(),
-                description: "預防帶狀疱疹(皮蛇)及疱疹後神經痛，防護率達90%以上".into(),
+                category: if is_taoyuan || is_island { "Subsidized".into() } else { "SelfPaid".into() },
+                description: shingles_desc,
                 audience: "Adults".into(),
             });
         }
@@ -564,7 +617,7 @@ fn get_eligible_vaccines(
         }
 
         milestones_out.push(TimelineMilestone {
-            title: format!("成人常規與自費建議疫苗 ({}, {})", age_display, gender_display),
+            title: format!("成人常規與自費建議疫苗 ({}, {}, {})", age_display, gender_display, location_display),
             age_months: total_months,
             status: "Current".to_string(),
             vaccines: adult_routine,
@@ -645,6 +698,7 @@ fn get_eligible_vaccines(
         age_display,
         child_age_detail,
         gender_display,
+        location_display,
         milestones: milestones_out,
     })
 }
@@ -795,10 +849,10 @@ fn get_all_vaccines() -> Vec<VaccineDetailDoc> {
             category: "SelfPaid".into(),
             target_audience: "嬰幼兒 (2-8個月大)".into(),
             prevent_disease: "輪狀病毒引發之嬰幼兒嚴重嘔吐、水瀉、脫水與住院".into(),
-            full_description: "口服活性減毒疫苗。分為2劑型(Rotateq/Rotarix)與3劑型，需於出生後8個月大前完成所有劑次。".into(),
+            full_description: "口服活性減毒疫苗。北市定額補助$2,100元，低收/中低收/罕病/第3胎全額公費免費。".into(),
             schedule: vec![
-                "2劑型：出生滿 2 個月、4 個月各口服 1 劑 (自費)".into(),
-                "3劑型：出生滿 2 個月、4 個月、6 個月各口服 1 劑 (自費)".into(),
+                "2劑型：出生滿 2 個月、4 個月各口服 1 劑".into(),
+                "3劑型：出生滿 2 個月、4 個月、6 個月各口服 1 劑".into(),
             ],
             notes: "嬰兒若有腸套疊病史或腸道先天畸形者禁忌口服。".into(),
         },
@@ -822,11 +876,11 @@ fn get_all_vaccines() -> Vec<VaccineDetailDoc> {
             name: "人類乳突病毒疫苗 (HPV Vaccine)".into(),
             aliases: "子宮頸癌疫苗 / 九價 HPV 疫苗".into(),
             category: "Both".into(),
-            target_audience: "國中女生(公費) / 9-45歲男女(自費)".into(),
+            target_audience: "國中女生(公費) / 北市.新北.桃園男國中生(公費) / 9-45歲(自費)".into(),
             prevent_disease: "子宮頸癌、外陰癌、陰道癌、菜花 (尖形濕疣)、肛門癌及口咽癌".into(),
-            full_description: "具備極高預防效果。國健署提供國中女生公費9價疫苗。男性接種亦能防範菜花與口咽癌風險。".into(),
+            full_description: "具備極高預防效果。國健署提供國中女生公費9價疫苗；台北市、新北市、桃園市特別擴大提供國中男學生公費接種！".into(),
             schedule: vec![
-                "國中女生公費：2 劑 (按 0, 6 個月時程)".into(),
+                "國中女生/特定縣市男國中生公費：2 劑 (按 0, 6 個月時程)".into(),
                 "9-14歲男女自費：2 劑 (按 0, 6 個月時程)".into(),
                 "15-45歲男女自費：3 劑 (按 0, 2, 6 個月時程)".into(),
             ],
@@ -839,10 +893,10 @@ fn get_all_vaccines() -> Vec<VaccineDetailDoc> {
             category: "SelfPaid".into(),
             target_audience: "50歲以上成人 / 18歲以上高風險對象".into(),
             prevent_disease: "帶狀疱疹 (皮蛇) 及長期疱疹後神經痛 (PHN)".into(),
-            full_description: "基因重組非活性疫苗，保護力長達10年以上，防護率達90%-97%，優於舊型活性帶狀疱疹疫苗。".into(),
+            full_description: "基因重組非活性疫苗，保護力長達10年以上，防護率達90%-97%。桃園、嘉義市、離島針對高齡弱勢長者享地方補助。".into(),
             schedule: vec![
-                "第 1 劑：50歲以上或18歲以上免疫低下者 (自費)".into(),
-                "第 2 劑：與第 1 劑間隔 2 至 6 個月 (自費)".into(),
+                "第 1 劑：50歲以上或18歲以上免疫低下者 (自費/地方補助)".into(),
+                "第 2 劑：與第 1 劑間隔 2 至 6 個月 (自費/地方補助)".into(),
             ],
             notes: "無論過去是否罹患過皮蛇，均建議接種。".into(),
         },
@@ -973,7 +1027,6 @@ fn get_all_vaccines() -> Vec<VaccineDetailDoc> {
 }
 
 fn main() {
-    // 確保啟動時自動檢查並補全 WebView2Loader.dll 檔
     ensure_webview2_loader();
 
     tauri::Builder::default()

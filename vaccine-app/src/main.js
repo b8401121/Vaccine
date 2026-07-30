@@ -92,9 +92,10 @@ function setupFormSubmit() {
     const day = parseInt(daySelect.value);
     const isRoc = calendarToggle.checked;
     const gender = document.querySelector('input[name="gender"]:checked').value;
+    const location = document.getElementById('location').value;
 
     try {
-      const response = await invoke('get_eligible_vaccines', { year, month, day, isRoc, gender });
+      const response = await invoke('get_eligible_vaccines', { year, month, day, isRoc, gender, location });
       displayVaccines(response);
     } catch (error) {
       alert(`錯誤: ${error}`);
@@ -120,13 +121,13 @@ function scrollToCurrentNode() {
 }
 
 function displayVaccines(data) {
-  const { age_display, child_age_detail, gender_display, milestones } = data;
+  const { age_display, child_age_detail, gender_display, location_display, milestones } = data;
   const resultsDiv = document.getElementById('results');
   const timelineContainer = document.getElementById('timeline-container');
   const ageBadge = document.getElementById('age-badge');
 
   const ageText = child_age_detail || age_display;
-  const fullMetaText = `${gender_display} | 目前計算年齡：${ageText}`;
+  const fullMetaText = `🏙️ ${location_display} | ${gender_display} | 目前計算年齡：${ageText}`;
 
   ageBadge.textContent = fullMetaText;
   timelineContainer.innerHTML = '';
@@ -157,7 +158,10 @@ function displayVaccines(data) {
       m.vaccines.forEach(v => {
         let tagClass = 'routine';
         let tagText = '公費常規';
-        if (v.category === 'SelfPaid') {
+        if (v.category === 'Subsidized') {
+          tagClass = 'subsidized';
+          tagText = '🏛️ 地方縣市補助';
+        } else if (v.category === 'SelfPaid') {
           tagClass = 'self-paid';
           tagText = '💰 自費建議';
         } else if (v.category === 'HighRisk') {
