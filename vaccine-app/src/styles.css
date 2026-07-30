@@ -1485,7 +1485,7 @@ input:checked + .slider:before {
 @media print {
   @page {
     size: A4 portrait;
-    margin: 0.8cm 1cm 0.8cm 1cm;
+    margin: 0.6cm 0.8cm 0.6cm 0.8cm;
   }
 
   * {
@@ -1499,7 +1499,7 @@ input:checked + .slider:before {
     color: #1a202c !important;
     padding: 0 !important;
     margin: 0 !important;
-    font-size: 11px !important;
+    font-size: 10px !important;
     line-height: 1.35 !important;
     font-family: 'Noto Sans TC', 'Microsoft JhengHei', sans-serif !important;
   }
@@ -1529,23 +1529,23 @@ input:checked + .slider:before {
   }
 
   .print-title-block h2 {
-    font-size: 15px !important;
+    font-size: 16px !important;
     color: #2D5F6A !important;
-    margin: 0 0 1px 0;
+    margin: 0 0 2px 0;
     font-weight: 700;
   }
 
   .print-subtitle {
-    font-size: 8px !important;
+    font-size: 9px !important;
     color: #718096 !important;
     margin: 0;
   }
 
   .print-date-stamp {
-    font-size: 8px !important;
+    font-size: 8.5px !important;
     color: #718096 !important;
     text-align: right;
-    line-height: 1.5;
+    line-height: 1.4;
   }
 
   /* ── 基本資料列 ── */
@@ -1555,8 +1555,8 @@ input:checked + .slider:before {
     border-radius: 4px;
     padding: 4px 8px;
     margin-bottom: 6px;
-    font-size: 9px !important;
-    line-height: 1.55;
+    font-size: 9.5px !important;
+    line-height: 1.5;
   }
 
   .print-meta-item {
@@ -1568,30 +1568,19 @@ input:checked + .slider:before {
     color: #2D3748 !important;
   }
 
-  /* ── 兩表格並排 ── */
+  /* ── 上下疊放全寬表格 ── */
   .print-content-block {
     margin-top: 0 !important;
-    margin-bottom: 0 !important;
-  }
-
-  .print-tables-row {
-    display: flex;
-    gap: 6px;
-    margin-bottom: 5px;
-  }
-
-  .print-tables-row .print-content-block {
-    flex: 1;
-    min-width: 0;
+    margin-bottom: 6px !important;
   }
 
   .print-section-heading {
-    font-size: 10px !important;
+    font-size: 11px !important;
     font-weight: 700;
     color: #1a202c !important;
-    border-left: 3px solid #4A7C88 !important;
-    padding: 1px 0 1px 5px;
-    margin-bottom: 3px;
+    border-left: 4px solid #4A7C88 !important;
+    padding: 2px 0 2px 6px;
+    margin-bottom: 4px;
     background: #EBF0F0;
     border-radius: 0 3px 3px 0;
   }
@@ -1600,19 +1589,16 @@ input:checked + .slider:before {
     width: 100%;
     border-collapse: collapse;
     margin-bottom: 0;
-    font-size: 8px !important;
+    font-size: 9.5px !important;
     table-layout: fixed;
   }
-
-  .print-table colgroup,
-  .print-table col { }
 
   .print-table th {
     background: #e8eff0 !important;
     color: #1a202c !important;
-    font-weight: 600;
-    font-size: 8px !important;
-    padding: 3px 4px;
+    font-weight: 700;
+    font-size: 9.5px !important;
+    padding: 4px 6px;
     border: 1px solid #b8cdd1;
     text-align: left;
     word-break: keep-all;
@@ -1620,10 +1606,10 @@ input:checked + .slider:before {
 
   .print-table td {
     border: 1px solid #c8d8dc;
-    padding: 2px 4px;
-    font-size: 8px !important;
+    padding: 3px 6px;
+    font-size: 9px !important;
     vertical-align: top;
-    word-break: break-all;
+    word-break: break-word;
     color: #2D3748 !important;
     line-height: 1.35;
   }
@@ -1632,38 +1618,38 @@ input:checked + .slider:before {
   .print-notes-block {
     background: #fffcf0 !important;
     border: 1px solid #e8d898 !important;
-    border-radius: 3px;
-    padding: 4px 7px;
+    border-radius: 4px;
+    padding: 5px 8px;
     margin-top: 5px;
-    font-size: 8px !important;
+    font-size: 8.5px !important;
     page-break-inside: avoid;
   }
 
   .print-notes-block h4 {
-    font-size: 9px !important;
+    font-size: 9.5px !important;
     color: #7A6030 !important;
     margin: 0 0 2px 0;
   }
 
   .print-notes-block ol {
-    padding-left: 12px;
+    padding-left: 14px;
     margin: 0;
     color: #4a3810 !important;
   }
 
   .print-notes-block li {
     margin-bottom: 1px;
-    line-height: 1.35;
+    line-height: 1.3;
   }
 
   /* ── 簽章列 ── */
   .print-footer-signatures {
     display: flex;
     justify-content: space-between;
-    margin-top: 6px;
-    padding-top: 5px;
+    margin-top: 8px;
+    padding-top: 6px;
     border-top: 1px solid #c8bfb0;
-    font-size: 9px !important;
+    font-size: 9.5px !important;
     color: #475569 !important;
   }
 
@@ -1673,7 +1659,7 @@ input:checked + .slider:before {
   }
 
   /* 防止跨頁斷裂 */
-  .print-tables-row,
+  .print-content-block,
   .print-notes-block,
   .print-footer-signatures {
     page-break-inside: avoid;
