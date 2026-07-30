@@ -516,7 +516,13 @@ input:checked + .slider:before {
 .tag.routine {
   background: var(--routine-bg);
   color: var(--routine-color);
-  border: 1px solid rgba(16, 185, 129, 0.3);
+  border: 1px solid rgba(16, 185, 129, 0.4);
+}
+
+.tag.self-paid {
+  background: rgba(245, 158, 11, 0.2);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.4);
 }
 
 .tag.high-risk {

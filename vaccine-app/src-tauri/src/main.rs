@@ -11,7 +11,7 @@ struct VaccineItem {
     name: String,
     dose_info: String,
     timing_info: String,
-    category: String,
+    category: String, // "Routine" (公費/常規) 或 "SelfPaid" (自費/建議)
     description: String,
     audience: String,
 }
@@ -96,7 +96,7 @@ fn get_eligible_vaccines(
 
     let mut milestones_out = Vec::new();
 
-    // 兒童垂直時間軸節點定義
+    // 兒童及自費疫苗時間軸定義 (參考 CDC 自費與公費預防接種清單)
     let child_specs = vec![
         MilestoneSpec {
             title: "出生 24 小時內",
@@ -107,7 +107,7 @@ fn get_eligible_vaccines(
                 dose_info: "第 1 劑".into(),
                 timing_info: "出生 24 小時內".into(),
                 category: "Routine".into(),
-                description: "新生兒出生後儘速施打".into(),
+                description: "新生兒出生後儘速施打公費第 1 劑".into(),
                 audience: "Children".into(),
             }],
         },
@@ -120,7 +120,7 @@ fn get_eligible_vaccines(
                 dose_info: "第 2 劑".into(),
                 timing_info: "滿 1 個月".into(),
                 category: "Routine".into(),
-                description: "基礎劑第 2 劑".into(),
+                description: "公費基礎劑第 2 劑".into(),
                 audience: "Children".into(),
             }],
         },
@@ -134,7 +134,7 @@ fn get_eligible_vaccines(
                     dose_info: "第 1 劑".into(),
                     timing_info: "滿 2 個月".into(),
                     category: "Routine".into(),
-                    description: "預防白喉、破傷風、百日咳、B型嗜血桿菌、小兒麻痺".into(),
+                    description: "公費預防白喉、破傷風、百日咳、B型嗜血桿菌、小兒麻痺".into(),
                     audience: "Children".into(),
                 },
                 VaccineItem {
@@ -142,7 +142,23 @@ fn get_eligible_vaccines(
                     dose_info: "第 1 劑".into(),
                     timing_info: "滿 2 個月".into(),
                     category: "Routine".into(),
-                    description: "基礎劑第 1 劑".into(),
+                    description: "公費基礎劑第 1 劑".into(),
+                    audience: "Children".into(),
+                },
+                VaccineItem {
+                    name: "輪狀病毒疫苗 (Rotavirus)".into(),
+                    dose_info: "自費口服第 1 劑".into(),
+                    timing_info: "滿 2 個月".into(),
+                    category: "SelfPaid".into(),
+                    description: "自費口服疫苗 (2劑型或3劑型)，預防輪狀病毒嚴重腹瀉".into(),
+                    audience: "Children".into(),
+                },
+                VaccineItem {
+                    name: "腸病毒 A71 型疫苗 (EV71)".into(),
+                    dose_info: "自費第 1 劑".into(),
+                    timing_info: "滿 2 個月至 6 歲".into(),
+                    category: "SelfPaid".into(),
+                    description: "自費接種，預防腸病毒 A71 型併發重症".into(),
                     audience: "Children".into(),
                 },
             ],
@@ -157,7 +173,7 @@ fn get_eligible_vaccines(
                     dose_info: "第 2 劑".into(),
                     timing_info: "滿 4 個月".into(),
                     category: "Routine".into(),
-                    description: "基礎劑第 2 劑".into(),
+                    description: "公費基礎劑第 2 劑".into(),
                     audience: "Children".into(),
                 },
                 VaccineItem {
@@ -165,7 +181,23 @@ fn get_eligible_vaccines(
                     dose_info: "第 2 劑".into(),
                     timing_info: "滿 4 個月".into(),
                     category: "Routine".into(),
-                    description: "基礎劑第 2 劑".into(),
+                    description: "公費基礎劑第 2 劑".into(),
+                    audience: "Children".into(),
+                },
+                VaccineItem {
+                    name: "輪狀病毒疫苗 (Rotavirus)".into(),
+                    dose_info: "自費口服第 2 劑".into(),
+                    timing_info: "滿 4 個月".into(),
+                    category: "SelfPaid".into(),
+                    description: "自費口服第 2 劑 (2劑型此劑完成，3劑型需於6個月再服)".into(),
+                    audience: "Children".into(),
+                },
+                VaccineItem {
+                    name: "腸病毒 A71 型疫苗 (EV71)".into(),
+                    dose_info: "自費第 2 劑".into(),
+                    timing_info: "滿 4 個月 (與第1劑隔2月)".into(),
+                    category: "SelfPaid".into(),
+                    description: "自費基礎劑第 2 劑".into(),
                     audience: "Children".into(),
                 },
             ],
@@ -179,7 +211,7 @@ fn get_eligible_vaccines(
                 dose_info: "單劑".into(),
                 timing_info: "滿 5-8 個月".into(),
                 category: "Routine".into(),
-                description: "建議於滿 5-8 個月施打".into(),
+                description: "公費建議於滿 5-8 個月施打".into(),
                 audience: "Children".into(),
             }],
         },
@@ -193,7 +225,7 @@ fn get_eligible_vaccines(
                     dose_info: "第 3 劑".into(),
                     timing_info: "滿 6 個月".into(),
                     category: "Routine".into(),
-                    description: "基礎劑第 3 劑".into(),
+                    description: "公費基礎劑第 3 劑".into(),
                     audience: "Children".into(),
                 },
                 VaccineItem {
@@ -201,7 +233,15 @@ fn get_eligible_vaccines(
                     dose_info: "第 3 劑".into(),
                     timing_info: "滿 6 個月".into(),
                     category: "Routine".into(),
-                    description: "基礎劑第 3 劑".into(),
+                    description: "公費基礎劑第 3 劑".into(),
+                    audience: "Children".into(),
+                },
+                VaccineItem {
+                    name: "季節性流感疫苗".into(),
+                    dose_info: "第 1-2 劑 (初次接種隔4週)".into(),
+                    timing_info: "滿 6 個月以上".into(),
+                    category: "Routine".into(),
+                    description: "滿6個月即可接種流感疫苗，8歲以下初次接種需打2劑".into(),
                     audience: "Children".into(),
                 },
             ],
@@ -216,7 +256,7 @@ fn get_eligible_vaccines(
                     dose_info: "第 1 劑".into(),
                     timing_info: "滿 12 個月".into(),
                     category: "Routine".into(),
-                    description: "滿 12 個月施打 1 劑".into(),
+                    description: "公費滿 12 個月施打第 1 劑".into(),
                     audience: "Children".into(),
                 },
                 VaccineItem {
@@ -224,7 +264,7 @@ fn get_eligible_vaccines(
                     dose_info: "第 1 劑".into(),
                     timing_info: "滿 12 個月".into(),
                     category: "Routine".into(),
-                    description: "滿 12 個月施打第 1 劑".into(),
+                    description: "公費滿 12 個月施打第 1 劑".into(),
                     audience: "Children".into(),
                 },
                 VaccineItem {
@@ -232,7 +272,7 @@ fn get_eligible_vaccines(
                     dose_info: "第 3 劑 (追加劑)".into(),
                     timing_info: "滿 12-15 個月".into(),
                     category: "Routine".into(),
-                    description: "滿 12-15 個月施打追加劑".into(),
+                    description: "公費滿 12-15 個月施打追加劑".into(),
                     audience: "Children".into(),
                 },
             ],
@@ -246,7 +286,7 @@ fn get_eligible_vaccines(
                 dose_info: "第 1 劑".into(),
                 timing_info: "滿 15 個月".into(),
                 category: "Routine".into(),
-                description: "滿 15 個月施打第 1 劑".into(),
+                description: "公費滿 15 個月施打第 1 劑".into(),
                 audience: "Children".into(),
             }],
         },
@@ -260,7 +300,7 @@ fn get_eligible_vaccines(
                     dose_info: "第 4 劑 (追加劑)".into(),
                     timing_info: "滿 18 個月".into(),
                     category: "Routine".into(),
-                    description: "滿 18 個月追加第 4 劑".into(),
+                    description: "公費滿 18 個月追加第 4 劑".into(),
                     audience: "Children".into(),
                 },
                 VaccineItem {
@@ -268,7 +308,7 @@ fn get_eligible_vaccines(
                     dose_info: "第 1 劑".into(),
                     timing_info: "滿 18 個月".into(),
                     category: "Routine".into(),
-                    description: "滿 18 個月施打第 1 劑".into(),
+                    description: "公費滿 18 個月施打第 1 劑".into(),
                     audience: "Children".into(),
                 },
             ],
@@ -283,7 +323,7 @@ fn get_eligible_vaccines(
                     dose_info: "第 2 劑".into(),
                     timing_info: "滿 27 個月".into(),
                     category: "Routine".into(),
-                    description: "與第 1 劑隔至少 12 個月".into(),
+                    description: "公費與第 1 劑隔至少 12 個月".into(),
                     audience: "Children".into(),
                 },
                 VaccineItem {
@@ -291,10 +331,23 @@ fn get_eligible_vaccines(
                     dose_info: "第 2 劑".into(),
                     timing_info: "滿 27 個月".into(),
                     category: "Routine".into(),
-                    description: "與第 1 劑隔至少 6 個月".into(),
+                    description: "公費與第 1 劑隔至少 6 個月".into(),
                     audience: "Children".into(),
                 },
             ],
+        },
+        MilestoneSpec {
+            title: "滿 4-6 歲幼兒追加自費",
+            min_month: 48,
+            max_month: 60,
+            vaccines: vec![VaccineItem {
+                name: "水痘疫苗 (Varicella)".into(),
+                dose_info: "自費第 2 劑 (追加劑)".into(),
+                timing_info: "滿 4-6 歲".into(),
+                category: "SelfPaid".into(),
+                description: "小兒感染症醫學會建議於 4-6 歲自費追加第 2 劑水痘疫苗，保護力更佳".into(),
+                audience: "Children".into(),
+            }],
         },
         MilestoneSpec {
             title: "滿 5 歲至國小入學前",
@@ -306,7 +359,7 @@ fn get_eligible_vaccines(
                     dose_info: "第 2 劑".into(),
                     timing_info: "滿 5 歲至國小入學前".into(),
                     category: "Routine".into(),
-                    description: "入學前完成施打第 2 劑".into(),
+                    description: "公費入學前完成施打第 2 劑".into(),
                     audience: "Children".into(),
                 },
                 VaccineItem {
@@ -314,7 +367,7 @@ fn get_eligible_vaccines(
                     dose_info: "追加劑 (第 5 劑)".into(),
                     timing_info: "滿 5 歲至國小入學前".into(),
                     category: "Routine".into(),
-                    description: "入學前追加 1 劑".into(),
+                    description: "公費入學前追加 1 劑".into(),
                     audience: "Children".into(),
                 },
             ],
@@ -347,7 +400,7 @@ fn get_eligible_vaccines(
                 dose_info: "每年 1 劑".into(),
                 timing_info: "秋冬流感季".into(),
                 category: "Routine".into(),
-                description: "所有成人每年建議施打 1 劑".into(),
+                description: "所有成人每年建議施打 1 劑 (公費或自費選用優質疫苗)".into(),
                 audience: "Adults".into(),
             },
             VaccineItem {
@@ -360,13 +413,13 @@ fn get_eligible_vaccines(
             },
             VaccineItem {
                 name: "減量破傷風、白喉、百日咳疫苗 (Tdap)".into(),
-                dose_info: "第 1 劑 / 每10年追加".into(),
+                dose_info: "自費第 1 劑 / 每10年追加".into(),
                 timing_info: "成人常規".into(),
-                category: "Routine".into(),
+                category: "SelfPaid".into(),
                 description: if is_female {
-                    "成人建議每10年追加1劑。女性每次懷孕(27-36週)均建議施打1劑以傳遞抗體給嬰兒。"
+                    "成人建議每10年自費追加1劑。女性每次懷孕(27-36週)均建議施打1劑以傳遞抗體給嬰兒。"
                 } else {
-                    "成人建議每10年追加1劑，預防破傷風、白喉與百日咳。"
+                    "成人建議每10年自費追加1劑，預防破傷風、白喉與百日咳。"
                 }.into(),
                 audience: "Adults".into(),
             },
@@ -374,113 +427,136 @@ fn get_eligible_vaccines(
 
         if age_years >= 19 && age_years <= 45 {
             let hpv_desc = if is_female {
-                "人類乳突病毒疫苗：2價僅適用女性，4價及9價適用男女性。可預防子宮頸癌及相關病變。(按 0-2-6 個月時程施打 3 劑)"
+                "自費HPV疫苗：2價僅適用女性，4價與9價適用男女性。可預防子宮頸癌及相關病變。(按 0-2-6 個月時程施打 3 劑)"
             } else {
-                "人類乳突病毒疫苗：4價及9價適用於男性。可預防尖形濕疣(菜花)及肛門癌等病變。(按 0-2-6 個月時程施打 3 劑)"
+                "自費HPV疫苗：4價與9價適用於男性。可預防尖形濕疣(菜花)及肛門癌等病變。(按 0-2-6 個月時程施打 3 劑)"
             };
 
             adult_routine.push(VaccineItem {
                 name: "人類乳突病毒疫苗 (HPV)".into(),
-                dose_info: "共 3 劑 (0-2-6 個月)".into(),
-                timing_info: if age_years <= 26 { "19-26 歲常規" } else { "27-45 歲高風險" }.into(),
-                category: if age_years <= 26 { "Routine".into() } else { "HighRisk".into() },
+                dose_info: "自費共 3 劑 (0-2-6 個月)".into(),
+                timing_info: if age_years <= 26 { "19-26 歲建議" } else { "27-45 歲自費" }.into(),
+                category: "SelfPaid".into(),
                 description: hpv_desc.into(),
                 audience: "Adults".into(),
             });
         }
 
-        if age_years >= 50 {
+        if age_years >= 50 || age_years >= 18 {
             adult_routine.push(VaccineItem {
-                name: "非活性帶狀疱疹疫苗 (Shingles)".into(),
-                dose_info: "共 2 劑 (隔 2-6 月)".into(),
-                timing_info: "50 歲以上".into(),
-                category: "Routine".into(),
-                description: "預防帶狀疱疹及疱疹後神經痛".into(),
+                name: "非活性帶狀疱疹疫苗 (Shingrix)".into(),
+                dose_info: "自費共 2 劑 (隔 2-6 月)".into(),
+                timing_info: "50 歲以上或 18 歲以上高風險".into(),
+                category: "SelfPaid".into(),
+                description: "預防帶狀疱疹(皮蛇)及疱疹後神經痛，防護率達90%以上".into(),
                 audience: "Adults".into(),
             });
         }
 
         if age_years >= 65 || (age_years >= 55 && age_years <= 64) {
             adult_routine.push(VaccineItem {
-                name: "肺炎鏈球菌疫苗 (PCV13/20 & PPV23)".into(),
-                dose_info: "公費 1-2 劑".into(),
+                name: "肺炎鏈球菌疫苗 (PCV13/PCV20/PPV23)".into(),
+                dose_info: "公費/自費 1-2 劑".into(),
                 timing_info: if age_years >= 65 { "65 歲以上" } else { "55-64 歲原住民" }.into(),
                 category: "Routine".into(),
-                description: "公費提供 1 劑 PCV20 或 PCV13 銜接 PPV23".into(),
+                description: "公費提供 1 劑 PCV13/PCV20 銜接 PPV23。未達公費年齡者可自費接種".into(),
                 audience: "Adults".into(),
             });
         }
 
-        if age_years >= 75 || age_years >= 60 {
+        if age_years >= 60 {
             let rsv_desc = if is_female {
-                "75歲以上或60-74歲高風險者建議1劑。懷孕婦女(28-36週)接種可提供嬰兒出生後6個月內被動免疫。"
+                "60歲以上長者建議自費1劑。懷孕婦女(28-36週)接種可傳遞被動免疫給嬰兒。"
             } else {
-                "75歲以上或60-74歲高風險者建議1劑，預防RSV引發之下呼吸道疾病。"
+                "60歲以上長者建議自費1劑，預防RSV引發之下呼吸道疾病與重症。"
             };
 
             adult_routine.push(VaccineItem {
                 name: "呼吸道細胞融合病毒 (RSV) 疫苗".into(),
-                dose_info: "1 劑".into(),
-                timing_info: if age_years >= 75 { "75 歲以上" } else { "60-74 歲高風險" }.into(),
-                category: if age_years >= 75 { "Routine".into() } else { "HighRisk".into() },
+                dose_info: "自費 1 劑".into(),
+                timing_info: "60 歲以上長者".into(),
+                category: "SelfPaid".into(),
                 description: rsv_desc.into(),
                 audience: "Adults".into(),
             });
         }
 
         milestones_out.push(TimelineMilestone {
-            title: format!("成人常規與建議疫苗 ({}, {})", age_display, gender_display),
+            title: format!("成人常規與自費建議疫苗 ({}, {})", age_display, gender_display),
             age_months: total_months,
             status: "Current".to_string(),
             vaccines: adult_routine,
         });
 
-        let mmr_desc = if is_female && age_years >= 15 && age_years <= 49 {
-            "15-49歲育齡婦女檢具近3個月德國麻疹抗體陰性證明者可公費接種1劑MMR。1966年後出生無抗體者亦可自費補打。"
-        } else {
-            "1966年後出生或不具麻疹/德國麻疹抗體者，建議自費補打1-2劑。"
-        };
-
-        let adult_high_risk = vec![
-            VaccineItem {
-                name: "麻疹腮腺炎德國麻疹疫苗 (MMR)".into(),
-                dose_info: if is_female && age_years >= 15 && age_years <= 49 { "公費 1 劑 / 自費 1-2 劑" } else { "自費 1-2 劑 (間隔28天以上)" }.into(),
-                timing_info: "育齡婦女/無抗體者".into(),
-                category: "HighRisk".into(),
-                description: mmr_desc.into(),
-                audience: "Adults".into(),
-            },
-            VaccineItem {
-                name: "B 型肝炎疫苗".into(),
-                dose_info: "共 3 劑 (按 0-1-6 月時程)".into(),
-                timing_info: "抗體陰性/高風險".into(),
-                category: "HighRisk".into(),
-                description: "經檢驗為 B 肝抗體陰性者建議自費補打".into(),
-                audience: "Adults".into(),
-            },
+        // 旅遊與特殊自費疫苗 (CDC 國際旅遊門診專區)
+        let travel_specs = vec![
             VaccineItem {
                 name: "A 型肝炎疫苗".into(),
-                dose_info: "共 2 劑 (間隔6-12個月)".into(),
+                dose_info: "自費共 2 劑 (隔 6-12 個月)".into(),
                 timing_info: "高風險/赴流行區".into(),
-                category: "HighRisk".into(),
-                description: "慢性肝病或頻繁赴流行地區者".into(),
+                category: "SelfPaid".into(),
+                description: "慢性肝病或頻繁赴東南亞/大陸等流行地區者建議自費接種".into(),
                 audience: "Adults".into(),
             },
             VaccineItem {
-                name: "M 痘 (Mpox) 疫苗".into(),
-                dose_info: "共 2 劑 (間隔4週)".into(),
+                name: "流行性腦脊髓膜炎疫苗 (MenACWY / MenB)".into(),
+                dose_info: "自費 1-2 劑".into(),
+                timing_info: "赴中東/留學/高風險區".into(),
+                category: "SelfPaid".into(),
+                description: "沙烏地朝聖或赴歐美留學特定學校強制要求接種之自費疫苗".into(),
+                audience: "Adults".into(),
+            },
+            VaccineItem {
+                name: "黃熱病疫苗 (Yellow Fever)".into(),
+                dose_info: "自費 1 劑 (終生有效)".into(),
+                timing_info: "赴非洲/南美洲前10天".into(),
+                category: "SelfPaid".into(),
+                description: "旅遊醫學門診專用自費疫苗，入境特定國家所需之國際預防接種證明(黃皮書)".into(),
+                audience: "Adults".into(),
+            },
+            VaccineItem {
+                name: "傷寒疫苗 (Typhoid Vaccine)".into(),
+                dose_info: "自費 1 劑 (效期 3 年)".into(),
+                timing_info: "赴流行區前 2 週".into(),
+                category: "SelfPaid".into(),
+                description: "旅遊醫學門診自費疫苗，前往高風險衛生不良地區旅遊前接種".into(),
+                audience: "Adults".into(),
+            },
+            VaccineItem {
+                name: "狂犬病疫苗 (Rabies Vaccine)".into(),
+                dose_info: "自費 3 劑 (按 0, 7, 21-28 天)".into(),
+                timing_info: "暴露前預防/高風險工作".into(),
+                category: "SelfPaid".into(),
+                description: "獸醫、野生動物研究人員或前往狂犬病高風險國家野生動物接觸者".into(),
+                audience: "Adults".into(),
+            },
+            VaccineItem {
+                name: "麻疹腮腺炎德國麻疹疫苗 (MMR)".into(),
+                dose_info: if is_female && age_years >= 15 && age_years <= 49 { "育齡公費 1 劑 / 自費 1-2 劑" } else { "自費 1-2 劑 (隔 28 天)" }.into(),
+                timing_info: "育齡婦女/出國旅遊".into(),
+                category: if is_female && age_years >= 15 && age_years <= 49 { "Routine".into() } else { "SelfPaid".into() },
+                description: if is_female && age_years >= 15 && age_years <= 49 {
+                    "15-49歲育齡婦女檢具近3個月德國麻疹抗體陰性證明者可公費接種1劑。其他人自費補打。"
+                } else {
+                    "1966年後出生或不具抗體者出國前建議自費補打 1-2 劑。"
+                }.into(),
+                audience: "Adults".into(),
+            },
+            VaccineItem {
+                name: "M 痘疫苗 (Mpox Vaccine)".into(),
+                dose_info: "共 2 劑 (間隔 4 週)".into(),
                 timing_info: "具風險行為者".into(),
-                category: "HighRisk".into(),
-                description: "暴露前/後預防與風險行為者施打".into(),
+                category: "SelfPaid".into(),
+                description: "暴露前/後預防與風險行為者自費/公費接種".into(),
                 audience: "Adults".into(),
             },
         ];
 
         milestones_out.push(TimelineMilestone {
-            title: "特定對象與高風險評估疫苗".to_string(),
+            title: "旅遊醫學與特定自費疫苗 (CDC 清單)".to_string(),
             age_months: total_months + 1,
             status: "Current".to_string(),
-            vaccines: adult_high_risk,
+            vaccines: travel_specs,
         });
     }
 

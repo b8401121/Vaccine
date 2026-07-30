@@ -105,8 +105,15 @@ function displayVaccines(data) {
 
       let cardsHtml = '';
       m.vaccines.forEach(v => {
-        const tagClass = v.category === 'Routine' ? 'routine' : 'high-risk';
-        const tagText = v.category === 'Routine' ? '常規建議' : '高風險對象';
+        let tagClass = 'routine';
+        let tagText = '公費常規';
+        if (v.category === 'SelfPaid') {
+          tagClass = 'self-paid';
+          tagText = '💰 自費建議';
+        } else if (v.category === 'HighRisk') {
+          tagClass = 'high-risk';
+          tagText = '高風險對象';
+        }
 
         const isCurrent = m.status === 'Current';
         const cardHighlightClass = isCurrent ? 'current-vaccine-card' : '';
