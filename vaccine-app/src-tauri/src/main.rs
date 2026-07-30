@@ -1100,6 +1100,47 @@ fn get_all_vaccines() -> Vec<VaccineDetailDoc> {
             ],
             notes: "皮內注射或皮下注射均可，建議完成 2 劑以獲得最大防護力。".into(),
         },
+        VaccineDetailDoc {
+            id: "polio-booster".into(),
+            name: "小兒麻痺疫苗 (Polio IPV 追加劑與黃皮書)".into(),
+            aliases: "IPV 不活化小兒麻痺疫苗追加劑".into(),
+            category: "SelfPaid".into(),
+            target_audience: "赴阿富汗、巴基斯坦等小兒麻痺流行國旅客".into(),
+            prevent_disease: "脊髓灰質炎 (小兒麻痺症) 引起的急性肢體麻痺".into(),
+            full_description: "依據 CDC 與 WHO 國際衛生條例規定：前往小兒麻痺野生株或衍生株流行國停留 4 週以上者，出境前 4 週至 12 個月內需追加 1 劑 IPV 並記錄於國際預防接種證明書 (黃皮書)，否則可能被拒絕登機出境！".into(),
+            schedule: vec![
+                "出境前 4 週至 12 個月內於旅遊門診自費追加 1 劑 IPV (登載黃皮書)".into(),
+            ],
+            notes: "出國前請務必確認目標國家最新疫情警告與黃皮書規定。".into(),
+        },
+        VaccineDetailDoc {
+            id: "altitude-sickness".into(),
+            name: "高山症預防用藥 (Acetazolamide / 丹木斯)".into(),
+            aliases: "丹木斯 / 高海拔急性高山病預防用藥".into(),
+            category: "SelfPaid".into(),
+            target_audience: "赴海拔 >2,500 公尺高山山區旅客".into(),
+            prevent_disease: "急性高山病 (AMS)、高海拔腦水腫及高海拔肺水腫".into(),
+            full_description: "前往秘魯庫斯科 (Cusco)、印加古道、西藏、衣索比亞高山或台灣高山 (玉山/雪山) 海拔 2,500 公尺以上地區者，建議於旅遊門診評估開立處方用藥。".into(),
+            schedule: vec![
+                "Acetazolamide (丹木斯)：登高前 24 小時開始服用，每日 2 次，每次 125mg，至適應高海拔後停藥".into(),
+            ],
+            notes: "磺胺類藥物過敏者禁忌使用；可改用預備用藥。".into(),
+        },
+        VaccineDetailDoc {
+            id: "malaria-med".into(),
+            name: "瘧疾預防處方藥品 (Malaria Prophylaxis)".into(),
+            aliases: "莫可樂 Malarone / 多喜黴素 Doxycycline / 美爾奎寧 Mefloquine".into(),
+            category: "SelfPaid".into(),
+            target_audience: "前往非洲、中南美洲、南亞瘧疾流行區旅客".into(),
+            prevent_disease: "惡性瘧原蟲引發之高燒、寒顫、溶血性貧血與腦型瘧疾致死重症".into(),
+            full_description: "衛福部疾管署核准三大抗瘧疾處方用藥，需於旅遊門診經醫師評估開立，依指示於出發前、行程中及離開後按時服用。".into(),
+            schedule: vec![
+                "Malarone (莫可樂)：出發前1天開始，每日1顆；離開疫區後繼續吃7天".into(),
+                "Doxycycline (多喜黴素)：出發前1-2天開始，每日1顆；離開疫區後繼續吃4週".into(),
+                "Mefloquine (美爾奎寧)：出發前2-3週開始，每週1顆；離開疫區後繼續吃4週".into(),
+            ],
+            notes: "請務必依醫囑按時完成全程服用，切勿自行中途停藥。".into(),
+        },
     ]
 }
 
@@ -1310,6 +1351,7 @@ fn get_travel_advisory(
     let mut travel_clinic_notes = Vec::new();
 
     let dest_name = match destination.as_str() {
+        "all_global" => "🌍 全球通用 ‧ 國際預防接種、黃皮書與藥物綜合指南 (CDC 官方)",
         "us_eu_study" => "歐美留學 (美國 / 英國 / 加拿大 / 歐洲)",
         "japan_korea" => "日本 / 韓國 (觀光 / 留學 / 工作假期)",
         "southeast_asia" => "東南亞 / 南亞 (泰國 / 越南 / 印尼 / 印度 / 菲律賓)",
@@ -1327,6 +1369,54 @@ fn get_travel_advisory(
     }.to_string();
 
     match destination.as_str() {
+        "all_global" => {
+            mandatory_items.push(TravelVaccineItem {
+                name: "黃熱病疫苗 (Yellow Fever)".into(),
+                requirement_type: "Mandatory".into(),
+                timing_note: "入境前至少 10 天施打 (終生有效)".into(),
+                yellow_book_required: true,
+                description: "依國際衛生條例 (IHR)，非洲及中南美洲黃熱病流行國強制要求出示國際預防接種證明書 (黃皮書) 入境簽證！未出示可能被拒絕入境。".into(),
+            });
+            mandatory_items.push(TravelVaccineItem {
+                name: "四價腦膜炎雙球菌疫苗 (MenACWY)".into(),
+                requirement_type: "Mandatory".into(),
+                timing_note: "入境前至少 10 天於指定門診施打".into(),
+                yellow_book_required: true,
+                description: "沙烏地阿拉伯政府強制規定：赴麥加朝聖 (Hajj / Umrah) 入境簽證必須出示黃皮書證明！歐美大學宿舍亦列為強制入學項目。".into(),
+            });
+            mandatory_items.push(TravelVaccineItem {
+                name: "小兒麻痺疫苗 (Polio IPV 追加劑)".into(),
+                requirement_type: "Mandatory".into(),
+                timing_note: "赴流行國(如阿富汗/巴基斯坦)停留4週以上者需於4週至12個月內追加1劑".into(),
+                yellow_book_required: true,
+                description: "疾管署規範：依 WHO 警告前往小兒麻痺野生株或衍生株高風險流行國，出境前必須出示黃皮書登載 1 年內 IPV 追加劑紀錄！".into(),
+            });
+
+            recommended_items.push(TravelVaccineItem {
+                name: "傷寒疫苗 (Typhoid Vaccine)".into(),
+                requirement_type: "Recommended".into(),
+                timing_note: "出發前 2 週施打 1 劑 (效期3年)".into(),
+                yellow_book_required: false,
+                description: "防範經由污染飲食與水質感染之傷寒桿菌，效期 3 年，持續高風險地區活動每 3 年建議追加 1 劑。".into(),
+            });
+            recommended_items.push(TravelVaccineItem {
+                name: "A 型肝炎疫苗 (HepA)".into(),
+                requirement_type: "Recommended".into(),
+                timing_note: "出發前 2 週施打第 1 劑 (隔6-12月打第2劑)".into(),
+                yellow_book_required: false,
+                description: "熱帶與開發中國家飲食衛生與水質感染風險高，建議預先接種 2 劑獲長期保護力。".into(),
+            });
+            recommended_items.push(TravelVaccineItem {
+                name: "高山症預防用藥 (Acetazolamide / 丹木斯)".into(),
+                requirement_type: "Recommended".into(),
+                timing_note: "登山前 24 小時開始服用至適應高海拔".into(),
+                yellow_book_required: false,
+                description: "赴海拔超過 2,500 公尺地區者 (秘魯庫斯科、西藏、高山健行)，建議至旅遊門診評估開立預防用藥。".into(),
+            });
+
+            travel_clinic_notes.push("抗瘧疾預防三大處方藥物：前往瘧疾流行區 (非洲/中南美/南亞)，請至旅遊門診評估開立：1) Malarone 莫可樂 (每日1顆)；2) Doxycycline 多喜黴素 (每日1顆)；3) Mefloquine 美爾奎寧 (每週1顆)。".into());
+            travel_clinic_notes.push("黃熱病疫苗需於出發前至少 10 天於衛福部授權之旅遊醫學門診施打方能生效黃皮書。".into());
+        }
         "us_eu_study" => {
             mandatory_items.push(TravelVaccineItem {
                 name: "腦膜炎雙球菌疫苗 (MenACWY)".into(),
