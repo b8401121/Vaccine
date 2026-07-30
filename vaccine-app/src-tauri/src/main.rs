@@ -629,68 +629,6 @@ fn get_eligible_vaccines(
             });
         }
 
-        if age_years >= 19 && age_years <= 45 {
-            let hpv_desc = if is_female {
-                "自費HPV疫苗：2價僅適用女性，4價與9價適用男女性。可預防子宮頸癌及相關病變。(按 0-2-6 個月時程施打 3 劑)"
-            } else {
-                "自費HPV疫苗：4價與9價適用於男性。可預防尖形濕疣(菜花)及肛門癌等病變。(按 0-2-6 個月時程施打 3 劑)"
-            };
-
-            adult_routine.push(VaccineItem {
-                name: "人類乳突病毒疫苗 (HPV)".into(),
-                dose_info: "自費共 3 劑 (0-2-6 個月)".into(),
-                timing_info: if age_years <= 26 { "19-26 歲建議" } else { "27-45 歲自費" }.into(),
-                category: "SelfPaid".into(),
-                description: hpv_desc.into(),
-                audience: "Adults".into(),
-            });
-        }
-
-        if age_years >= 50 || age_years >= 18 {
-            let shingles_desc = if is_taoyuan || is_island {
-                format!("🏛️ {}福利：65歲以上低收/中低收入長者享地方政府補助！一般人自費 2 劑 (隔 2-6 月)。", location)
-            } else {
-                "預防帶狀疱疹(皮蛇)及疱疹後神經痛，防護率達90%以上。按 0, 2-6 個月施打 2 劑。".to_string()
-            };
-
-            adult_routine.push(VaccineItem {
-                name: "非活性帶狀疱疹疫苗 (Shingrix)".into(),
-                dose_info: "自費共 2 劑 (隔 2-6 月)".into(),
-                timing_info: "50 歲以上或 18 歲以上高風險".into(),
-                category: if is_taoyuan || is_island { "Subsidized".into() } else { "SelfPaid".into() },
-                description: shingles_desc,
-                audience: "Adults".into(),
-            });
-        }
-
-        if age_years >= 65 || (age_years >= 55 && age_years <= 64) {
-            adult_routine.push(VaccineItem {
-                name: "肺炎鏈球菌疫苗 (PCV13/PCV20/PPV23)".into(),
-                dose_info: "公費/自費 1-2 劑".into(),
-                timing_info: if age_years >= 65 { "65 歲以上" } else { "55-64 歲原住民" }.into(),
-                category: "Routine".into(),
-                description: "公費提供 1 劑 PCV13/PCV20 銜接 PPV23。未達公費年齡者可自費接種".into(),
-                audience: "Adults".into(),
-            });
-        }
-
-        if age_years >= 60 {
-            let rsv_desc = if is_female {
-                "60歲以上長者建議自費1劑。懷孕婦女(28-36週)接種可傳遞被動免疫給嬰兒。"
-            } else {
-                "60歲以上長者建議自費1劑，預防RSV引發之下呼吸道疾病與重症。"
-            };
-
-            adult_routine.push(VaccineItem {
-                name: "呼吸道細胞融合病毒 (RSV) 疫苗".into(),
-                dose_info: "自費 1 劑".into(),
-                timing_info: "60 歲以上長者".into(),
-                category: "SelfPaid".into(),
-                description: rsv_desc.into(),
-                audience: "Adults".into(),
-            });
-        }
-
         milestones_out.push(TimelineMilestone {
             title: format!("成人常規與自費建議疫苗 ({}, {}, {})", age_display, gender_display, location_display),
             age_months: total_months,
