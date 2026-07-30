@@ -105,8 +105,13 @@
 
         <div id="results" class="results-container hidden">
           <div class="results-header">
-            <h3>疫苗接種時間軸</h3>
-            <div id="age-badge" class="age-badge">目前年齡：--</div>
+            <div class="results-header-left">
+              <h3>疫苗接種時間軸</h3>
+              <div id="age-badge" class="age-badge">目前年齡：--</div>
+            </div>
+            <button id="print-report-btn" class="btn-secondary print-btn">
+              🖨️ 一鍵列印 / 匯出衛教單
+            </button>
           </div>
           <div class="legend">
             <span class="tag routine">公費常規</span>
@@ -262,6 +267,73 @@
         <div id="modal-content">
           <!-- 內容由 JS 動態生成 -->
         </div>
+      </div>
+    </div>
+
+    <!-- 專屬列印 / PDF 匯出報表範本 (Print-only Report Template) -->
+    <div id="printable-report" class="printable-report-wrapper">
+      <div class="print-header">
+        <div class="print-title-block">
+          <h2>預防接種與自費疫苗衛教建議單</h2>
+          <p class="print-subtitle">衛生福利部疾病管制署 (Taiwan CDC) 官方標準 ‧ 專屬診所衛教聯</p>
+        </div>
+        <div class="print-date-stamp">
+          <div>列印日期：<span id="print-date"></span></div>
+          <div>衛教單位：預防接種諮詢門診</div>
+        </div>
+      </div>
+
+      <div class="print-meta-grid">
+        <div class="print-meta-item"><strong>基本資料：</strong><span id="print-meta-info">--</span></div>
+      </div>
+
+      <div class="print-content-block">
+        <h3 class="print-section-heading">📍 當前階段推薦接種疫苗項目</h3>
+        <table class="print-table">
+          <thead>
+            <tr>
+              <th style="width: 25%;">疫苗名稱</th>
+              <th style="width: 15%;">劑次/時程</th>
+              <th style="width: 15%;">類別標示</th>
+              <th style="width: 45%;">說明與衛生局補助衛教</th>
+            </tr>
+          </thead>
+          <tbody id="print-current-table-body">
+            <!-- JS 動態寫入表格 -->
+          </tbody>
+        </table>
+      </div>
+
+      <div class="print-content-block" style="margin-top: 1rem;">
+        <h3 class="print-section-heading">⏳ 下一階段預計疫苗項目</h3>
+        <table class="print-table">
+          <thead>
+            <tr>
+              <th style="width: 25%;">疫苗名稱</th>
+              <th style="width: 15%;">劑次/時程</th>
+              <th style="width: 15%;">類別標示</th>
+              <th style="width: 45%;">說明與注意事項</th>
+            </tr>
+          </thead>
+          <tbody id="print-next-table-body">
+            <!-- JS 動態寫入表格 -->
+          </tbody>
+        </table>
+      </div>
+
+      <div class="print-notes-block">
+        <h4>⚠️ 接種前後衛教與安全叮嚀：</h4>
+        <ol>
+          <li>若有發燒 (≥38°C) 或急性中重度疾病，請延期至康復後再行接種。</li>
+          <li><strong>活性減毒疫苗間隔提醒</strong>：水痘、MMR、日本腦炎等活性減毒疫苗若未在同一天施打，需間隔至少 28 天以上。</li>
+          <li>接種後請在診所觀察 15-30 分鐘，確認無急性過敏反應後方可離開。</li>
+          <li>接種部位紅腫疼痛為常見反應，可局部冰敷；若高燒不退超過 48 小時，請儘速回診就醫。</li>
+        </ol>
+      </div>
+
+      <div class="print-footer-signatures">
+        <div class="sig-box">醫師 / 護理師衛教簽章：___________________</div>
+        <div class="sig-box">病患 / 家長簽收：___________________</div>
       </div>
     </div>
 

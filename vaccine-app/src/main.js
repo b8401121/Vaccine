@@ -2,6 +2,7 @@ const { invoke } = window.__TAURI__.tauri;
 
 let allVaccinesList = [];
 let currentFilter = 'all';
+let lastQueryData = null;
 
 window.addEventListener('DOMContentLoaded', () => {
   setupDateSelectors();
@@ -10,6 +11,7 @@ window.addEventListener('DOMContentLoaded', () => {
   setupFormSubmit();
   setupCatchupFormSubmit();
   setupTravelFormSubmit();
+  setupPrintButton();
   setupTabs();
   setupLibraryFilterAndSearch();
   setupModalEvents();
@@ -124,6 +126,7 @@ function scrollToCurrentNode() {
 }
 
 function displayVaccines(data) {
+  lastQueryData = data;
   const { age_display, child_age_detail, gender_display, location_display, milestones } = data;
   const resultsDiv = document.getElementById('results');
   const timelineContainer = document.getElementById('timeline-container');
@@ -654,4 +657,90 @@ function displayTravelAdvisoryResult(data) {
       ${notesHtml}
     </div>
   `;
+}
+
+// ----------------------------------------------------
+// 一鍵列印 / 匯出衛教建議單 (Print Report)
+// ----------------------------------------------------
+function setupPrintButton() {
+  const printBtn = document.getElementById('print-report-btn');
+  if (!printBtn) return;
+
+  printBtn.addEventListener('click', () => {
+    if (!lastQueryData) {
+      alert('請先選擇生日進行查詢，再行列印衛教建議單。');
+      return;
+    }
+    prepareAndPrintReport(lastQueryData);
+  });
+}
+
+function prepareAndPrintReport(data) {
+  const { age_display, child_age_detail, gender_display, location_display, milestones } = data;
+
+  const printDate = document.getElementById('print-date');
+  const printMeta = document.getElementById('print-meta-info');
+  const currentTbody = document.getElementById('print-current-table-body');
+  const nextTbody = document.getElementById('print-next-table-body');
+
+  const now = new Date();
+  if (printDate) {
+    printDate.textContent = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+  }
+
+  const ageText = child_age_detail || age_display;
+  if (printMeta) {
+    printMeta.textContent = `居住縣市：${location_display} ｜ 性別：${gender_display} ｜ 目前計算年齡：${ageText}`;
+  }
+
+  currentTbody.innerHTML = '';
+  nextTbody.innerHTML = '';
+
+  let currentFound = false;
+  let nextFound = false;
+
+  milestones.forEach(m => {
+    if (m.status === 'Current') {
+      currentFound = true;
+      m.vaccines.forEach(v => {
+        const tr = document.createElement('tr');
+        let categoryLabel = '公費常規';
+        if (v.category === 'Subsidized') categoryLabel = '🏛️ 地方縣市補助';
+        else if (v.category === 'SelfPaid') categoryLabel = '💰 自費建議';
+
+        tr.innerHTML = `
+          <td style="font-weight: bold; color: #1e293b;">${v.name}</td>
+          <td>${v.dose_info}</td>
+          <td>${categoryLabel}</td>
+          <td>${v.description}</td>
+        `;
+        currentTbody.appendChild(tr);
+      });
+    } else if (m.status === 'Next' && !nextFound) {
+      nextFound = true;
+      m.vaccines.forEach(v => {
+        const tr = document.createElement('tr');
+        let categoryLabel = '公費常規';
+        if (v.category === 'Subsidized') categoryLabel = '🏛️ 地方縣市補助';
+        else if (v.category === 'SelfPaid') categoryLabel = '💰 自費建議';
+
+        tr.innerHTML = `
+          <td style="font-weight: bold; color: #1e293b;">${v.name} (${m.title})</td>
+          <td>${v.dose_info}</td>
+          <td>${categoryLabel}</td>
+          <td>${v.description}</td>
+        `;
+        nextTbody.appendChild(tr);
+      });
+    }
+  });
+
+  if (!currentFound) {
+    currentTbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #64748b;">當前年齡無特定推薦項目</td></tr>';
+  }
+  if (!nextFound) {
+    nextTbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #64748b;">無後續預計階段項目</td></tr>';
+  }
+
+  window.print();
 }
