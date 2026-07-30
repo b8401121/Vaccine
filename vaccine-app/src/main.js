@@ -225,6 +225,30 @@ function displayVaccines(data) {
         `;
       }
 
+      // 在時間軸框框內顯示「當次接種日期」或「下次預估日期」
+      let visitDateBarHtml = '';
+      if (m.status === 'Current') {
+        const todayStr = (() => {
+          const t = new Date();
+          return `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`;
+        })();
+        visitDateBarHtml = `
+          <div class="milestone-visit-bar current-visit-bar">
+            <span class="visit-bar-icon">📍</span>
+            <span class="visit-bar-label">當次建議接種日期：</span>
+            <strong class="visit-bar-date">${todayStr}（今日）</strong>
+          </div>
+        `;
+      } else if (m.status === 'Next' && m.target_date && m.target_date.length === 10) {
+        visitDateBarHtml = `
+          <div class="milestone-visit-bar next-visit-bar">
+            <span class="visit-bar-icon">📆</span>
+            <span class="visit-bar-label">預估下次接種日期：</span>
+            <strong class="visit-bar-date">${m.target_date}</strong>
+          </div>
+        `;
+      }
+
       node.innerHTML = `
         ${currentAgeBannerHtml}
         <div class="timeline-marker">
@@ -240,6 +264,7 @@ function displayVaccines(data) {
               📱 📅 手機掃碼行事曆
             </button>
           </div>
+          ${visitDateBarHtml}
           <div class="timeline-cards-grid">
             ${cardsHtml}
           </div>

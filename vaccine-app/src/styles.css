@@ -469,9 +469,56 @@ input:checked + .slider:before {
   align-items: center;
   flex-wrap: wrap;
   gap: 0.75rem;
-  margin-bottom: 1rem;
+  margin-bottom: 0.75rem;
   padding-bottom: 0.6rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid #e2e8f0;
+}
+
+/* 當次/下次接種日期列 inside milestone card */
+.milestone-visit-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 0.85rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  margin-bottom: 0.85rem;
+}
+
+.current-visit-bar {
+  background: linear-gradient(90deg, #fff1f2 0%, #ffe4e6 100%);
+  border: 1px solid #fecdd3;
+  border-left: 4px solid #f43f5e;
+}
+
+.next-visit-bar {
+  background: linear-gradient(90deg, #f0f9ff 0%, #e0f2fe 100%);
+  border: 1px solid #bae6fd;
+  border-left: 4px solid #0284c7;
+}
+
+.visit-bar-icon {
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.visit-bar-label {
+  color: #475569;
+  font-weight: 500;
+}
+
+.visit-bar-date {
+  color: #1e293b;
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.current-visit-bar .visit-bar-date {
+  color: #be123c;
+}
+
+.next-visit-bar .visit-bar-date {
+  color: #0369a1;
 }
 
 .timeline-header-title {

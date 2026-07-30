@@ -805,9 +805,12 @@ fn get_eligible_vaccines(
     let mut next_visit_date = String::new();
     let mut next_visit_milestone = String::new();
 
+    let today_str = now.format("%Y-%m-%d").to_string();
+
     for m in &milestones_out {
         if m.status == "Current" && current_visit_date.is_empty() {
-            current_visit_date = if m.target_date.is_empty() { now.format("%Y-%m-%d").to_string() } else { m.target_date.clone() };
+            // 當次 → 一律使用程式執行當天日期
+            current_visit_date = today_str.clone();
             current_visit_milestone = m.title.clone();
         } else if m.status == "Next" && next_visit_date.is_empty() {
             next_visit_date = m.target_date.clone();
@@ -816,7 +819,7 @@ fn get_eligible_vaccines(
     }
 
     if current_visit_date.is_empty() {
-        current_visit_date = now.format("%Y-%m-%d").to_string();
+        current_visit_date = today_str.clone();
         current_visit_milestone = "當前階段 (即日起符合常規施打)".into();
     }
     if next_visit_date.is_empty() {
