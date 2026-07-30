@@ -602,6 +602,41 @@ input:checked + .slider:before {
   box-shadow: 0 4px 15px rgba(74, 124, 136, 0.1);
 }
 
+/* 可點擊疫苗卡片 */
+.clickable-vaccine-card {
+  cursor: pointer;
+  position: relative;
+}
+
+.clickable-vaccine-card:hover {
+  transform: translateY(-3px);
+  border-color: #4A7C88 !important;
+  box-shadow: 0 6px 20px rgba(74, 124, 136, 0.18) !important;
+}
+
+.clickable-vaccine-card:hover .vaccine-card-click-hint {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* 點擊提示 bar — 預設隱藏，hover 浮現 */
+.vaccine-card-click-hint {
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 0.18s ease, transform 0.18s ease;
+  margin-top: 0.35rem;
+  padding: 0.3rem 0.6rem;
+  background: linear-gradient(90deg, #eaf3f4, #e8eff0);
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #4A7C88;
+  text-align: center;
+  border: 1px solid #c0d8dc;
+  letter-spacing: 0.02em;
+  pointer-events: none;
+}
+
 .card-header {
   display: flex;
   justify-content: space-between;

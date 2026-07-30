@@ -191,7 +191,9 @@ function displayVaccines(data) {
         const currentBadge = isCurrent ? '<span class="due-now-badge">🔥 目前應施打</span>' : '';
 
         cardsHtml += `
-          <div class="timeline-vaccine-card ${cardHighlightClass}">
+          <div class="timeline-vaccine-card ${cardHighlightClass} clickable-vaccine-card"
+               data-vaccine-name="${v.name.replace(/"/g, '&quot;')}"
+               title="點擊查看 ${v.name} 完整解說">
             <div class="card-header">
               <h4>${v.name}</h4>
               <span class="tag ${tagClass}">${tagText}</span>
@@ -202,6 +204,7 @@ function displayVaccines(data) {
               ${currentBadge}
             </div>
             <p class="dose-desc">${v.description}</p>
+            <div class="vaccine-card-click-hint">🔍 點擊查看完整疫苗解說</div>
           </div>
         `;
       });
@@ -271,7 +274,15 @@ function displayVaccines(data) {
           ${coAdminHtml}
         </div>
       `;
-      timelineContainer.appendChild(node);
+        timelineContainer.appendChild(node);
+    });
+
+    // 時間軸疫苗卡片點擊 → 開啟疫苗解說 Modal
+    timelineContainer.querySelectorAll('.clickable-vaccine-card').forEach(card => {
+      card.addEventListener('click', () => {
+        const name = card.getAttribute('data-vaccine-name');
+        openVaccineModalByName(name, card);
+      });
     });
 
     document.querySelectorAll('.add-cal-btn').forEach(btn => {
@@ -459,6 +470,56 @@ function openVaccineModal(v) {
     </div>
   `;
 
+  modal.classList.remove('hidden');
+}
+
+// 從時間軸疫苗卡片點擊後呼叫：先找圖鑑，找不到則用卡片現有資料建簡易 Modal
+function openVaccineModalByName(name, cardEl) {
+  // 1. 嘗試在圖鑑中找完整資料
+  if (allVaccinesList && allVaccinesList.length > 0) {
+    const found = allVaccinesList.find(v =>
+      v.name === name ||
+      v.name.includes(name) ||
+      name.includes(v.name) ||
+      (v.aliases && v.aliases.toLowerCase().includes(name.toLowerCase()))
+    );
+    if (found) {
+      openVaccineModal(found);
+      return;
+    }
+  }
+
+  // 2. Fallback：用時間軸卡片既有資料組合簡易 Modal
+  const modal = document.getElementById('vaccine-modal');
+  const modalContent = document.getElementById('modal-content');
+  if (!modal || !modalContent) return;
+
+  const doseText = cardEl.querySelector('.dose-badge')?.textContent || '';
+  const timingText = cardEl.querySelector('.timing-badge')?.textContent || '';
+  const descText = cardEl.querySelector('.dose-desc')?.textContent || '';
+  const tagText = cardEl.querySelector('.tag')?.textContent || '';
+
+  modalContent.innerHTML = `
+    <div class="modal-header-section">
+      <span class="modal-category-tag">${tagText}</span>
+      <h2>${name}</h2>
+      <p class="modal-aliases">（詳細圖鑑資料請至「疫苗百科圖鑑」頁籤查詢）</p>
+    </div>
+    <div class="modal-body-section">
+      <div class="modal-block">
+        <h3>💉 劑次與時程資訊</h3>
+        <p class="desc-text">${doseText}　${timingText}</p>
+      </div>
+      <div class="modal-block">
+        <h3>📖 本次衛教說明</h3>
+        <p class="desc-text">${descText || '請參閱診所衛教人員說明。'}</p>
+      </div>
+      <div class="modal-block notes-block">
+        <h3>⚠️ 接種注意事項</h3>
+        <p class="notes-text">接種前請告知醫護人員是否有發燒、急性疾病、藥物過敏或免疫功能問題。接種後請留觀 15–30 分鐘。</p>
+      </div>
+    </div>
+  `;
   modal.classList.remove('hidden');
 }
 
