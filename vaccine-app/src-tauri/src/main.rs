@@ -28,6 +28,7 @@ struct TimelineMilestone {
 struct VaccineResponse {
     age_display: String,
     child_age_detail: String,
+    gender_display: String,
     milestones: Vec<TimelineMilestone>,
 }
 
@@ -44,6 +45,7 @@ fn get_eligible_vaccines(
     month: u32,
     day: u32,
     is_roc: bool,
+    gender: String,
 ) -> Result<VaccineResponse, String> {
     let actual_year = if is_roc { year + 1911 } else { year };
     
@@ -88,6 +90,9 @@ fn get_eligible_vaccines(
     } else {
         format!("{} 歲", age_years)
     };
+
+    let is_female = gender == "female";
+    let gender_display = if is_female { "女性 ♀" } else { "男性 ♂" }.to_string();
 
     let mut milestones_out = Vec::new();
 
@@ -358,18 +363,28 @@ fn get_eligible_vaccines(
                 dose_info: "第 1 劑 / 每10年追加".into(),
                 timing_info: "成人常規".into(),
                 category: "Routine".into(),
-                description: "建議完成 1 劑 Tdap，之後每 10 年追加 1 劑".into(),
+                description: if is_female {
+                    "成人建議每10年追加1劑。女性每次懷孕(27-36週)均建議施打1劑以傳遞抗體給嬰兒。"
+                } else {
+                    "成人建議每10年追加1劑，預防破傷風、白喉與百日咳。"
+                }.into(),
                 audience: "Adults".into(),
             },
         ];
 
         if age_years >= 19 && age_years <= 45 {
+            let hpv_desc = if is_female {
+                "人類乳突病毒疫苗：2價僅適用女性，4價及9價適用男女性。可預防子宮頸癌及相關病變。(按 0-2-6 個月時程施打 3 劑)"
+            } else {
+                "人類乳突病毒疫苗：4價及9價適用於男性。可預防尖形濕疣(菜花)及肛門癌等病變。(按 0-2-6 個月時程施打 3 劑)"
+            };
+
             adult_routine.push(VaccineItem {
                 name: "人類乳突病毒疫苗 (HPV)".into(),
                 dose_info: "共 3 劑 (0-2-6 個月)".into(),
                 timing_info: if age_years <= 26 { "19-26 歲常規" } else { "27-45 歲高風險" }.into(),
                 category: if age_years <= 26 { "Routine".into() } else { "HighRisk".into() },
-                description: "預防 HPV 感染引起之相關病變".into(),
+                description: hpv_desc.into(),
                 audience: "Adults".into(),
             });
         }
@@ -397,30 +412,42 @@ fn get_eligible_vaccines(
         }
 
         if age_years >= 75 || age_years >= 60 {
+            let rsv_desc = if is_female {
+                "75歲以上或60-74歲高風險者建議1劑。懷孕婦女(28-36週)接種可提供嬰兒出生後6個月內被動免疫。"
+            } else {
+                "75歲以上或60-74歲高風險者建議1劑，預防RSV引發之下呼吸道疾病。"
+            };
+
             adult_routine.push(VaccineItem {
                 name: "呼吸道細胞融合病毒 (RSV) 疫苗".into(),
                 dose_info: "1 劑".into(),
                 timing_info: if age_years >= 75 { "75 歲以上" } else { "60-74 歲高風險" }.into(),
                 category: if age_years >= 75 { "Routine".into() } else { "HighRisk".into() },
-                description: "預防 RSV 引發之下呼吸道疾病".into(),
+                description: rsv_desc.into(),
                 audience: "Adults".into(),
             });
         }
 
         milestones_out.push(TimelineMilestone {
-            title: format!("成人常規與建議疫苗 (當前年齡：{})", age_display),
+            title: format!("成人常規與建議疫苗 ({}, {})", age_display, gender_display),
             age_months: total_months,
             status: "Current".to_string(),
             vaccines: adult_routine,
         });
 
+        let mmr_desc = if is_female && age_years >= 15 && age_years <= 49 {
+            "15-49歲育齡婦女檢具近3個月德國麻疹抗體陰性證明者可公費接種1劑MMR。1966年後出生無抗體者亦可自費補打。"
+        } else {
+            "1966年後出生或不具麻疹/德國麻疹抗體者，建議自費補打1-2劑。"
+        };
+
         let adult_high_risk = vec![
             VaccineItem {
                 name: "麻疹腮腺炎德國麻疹疫苗 (MMR)".into(),
-                dose_info: "1-2 劑 (間隔28天以上)".into(),
-                timing_info: "1966年後出生/無抗體者".into(),
+                dose_info: if is_female && age_years >= 15 && age_years <= 49 { "公費 1 劑 / 自費 1-2 劑" } else { "自費 1-2 劑 (間隔28天以上)" }.into(),
+                timing_info: "育齡婦女/無抗體者".into(),
                 category: "HighRisk".into(),
-                description: "育齡婦女、醫療人員或出國高風險對象補打".into(),
+                description: mmr_desc.into(),
                 audience: "Adults".into(),
             },
             VaccineItem {
@@ -460,6 +487,7 @@ fn get_eligible_vaccines(
     Ok(VaccineResponse {
         age_display,
         child_age_detail,
+        gender_display,
         milestones: milestones_out,
     })
 }
