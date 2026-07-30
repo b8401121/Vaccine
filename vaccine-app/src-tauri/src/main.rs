@@ -81,7 +81,7 @@ fn get_eligible_vaccines(
         format!("{} 個月", age_months.max(0))
     };
 
-    let child_age_detail = if total_months <= 120 {
+    let child_age_detail = if total_months <= 216 { // 18 歲以下顯示詳細個案年齡
         if age_years > 0 {
             format!("{} 歲 {} 個月 (相當於 {} 個月大)", age_years, age_months, total_months)
         } else {
@@ -96,8 +96,8 @@ fn get_eligible_vaccines(
 
     let mut milestones_out = Vec::new();
 
-    // 兒童及自費疫苗時間軸定義 (參考 CDC 自費與公費預防接種清單)
-    let child_specs = vec![
+    // 兒童、青少年及自費疫苗時間軸定義 (涵蓋 0-18 歲)
+    let mut child_specs = vec![
         MilestoneSpec {
             title: "出生 24 小時內",
             min_month: 0,
@@ -352,7 +352,7 @@ fn get_eligible_vaccines(
         MilestoneSpec {
             title: "滿 5 歲至國小入學前",
             min_month: 60,
-            max_month: 85,
+            max_month: 108, // 9歲前
             vaccines: vec![
                 VaccineItem {
                     name: "麻疹腮腺炎德國麻疹混合疫苗 (MMR)".into(),
@@ -374,7 +374,66 @@ fn get_eligible_vaccines(
         },
     ];
 
-    if total_months <= 120 {
+    // 新增：青少年 / 國中 HPV 疫苗階段 (滿 9 歲 ~ 14 歲)
+    let hpv_adolescent_routine = if is_female {
+        vec![
+            VaccineItem {
+                name: "人類乳突病毒疫苗 (HPV)".into(),
+                dose_info: "公費 2 劑 (按 0, 6 個月)".into(),
+                timing_info: "國中女生 (約12-15歲)".into(),
+                category: "Routine".into(),
+                description: "衛福部國健署提供國中女生公費施打 2 劑 9 價 HPV 疫苗，有效預防子宮頸癌及 HPV 相關癌症".into(),
+                audience: "Children".into(),
+            },
+            VaccineItem {
+                name: "人類乳突病毒疫苗 (HPV)".into(),
+                dose_info: "自費 2 劑 (按 0, 6 個月)".into(),
+                timing_info: "9-14 歲青少年".into(),
+                category: "SelfPaid".into(),
+                description: "非公費補助資格之 9-14 歲女生，可選擇自費接種 2 劑 9 價 HPV 疫苗".into(),
+                audience: "Children".into(),
+            },
+        ]
+    } else {
+        vec![VaccineItem {
+            name: "人類乳突病毒疫苗 (HPV)".into(),
+            dose_info: "自費 2 劑 (按 0, 6 個月)".into(),
+            timing_info: "9-14 歲男性青少年".into(),
+            category: "SelfPaid".into(),
+            description: "9-14 歲男性建議自費接種 2 劑 4價或9價 HPV 疫苗，預防尖形濕疣(菜花)及陰莖癌/肛門癌等".into(),
+            audience: "Children".into(),
+        }]
+    };
+
+    child_specs.push(MilestoneSpec {
+        title: "滿 9 歲至 14 歲 (青少年/國中階段)",
+        min_month: 108,
+        max_month: 180,
+        vaccines: hpv_adolescent_routine,
+    });
+
+    // 新增：滿 15 歲至 18 歲 (高中階段 HPV 3劑型自費)
+    let hpv_highschool = vec![VaccineItem {
+        name: "人類乳突病毒疫苗 (HPV)".into(),
+        dose_info: "自費 3 劑 (按 0, 2, 6 個月)".into(),
+        timing_info: "15 歲以上青少年".into(),
+        category: "SelfPaid".into(),
+        description: if is_female {
+            "15歲以上首次接種需施打 3 劑 (按 0-2-6 個月時程)，防範 HPV 病毒感染及子宮頸癌"
+        } else {
+            "15歲以上男性首次接種需施打 3 劑 (按 0-2-6 個月時程)，防範 HPV 病毒感染及口咽癌/菜花"
+        }.into(),
+        audience: "Children".into(),
+    }];
+
+    child_specs.push(MilestoneSpec {
+        title: "滿 15 歲至 18 歲 (高中/青年階段)",
+        min_month: 180,
+        max_month: 216,
+        vaccines: hpv_highschool,
+    });
+
+    if total_months <= 216 {
         for spec in child_specs {
             let status = if total_months >= spec.max_month {
                 "Past"
