@@ -1415,7 +1415,7 @@ fn get_travel_advisory(
                 requirement_type: "Mandatory".into(),
                 timing_note: "入境前至少 10 天施打 (終生有效)".into(),
                 yellow_book_required: true,
-                description: "非洲 (如肯亞、衣索比亞) 及中南美洲 (如巴西、祕魯、哥倫比亞) 特定國家強制要求黃皮書入境簽證！未出示可能被拒絕入境或隔離。".into(),
+                description: "依國際衛生條例 (IHR) 規定，非洲 (如肯亞、衣索比亞) 及中南美洲 (如巴西、祕魯、哥倫比亞) 特定國家強制要求出示國際預防接種證明書 (黃皮書) 入境簽證！未出示可能被拒絕入境或強制隔離。".into(),
             });
 
             recommended_items.push(TravelVaccineItem {
@@ -1423,14 +1423,14 @@ fn get_travel_advisory(
                 requirement_type: "Recommended".into(),
                 timing_note: "出發前 2 週施打 1 劑 (效期3年)".into(),
                 yellow_book_required: false,
-                description: "防範經由污染飲食與水質感染之傷寒桿菌。".into(),
+                description: "防範經由污染飲食與水質感染之傷寒桿菌，效期 3 年，持續高風險地區活動每 3 年建議追加 1 劑。".into(),
             });
             recommended_items.push(TravelVaccineItem {
                 name: "A 型肝炎疫苗 (HepA)".into(),
                 requirement_type: "Recommended".into(),
-                timing_note: "出發前 2 週施打第 1 劑".into(),
+                timing_note: "出發前 2 週施打第 1 劑 (隔6-12月打第2劑)".into(),
                 yellow_book_required: false,
-                description: "熱帶疫區飲食衛生感染風險極高，強烈建議施打。".into(),
+                description: "熱帶疫區飲食衛生與水質感染風險高，建議預先接種 2 劑獲長期保護力。".into(),
             });
             recommended_items.push(TravelVaccineItem {
                 name: "狂犬病疫苗 (Rabies)".into(),
@@ -1439,11 +1439,26 @@ fn get_travel_advisory(
                 yellow_book_required: false,
                 description: "前往野生動物或犬隻狂犬病高風險熱帶叢林野外活動建議預先接種。".into(),
             });
+            recommended_items.push(TravelVaccineItem {
+                name: "高山症預防用藥 (Acetazolamide / 丹木斯)".into(),
+                requirement_type: "Recommended".into(),
+                timing_note: "登山前 24 小時開始服用至適應高海拔".into(),
+                yellow_book_required: false,
+                description: "赴秘魯庫斯科 (Cusco)、印加古道或衣索比亞高山等海拔超過 2,500 公尺地區者，建議至旅遊門診評估開立預防用藥。".into(),
+            });
 
-            travel_clinic_notes.push("抗瘧疾預防藥物提示：非洲與中南美洲多數地區有瘧疾流行，建議於旅遊醫學門診由醫師開立預防用藥 (如 Malarone 莫可樂或 Doxycycline) 於出發前開始服用。".into());
-            travel_clinic_notes.push("黃熱病疫苗施打後需 10 天方能產生有效保護力並生效黃皮書。".into());
+            travel_clinic_notes.push("抗瘧疾預防處方藥物：非洲與中南美洲多數地區有瘧疾流行，建議至旅遊門診開立預防藥物 (如 Malarone 莫可樂每日1顆，或 Doxycycline 每日1顆，或 Mefloquine 每週1顆) 於出發前開始服用。".into());
+            travel_clinic_notes.push("黃熱病疫苗施打後需 10 天方能產生有效保護力並生效黃皮書，請務必提早預約。".into());
         }
         "southeast_asia" => {
+            mandatory_items.push(TravelVaccineItem {
+                name: "小兒麻痺疫苗 (Polio IPV 追加劑)".into(),
+                requirement_type: "Mandatory".into(),
+                timing_note: "赴流行國(如阿富汗/巴基斯坦)停留4週以上者需於4週至12個月內追加1劑".into(),
+                yellow_book_required: true,
+                description: "疾管署規範：依 WHO 警告前往小兒麻痺野生株或衍生株高風險流行國，出境前必須出示黃皮書登載 1 年內 IPV 追加劑紀錄！".into(),
+            });
+
             recommended_items.push(TravelVaccineItem {
                 name: "A 型肝炎疫苗 (HepA)".into(),
                 requirement_type: "Recommended".into(),
@@ -1454,7 +1469,7 @@ fn get_travel_advisory(
             recommended_items.push(TravelVaccineItem {
                 name: "傷寒疫苗 (Typhoid Vaccine)".into(),
                 requirement_type: "Recommended".into(),
-                timing_note: "出發前 2 週施打 1 劑".into(),
+                timing_note: "出發前 2 週施打 1 劑 (效期3年)".into(),
                 yellow_book_required: false,
                 description: "赴印度、尼泊爾、東南亞偏遠地區，防範傷寒桿菌水質污染。".into(),
             });
@@ -1467,7 +1482,7 @@ fn get_travel_advisory(
             });
 
             travel_clinic_notes.push("防蚊提醒：東南亞地區登革熱、屈公病及寨卡病毒活躍，請準備含 DEET 或 Picaridin 成分之有效防蚊液。".into());
-            travel_clinic_notes.push("前往印度、印尼偏遠山區，建議諮詢旅遊門診評估開立抗瘧疾藥物。".into());
+            travel_clinic_notes.push("前往印度、印尼偏遠山區，建議諮詢旅遊門診評估開立抗瘧疾藥物 (Malarone 或 Doxycycline)。".into());
         }
         "japan_korea" => {
             recommended_items.push(TravelVaccineItem {
