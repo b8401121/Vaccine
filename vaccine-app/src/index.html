@@ -19,13 +19,16 @@
       <p class="subtitle">自動試算兒童與成人公自費疫苗時程 ‧ 衛福部疾管署官方標準</p>
       
       <!-- 頂部頁籤分頁導覽 -->
-      <nav class="top-nav-tabs">
-        <button class="tab-btn active" data-target="tab-calculator">🗓️ 生日試算與時間軸</button>
-        <button class="tab-btn" data-target="tab-library" id="tab-btn-library">📚 疫苗大百科與完整時程庫</button>
+      <nav class="nav-tabs">
+        <button class="nav-tab active" data-tab="tab-query">🗓️ 年齡接種時間軸</button>
+        <button class="nav-tab" data-tab="tab-catchup">⏱️ 遲打/補打間隔試算</button>
+        <button class="nav-tab" data-tab="tab-library">📚 疫苗大百科與圖鑑</button>
       </nav>
     </header>
 
     <main class="main-content">
+      <!-- TAB 1: 年齡接種時間軸 -->
+      <section id="tab-query" class="tab-content active">
       <!-- 分頁 1：生日試算與時間軸 -->
       <section id="tab-calculator" class="tab-page active">
         <div class="card search-card">
@@ -119,6 +122,65 @@
           <div class="vertical-timeline" id="timeline-container">
             <!-- 由 JS 動態渲染卡片與站點 -->
           </div>
+        </div>
+      </section>
+
+      <!-- 分頁 3：遲打 / 補打最短間隔試算器 -->
+      <section id="tab-catchup" class="tab-page hidden">
+        <div class="card search-card">
+          <h2>⏱️ 遲打 / 補打最短間隔試算器 (衛福部 ACIP 規範)</h2>
+          <p style="color: #94a3b8; font-size: 0.9rem; margin-bottom: 1.25rem;">
+            依據衛生福利部 ACIP 疫苗補打與最小間隔指引，選擇目標疫苗與上一劑施打日期，自動試算「最早合法可補打日期」。
+          </p>
+
+          <form id="catchup-form">
+            <div class="input-group">
+              <div class="field">
+                <label for="catchup-vaccine">目標疫苗種類</label>
+                <select id="catchup-vaccine" required>
+                  <option value="dtap-hib-ipv" selected>五合一疫苗 (DTaP-Hib-IPV)</option>
+                  <option value="hepb">B 型肝炎疫苗 (HepB)</option>
+                  <option value="pcv">13價結合型肺炎鏈球菌疫苗 (PCV13)</option>
+                  <option value="rotavirus">輪狀病毒疫苗 (Rotavirus)</option>
+                  <option value="varicella">水痘疫苗 (Varicella)</option>
+                  <option value="mmr">麻疹腮腺炎德國麻疹混合疫苗 (MMR)</option>
+                  <option value="je">日本腦炎疫苗 (JE - 細胞培養減毒)</option>
+                  <option value="hepa">A 型肝炎疫苗 (HepA)</option>
+                  <option value="ev71">腸病毒 A71 型疫苗 (EV71)</option>
+                  <option value="hpv">九價人類乳突病毒疫苗 (HPV 9價)</option>
+                  <option value="shingles">非活性帶狀疱疹疫苗 (Shingrix)</option>
+                </select>
+              </div>
+
+              <div class="field">
+                <label for="catchup-dose">已完成之上一劑劑次</label>
+                <select id="catchup-dose" required>
+                  <option value="1" selected>已完成 第 1 劑 (準備試算 第 2 劑)</option>
+                  <option value="2">已完成 第 2 劑 (準備試算 第 3 劑 / 追加劑)</option>
+                  <option value="3">已完成 第 3 劑 (準備試算 第 4 劑 / 追加劑)</option>
+                </select>
+              </div>
+
+              <div class="field">
+                <label for="catchup-year">上一劑年份 (西元)</label>
+                <input type="number" id="catchup-year" required placeholder="如: 2024">
+              </div>
+              <div class="field">
+                <label for="catchup-month">上一劑月份</label>
+                <select id="catchup-month" required></select>
+              </div>
+              <div class="field">
+                <label for="catchup-day">上一劑日期</label>
+                <select id="catchup-day" required></select>
+              </div>
+            </div>
+
+            <button type="submit" class="btn-primary">試算最早可補打日期</button>
+          </form>
+        </div>
+
+        <div id="catchup-result" class="results-container hidden" style="margin-top: 1.5rem;">
+          <!-- 試算結果內容由 JS 動態生成 -->
         </div>
       </section>
 

@@ -1026,13 +1026,191 @@ fn get_all_vaccines() -> Vec<VaccineDetailDoc> {
     ]
 }
 
+#[derive(Serialize, Deserialize, Clone)]
+struct CatchUpResponse {
+    vaccine_name: String,
+    next_dose_info: String,
+    earliest_date_display: String,
+    days_remaining: i64,
+    is_ready_now: bool,
+    acip_rule_summary: String,
+    clinical_notes: Vec<String>,
+}
+
+#[tauri::command]
+fn calculate_catch_up(
+    vaccine_id: String,
+    last_dose_num: i32,
+    year: i32,
+    month: u32,
+    day: u32,
+    is_roc: bool,
+) -> Result<CatchUpResponse, String> {
+    let actual_year = if is_roc { year + 1911 } else { year };
+    let last_date = NaiveDate::from_ymd_opt(actual_year, month, day)
+        .ok_or("無效的施打日期")?;
+        
+    let today = Local::now().naive_local().date();
+    if last_date > today {
+        return Err("上一劑施打日期不能在未來".into());
+    }
+
+    let mut vaccine_name = String::new();
+    let mut next_dose_info = String::new();
+    let mut min_days_interval: i64 = 28;
+    let mut acip_rule_summary = String::new();
+    let mut clinical_notes = Vec::new();
+
+    match vaccine_id.as_str() {
+        "dtap-hib-ipv" => {
+            vaccine_name = "五合一疫苗 (DTaP-Hib-IPV)".into();
+            if last_dose_num == 1 {
+                next_dose_info = "第 2 劑 (基礎劑)".into();
+                min_days_interval = 28;
+                acip_rule_summary = "衛福部 ACIP 規範：第 1 劑與第 2 劑至少需間隔 4 週 (28天)。".into();
+            } else if last_dose_num == 2 {
+                next_dose_info = "第 3 劑 (基礎劑)".into();
+                min_days_interval = 28;
+                acip_rule_summary = "衛福部 ACIP 規範：第 2 劑與第 3 劑至少需間隔 4 週 (28天)。".into();
+            } else {
+                next_dose_info = "第 4 劑 (追加劑)".into();
+                min_days_interval = 180; // 6 個月
+                acip_rule_summary = "衛福部 ACIP 規範：第 4 劑追加劑需與第 3 劑至少間隔 6 個月 (180天)。".into();
+                clinical_notes.push("第 4 劑通常建議於出生滿 18 個月施打。".into());
+            }
+        }
+        "hepb" => {
+            vaccine_name = "B 型肝炎疫苗 (HepB)".into();
+            if last_dose_num == 1 {
+                next_dose_info = "第 2 劑".into();
+                min_days_interval = 28;
+                acip_rule_summary = "衛福部 ACIP 規範：第 1 劑與第 2 劑至少需間隔 4 週 (28天)。".into();
+            } else {
+                next_dose_info = "第 3 劑".into();
+                min_days_interval = 56; // 8 週
+                acip_rule_summary = "衛福部 ACIP 規範：第 2 劑與第 3 劑至少需間隔 8 週 (56天)，且距第1劑需至少間隔 16 週。".into();
+                clinical_notes.push("若媽媽為 B 肝表面抗原 (HBsAg) 陽性，寶寶出生後已包含 HBIG 免疫球蛋白保護。".into());
+            }
+        }
+        "pcv" => {
+            vaccine_name = "13價結合型肺炎鏈球菌疫苗 (PCV13)".into();
+            if last_dose_num == 1 {
+                next_dose_info = "第 2 劑 (基礎劑)".into();
+                min_days_interval = 28;
+                acip_rule_summary = "衛福部 ACIP 規範：第 1 劑與第 2 劑至少需間隔 4 週 (28天)。".into();
+            } else {
+                next_dose_info = "第 3 劑 (追加劑)".into();
+                min_days_interval = 56; // 8 週
+                acip_rule_summary = "衛福部 ACIP 規範：追加劑需與前一劑至少間隔 8 週 (56天)，且幼兒需滿 12 個月大。".into();
+                clinical_notes.push("公費第 3 劑為滿 12-15 個月施打之重要追加劑。".into());
+            }
+        }
+        "rotavirus" => {
+            vaccine_name = "輪狀病毒疫苗 (Rotavirus)".into();
+            next_dose_info = "下一劑 (自費/地方補助口服)".into();
+            min_days_interval = 28;
+            acip_rule_summary = "衛福部 ACIP 規範：口服輪狀病毒疫苗各劑之間至少需間隔 4 週 (28天)。".into();
+            clinical_notes.push("⚠️ 關鍵年齡上限：第 1 劑最晚需於滿 14 週 6 天前完成。".into());
+            clinical_notes.push("⚠️ 關鍵年齡上限：最後 1 劑最晚不可超過滿 8 個月大 (32 週)！若超過年齡上限則不可再補打。".into());
+        }
+        "varicella" => {
+            vaccine_name = "水痘疫苗 (Varicella)".into();
+            next_dose_info = "第 2 劑 (追加劑 / 補打)".into();
+            min_days_interval = 28;
+            acip_rule_summary = "衛福部 ACIP 規範：水痘疫苗第 1 劑與第 2 劑至少需間隔 4 週 (28天)；13歲以上未曾感染者間隔 4-8 週。".into();
+            clinical_notes.push("⚠️ 活性減毒疫苗提醒：水痘為活性疫苗。若未在同一天與其他活性疫苗 (如 MMR、日本腦炎) 施打，必須間隔至少 28 天！".into());
+        }
+        "mmr" => {
+            vaccine_name = "麻疹腮腺炎德國麻疹混合疫苗 (MMR)".into();
+            next_dose_info = "第 2 劑".into();
+            min_days_interval = 28;
+            acip_rule_summary = "衛福部 ACIP 規範：MMR 疫苗第 1 劑與第 2 劑至少需間隔 4 週 (28天)。".into();
+            clinical_notes.push("⚠️ 活性減毒疫苗提醒：若未與水痘或日本腦炎活性疫苗同一天施打，必須間隔至少 28 天以上。".into());
+        }
+        "je" => {
+            vaccine_name = "日本腦炎疫苗 (JE - 細胞培養減毒)".into();
+            next_dose_info = "第 2 劑 (公費)".into();
+            min_days_interval = 365; // 12 個月
+            acip_rule_summary = "衛福部 ACIP 規範：新型細胞培養活性減毒疫苗第 1 劑與第 2 劑需間隔至少 12 個月 (365天)。".into();
+            clinical_notes.push("公費常規於滿 15 個月打第 1 劑，滿 27 個月打第 2 劑。".into());
+        }
+        "hepa" => {
+            vaccine_name = "A 型肝炎疫苗 (HepA)".into();
+            next_dose_info = "第 2 劑".into();
+            min_days_interval = 180; // 6 個月
+            acip_rule_summary = "衛福部 ACIP 規範：A 型肝炎疫苗第 1 劑與第 2 劑需間隔至少 6 個月 (180天)。".into();
+            clinical_notes.push("完整施打 2 劑後，免疫保護力可維持 20 年以上。".into());
+        }
+        "ev71" => {
+            vaccine_name = "腸病毒 A71 型疫苗 (EV71)".into();
+            if last_dose_num == 1 {
+                next_dose_info = "第 2 劑 (基礎劑)".into();
+                min_days_interval = 56; // 8 週
+                acip_rule_summary = "疫苗廠牌說明：腸病毒 A71 型基礎劑第 1 劑與第 2 劑需間隔 56 天 (8週)。".into();
+            } else {
+                next_dose_info = "追加劑".into();
+                min_days_interval = 365;
+                acip_rule_summary = "疫苗廠牌說明：追加劑建議與第 2 劑間隔 12 個月。".into();
+            }
+            clinical_notes.push("本疫苗適用滿 2 個月至 6 歲以下幼兒自費接種。".into());
+        }
+        "hpv" => {
+            vaccine_name = "九價人類乳突病毒疫苗 (HPV 9價)".into();
+            if last_dose_num == 1 {
+                next_dose_info = "第 2 劑".into();
+                min_days_interval = 150; // 5 個月
+                acip_rule_summary = "衛福部 ACIP 規範：9-14歲打2劑(按0, 6月)；15歲以上打3劑(按0, 2, 6月)。第1, 2劑最少需隔 5 個月(150天)。".into();
+            } else {
+                next_dose_info = "第 3 劑".into();
+                min_days_interval = 84; // 12 週
+                acip_rule_summary = "衛福部 ACIP 規範：15歲以上3劑型，第 2 劑與第 3 劑最少需間隔 12 週 (84天)，且與第 1 劑隔至少 5 個月。".into();
+            }
+        }
+        "shingles" => {
+            vaccine_name = "非活性帶狀疱疹疫苗 (Shingrix)".into();
+            next_dose_info = "第 2 劑 (自費/地方補助)".into();
+            min_days_interval = 60; // 2 個月
+            acip_rule_summary = "藥錄與ACIP規範：第 1 劑與第 2 劑建議間隔 2 至 6 個月 (60天至180天)。特殊免疫低下者最快可於1個月補打。".into();
+            clinical_notes.push("建議於 2-6 個月黃金期內完成第 2 劑施打以達到最佳長期保護力。".into());
+        }
+        _ => {
+            vaccine_name = "一般常規疫苗".into();
+            next_dose_info = "下一劑".into();
+            min_days_interval = 28;
+            acip_rule_summary = "一般不活化疫苗最小間隔為 28 天 (4週)。".into();
+        }
+    }
+
+    let earliest_date = last_date + chrono::Duration::days(min_days_interval);
+    let days_remaining = (earliest_date - today).num_days();
+    let is_ready_now = days_remaining <= 0;
+
+    let earliest_date_display = format!(
+        "{} 年 {} 月 {} 日",
+        earliest_date.year(),
+        earliest_date.month(),
+        earliest_date.day()
+    );
+
+    Ok(CatchUpResponse {
+        vaccine_name,
+        next_dose_info,
+        earliest_date_display,
+        days_remaining,
+        is_ready_now,
+        acip_rule_summary,
+        clinical_notes,
+    })
+}
+
 fn main() {
     ensure_webview2_loader();
 
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
             get_eligible_vaccines,
-            get_all_vaccines
+            get_all_vaccines,
+            calculate_catch_up
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

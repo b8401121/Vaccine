@@ -5,8 +5,10 @@ let currentFilter = 'all';
 
 window.addEventListener('DOMContentLoaded', () => {
   setupDateSelectors();
+  setupCatchupDateSelectors();
   setupCalendarToggle();
   setupFormSubmit();
+  setupCatchupFormSubmit();
   setupTabs();
   setupLibraryFilterAndSearch();
   setupModalEvents();
@@ -400,4 +402,128 @@ function setupModalEvents() {
       }
     });
   }
+}
+
+// ----------------------------------------------------
+// 分頁 3：遲打 / 補打最短間隔試算器 (Catch-up Calculator)
+// ----------------------------------------------------
+function setupCatchupDateSelectors() {
+  const yearInput = document.getElementById('catchup-year');
+  const monthSelect = document.getElementById('catchup-month');
+  const daySelect = document.getElementById('catchup-day');
+
+  if (!yearInput || !monthSelect || !daySelect) return;
+
+  const now = new Date();
+  yearInput.value = now.getFullYear();
+
+  for (let m = 1; m <= 12; m++) {
+    const opt = document.createElement('option');
+    opt.value = m;
+    opt.textContent = `${m} 月`;
+    if (m === now.getMonth() + 1) opt.selected = true;
+    monthSelect.appendChild(opt);
+  }
+
+  function updateDays() {
+    const year = parseInt(yearInput.value) || 2024;
+    const month = parseInt(monthSelect.value) || 1;
+    const daysInMonth = new Date(year, month, 0).getDate();
+    const currentSelectedDay = parseInt(daySelect.value) || now.getDate();
+
+    daySelect.innerHTML = '';
+    for (let d = 1; d <= daysInMonth; d++) {
+      const opt = document.createElement('option');
+      opt.value = d;
+      opt.textContent = `${d} 日`;
+      if (d === currentSelectedDay || (d === daysInMonth && currentSelectedDay > daysInMonth)) {
+        opt.selected = true;
+      }
+      daySelect.appendChild(opt);
+    }
+  }
+
+  yearInput.addEventListener('input', updateDays);
+  monthSelect.addEventListener('change', updateDays);
+  updateDays();
+}
+
+function setupCatchupFormSubmit() {
+  const form = document.getElementById('catchup-form');
+  if (!form) return;
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const vaccineId = document.getElementById('catchup-vaccine').value;
+    const lastDoseNum = parseInt(document.getElementById('catchup-dose').value);
+    const year = parseInt(document.getElementById('catchup-year').value);
+    const month = parseInt(document.getElementById('catchup-month').value);
+    const day = parseInt(document.getElementById('catchup-day').value);
+
+    try {
+      const res = await invoke('calculate_catch_up', {
+        vaccineId,
+        lastDoseNum,
+        year,
+        month,
+        day,
+        isRoc: false
+      });
+      displayCatchupResult(res);
+    } catch (err) {
+      alert(`試算失敗: ${err}`);
+    }
+  });
+}
+
+function displayCatchupResult(data) {
+  const container = document.getElementById('catchup-result');
+  if (!container) return;
+
+  container.classList.remove('hidden');
+
+  const { vaccine_name, next_dose_info, earliest_date_display, days_remaining, is_ready_now, acip_rule_summary, clinical_notes } = data;
+
+  let statusBadgeHtml = '';
+  if (is_ready_now) {
+    statusBadgeHtml = `<div class="catchup-status-badge ready">✅ 已符合 ACIP 最小間隔，目前隨時可補打接種！</div>`;
+  } else {
+    statusBadgeHtml = `<div class="catchup-status-badge waiting">⏳ 尚需等待：倒數 ${days_remaining} 天 (未滿最短間隔時間)</div>`;
+  }
+
+  let notesHtml = '';
+  if (clinical_notes && clinical_notes.length > 0) {
+    notesHtml = `
+      <div class="catchup-notes-box">
+        <h4 style="margin-bottom: 0.5rem; color: #fbbf24; display: flex; align-items: center; gap: 0.4rem;">
+          <span>⚠️</span> 臨床補打重要衛教提醒與限制：
+        </h4>
+        <ul style="padding-left: 1.25rem; margin: 0; color: #cbd5e1; font-size: 0.92rem; line-height: 1.6;">
+          ${clinical_notes.map(note => `<li style="margin-bottom: 0.35rem;">${note}</li>`).join('')}
+        </ul>
+      </div>
+    `;
+  }
+
+  container.innerHTML = `
+    <div class="card catchup-result-card fade-in">
+      <div class="catchup-card-header">
+        <span class="catchup-tag">衛福部 ACIP 最小間隔指引</span>
+        <h3>${vaccine_name} — 補打 ${next_dose_info}</h3>
+      </div>
+
+      <div class="catchup-date-banner">
+        <div class="date-label">最早合法可補打日期</div>
+        <div class="date-value">${earliest_date_display}</div>
+        ${statusBadgeHtml}
+      </div>
+
+      <div class="catchup-rule-box">
+        <div class="rule-title">📜 疾管署 ACIP 最小間隔 (Minimal Interval) 官方規定：</div>
+        <div class="rule-text">${acip_rule_summary}</div>
+      </div>
+
+      ${notesHtml}
+    </div>
+  `;
 }
