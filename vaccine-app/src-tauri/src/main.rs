@@ -584,11 +584,11 @@ fn get_eligible_vaccines(
             });
         }
 
-        if age_years >= 50 || age_years >= 18 {
+        if age_years >= 18 {
             let shingles_desc = if is_taoyuan || is_island {
                 format!("🏛️ {}福利：65歲以上低收/中低收入長者享地方政府補助！一般人自費 2 劑 (隔 2-6 月)。", location)
             } else {
-                "預防帶狀疱疹(皮蛇)及疱疹後神經痛，防護率達90%以上。按 0, 2-6 個月施打 2 劑。".to_string()
+                "預防帶狀疱疹(皮蛇)及疱疹後神經痛，防護率達90%以上。按 0, 2-6 個月施打 2 劑 (50歲以上或18歲以上高風險)。".to_string()
             };
 
             adult_routine.push(VaccineItem {
