@@ -211,7 +211,7 @@ function displayVaccines(data) {
               <h3 class="milestone-title">${m.title}</h3>
               <span class="status-pill ${statusClass}-pill">${statusLabel}</span>
             </div>
-            <button class="add-cal-btn" data-title="${m.title}" data-vaccines="${m.vaccines.map(v => v.name).join('、')}">
+            <button class="add-cal-btn" data-title="${m.title}" data-date="${m.target_date || ''}" data-vaccines="${m.vaccines.map(v => v.name).join('、')}">
               📱 📅 手機掃碼行事曆
             </button>
           </div>
@@ -226,8 +226,14 @@ function displayVaccines(data) {
     document.querySelectorAll('.add-cal-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         const title = btn.getAttribute('data-title');
+        const targetDate = btn.getAttribute('data-date');
         const vaccines = btn.getAttribute('data-vaccines');
-        openCalendarModal(`預防接種提醒 — ${title}`, title, `建議接種疫苗：${vaccines}`);
+        
+        const today = new Date();
+        const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+        const dateToUse = (targetDate && targetDate.length === 10) ? targetDate : todayStr;
+
+        openCalendarModal(`預防接種提醒 — ${title}`, dateToUse, `建議接種疫苗：${vaccines}`);
       });
     });
   }
@@ -790,13 +796,10 @@ function openCalendarModal(title, dateDisplayStr, details) {
   const directLink = document.getElementById('cal-direct-link');
   const copyBtn = document.getElementById('cal-copy-link-btn');
 
-  const today = new Date();
-  const dateFormatted = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
-
-  const calUrl = generateGoogleCalendarUrl(title, dateFormatted, details);
+  const calUrl = generateGoogleCalendarUrl(title, dateDisplayStr, details);
 
   if (modalTitle) modalTitle.textContent = title;
-  if (modalDate) modalDate.textContent = `${dateDisplayStr}`;
+  if (modalDate) modalDate.textContent = `預估建議日期：${dateDisplayStr}`;
   if (directLink) directLink.href = calUrl;
 
   const qrContainer = document.getElementById('qrcode-container');
