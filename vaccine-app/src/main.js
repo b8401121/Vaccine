@@ -1,5 +1,8 @@
 const invoke = window.__TAURI__?.core?.invoke || window.__TAURI__?.tauri?.invoke || (async (cmd, args) => { console.warn('Tauri invoke fallback', cmd, args); });
 
+// Detect if running on Android/mobile Tauri
+const isMobile = !!window.__TAURI_MOBILE__;
+
 let allVaccinesList = [];
 let currentFilter = 'all';
 let lastQueryData = null;
@@ -11,15 +14,25 @@ window.addEventListener('DOMContentLoaded', () => {
   setupFormSubmit();
   setupCatchupFormSubmit();
   setupTravelFormSubmit();
-  setupPrintButton();
+  if (!isMobile) setupPrintButton();
   setupTabs();
   setupLibraryFilterAndSearch();
   setupModalEvents();
   setupCalendarModalEvents();
 
+  // On mobile, hide all print-related elements
+  if (isMobile) {
+    document.querySelectorAll(
+      '#print-report-btn, #printable-report, #print-select-modal, .print-btn'
+    ).forEach(el => { el.style.display = 'none'; });
+    // Add mobile class to body for CSS targeting
+    document.body.classList.add('is-mobile');
+  }
+
   // 預先載入疫苗圖鑑庫
   loadVaccineLibrary();
 });
+
 
 function setupDateSelectors() {
   const yearInput = document.getElementById('year');
