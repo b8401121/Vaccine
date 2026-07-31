@@ -1,15 +1,20 @@
 [package]
 name = "vaccine-app"
 version = "0.1.0"
-description = "A Tauri App"
+description = "台灣疫苗指南助手"
 authors = ["you"]
 edition = "2021"
 
+[lib]
+name = "vaccine_app_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
 [build-dependencies]
-tauri-build = { version = "1.5", features = [] }
+tauri-build = { version = "2.0.5", features = [] }
 
 [dependencies]
-tauri = { version = "1.5", features = [] }
+tauri = { version = "2.2.5", features = [] }
+tauri-plugin-opener = "2.2.5"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 chrono = "0.4"
