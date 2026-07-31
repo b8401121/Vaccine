@@ -1,4 +1,4 @@
-const { invoke } = window.__TAURI__.tauri;
+const invoke = window.__TAURI__?.core?.invoke || window.__TAURI__?.tauri?.invoke || (async (cmd, args) => { console.warn('Tauri invoke fallback', cmd, args); });
 
 let allVaccinesList = [];
 let currentFilter = 'all';

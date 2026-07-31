@@ -68,24 +68,37 @@ body {
   font-size: 1.05rem;
 }
 
-/* 頂部頁籤分頁導覽 */
+/* 頂部頁籤分頁導覽 (橫向滑動與橫向排列) */
 .top-nav-tabs {
   display: flex;
-  justify-content: center;
-  gap: 1rem;
-  margin-top: 1.5rem;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 1.2rem;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 0.4rem 0.2rem;
+  scrollbar-width: none;
+}
+
+.top-nav-tabs::-webkit-scrollbar {
+  display: none;
 }
 
 .tab-btn {
-  background: rgba(255, 255, 255, 0.9);
-  border: 1px solid rgba(244, 114, 182, 0.3);
-  color: #64748b;
-  padding: 0.75rem 1.5rem;
-  border-radius: 12px;
-  font-size: 1rem;
+  flex-shrink: 0;
+  white-space: nowrap;
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(180, 170, 155, 0.4);
+  color: #5B728A;
+  padding: 0.65rem 1.15rem;
+  border-radius: 20px;
+  font-size: 0.92rem;
   font-weight: 600;
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(244, 114, 182, 0.08);
+  box-shadow: 0 2px 6px rgba(74, 124, 136, 0.08);
   transition: all 0.2s ease;
 }
 
