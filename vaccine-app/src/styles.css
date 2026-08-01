@@ -1702,6 +1702,7 @@ input:checked + .slider:before {
 
   body {
     padding: 0.6rem 0.5rem;
+    padding-top: max(1.2rem, env(safe-area-inset-top, 1.2rem));
   }
 
   .app-container {
@@ -1710,8 +1711,9 @@ input:checked + .slider:before {
     overflow-x: hidden;
   }
 
-  /* 標題縮小 */
+  /* 標題縮小與向下預留安全邊界 (避免前鏡頭/挖孔屏擋住) */
   .app-header {
+    margin-top: 0.8rem;
     margin-bottom: 0.6rem;
   }
   .app-header .logo {
