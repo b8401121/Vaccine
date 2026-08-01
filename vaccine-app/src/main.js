@@ -43,24 +43,32 @@ function setupAndroidBackButtonHandler() {
   history.pushState({ tab: 'tab-calculator' }, '');
 
   window.addEventListener('popstate', (e) => {
-    // 優先檢查：若有開著的 Modal 彈窗，優先關閉彈窗
+    // 1. 優先檢查：若有開著的 Modal 彈窗，優先關閉彈窗
     const openModals = document.querySelectorAll('.modal-overlay:not(.hidden)');
     if (openModals.length > 0) {
       openModals.forEach(m => m.classList.add('hidden'));
-      // 補上一筆歷史紀錄，防止退回頁面
       history.pushState({ tab: tabHistoryStack[tabHistoryStack.length - 1] || 'tab-calculator' }, '');
       return;
     }
 
-    // 其次檢查：若頁籤歷史堆疊還有上一頁
+    // 2. 其次檢查：若頁籤歷史堆疊還有上一頁
     if (tabHistoryStack.length > 1) {
       tabHistoryStack.pop(); // 移除當前頁
       const previousTabId = tabHistoryStack[tabHistoryStack.length - 1];
       switchTab(previousTabId, false); // 切換回上一頁 (不重複推入歷史)
       history.pushState({ tab: previousTabId }, '');
-    } else {
-      // 已在最第一頁，允許直接返回/跳出程式
+      return;
     }
+
+    // 3. 已在首頁 (tab-calculator)：若頁面已向下滾動超過 150px，先捲動回頂部表單區
+    const currentTab = tabHistoryStack[tabHistoryStack.length - 1];
+    if (currentTab === 'tab-calculator' && window.scrollY > 150) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      history.pushState({ tab: 'tab-calculator' }, '');
+      return;
+    }
+
+    // 4. 已在頂部表單區，允許離開/跳出程式
   });
 }
 
@@ -181,6 +189,39 @@ function setupFormSubmit() {
       alert(`錯誤: ${error}`);
     }
   });
+
+  const resetBtn = document.getElementById('reset-form-btn');
+  if (resetBtn) {
+    resetBtn.addEventListener('click', () => {
+      // 恢復西元年與目前年份
+      calendarToggle.checked = false;
+      const text = document.getElementById('calendar-type-text');
+      if (text) text.textContent = '西元年 (AD)';
+      
+      const now = new Date();
+      yearInput.placeholder = '如: 1990';
+      yearInput.value = now.getFullYear();
+      monthSelect.value = now.getMonth() + 1;
+      
+      // 更新日期下拉選單並重設女性、預設縣市
+      const event = new Event('input');
+      yearInput.dispatchEvent(event);
+      daySelect.value = now.getDate();
+
+      const femaleRadio = document.querySelector('input[name="gender"][value="female"]');
+      if (femaleRadio) femaleRadio.checked = true;
+
+      const locationSelect = document.getElementById('location');
+      if (locationSelect) locationSelect.value = '桃園市';
+
+      // 隱藏查詢結果區塊並捲動回頂部
+      const resultsDiv = document.getElementById('results');
+      if (resultsDiv) resultsDiv.classList.add('hidden');
+      lastQueryData = null;
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  }
 
   const jumpBtn = document.getElementById('jump-to-current');
   if (jumpBtn) {
