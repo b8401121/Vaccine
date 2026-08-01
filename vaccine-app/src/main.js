@@ -1126,10 +1126,23 @@ function openCalendarModal(title, dateDisplayStr, details) {
 
   if (modalTitle) modalTitle.textContent = title;
   if (modalDate) modalDate.textContent = `預估建議日期：${dateDisplayStr}`;
-  if (directLink) directLink.href = calUrl;
+
+  if (directLink) {
+    directLink.href = calUrl;
+    directLink.onclick = (e) => {
+      e.preventDefault();
+      // 使用 window.open / tauri opener 打開外置瀏覽器
+      if (window.__TAURI__?.opener?.openUrl) {
+        window.__TAURI__.opener.openUrl(calUrl);
+      } else {
+        window.open(calUrl, '_blank');
+      }
+    };
+  }
 
   const qrContainer = document.getElementById('qrcode-container');
   if (qrContainer && window.QRCode) {
+    qrContainer.innerHTML = ''; // 清除前一次生成的 QR Code，避免重疊
     new window.QRCode(qrContainer, {
       text: calUrl,
       width: 180,
@@ -1139,11 +1152,15 @@ function openCalendarModal(title, dateDisplayStr, details) {
 
   if (copyBtn) {
     copyBtn.onclick = () => {
-      navigator.clipboard.writeText(calUrl).then(() => {
-        alert('已成功複製手機行事曆提醒連結！');
-      }).catch(() => {
-        alert('行事曆連結：' + calUrl);
-      });
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(calUrl).then(() => {
+          alert('已成功複製手機行事曆提醒連結！');
+        }).catch(() => {
+          alert('行事曆連結：\n' + calUrl);
+        });
+      } else {
+        alert('行事曆連結：\n' + calUrl);
+      }
     };
   }
 
