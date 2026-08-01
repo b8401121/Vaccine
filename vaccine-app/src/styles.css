@@ -68,38 +68,36 @@ body {
   font-size: 1.05rem;
 }
 
-/* 頂部頁籤分頁導覽 (橫向滑動與橫向排列) */
+/* 頂部頁籤分頁導覽 (等寬同大小) */
 .top-nav-tabs {
   display: flex;
   flex-direction: row;
-  flex-wrap: nowrap;
-  justify-content: flex-start;
-  align-items: center;
+  justify-content: center;
+  align-items: stretch;
   gap: 0.6rem;
   margin-top: 1.2rem;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  padding: 0.4rem 0.2rem;
-  scrollbar-width: none;
-}
-
-.top-nav-tabs::-webkit-scrollbar {
-  display: none;
+  width: 100%;
 }
 
 .tab-btn {
-  flex-shrink: 0;
-  white-space: nowrap;
+  flex: 1 1 0px;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  white-space: normal;
+  word-break: break-word;
   background: rgba(255, 255, 255, 0.95);
   border: 1px solid rgba(180, 170, 155, 0.4);
   color: #5B728A;
-  padding: 0.65rem 1.15rem;
-  border-radius: 20px;
-  font-size: 0.92rem;
+  padding: 0.65rem 0.5rem;
+  border-radius: 14px;
+  font-size: 0.88rem;
   font-weight: 600;
   cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: 0 2px 6px rgba(74, 124, 136, 0.08);
-  transition: all 0.2s ease;
 }
 
 .tab-btn:hover {
