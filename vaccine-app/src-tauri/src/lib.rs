@@ -1253,7 +1253,7 @@ fn calculate_catch_up(
                 acip_rule_summary = "衛福部 ACIP 規範：第 2 劑與第 3 劑至少需間隔 4 週 (28天)。".into();
             } else {
                 next_dose_info = "第 4 劑 (追加劑)".into();
-                min_days_interval = 180; // 6 個月
+                min_days_interval = 180;
                 acip_rule_summary = "衛福部 ACIP 規範：第 4 劑追加劑需與第 3 劑至少間隔 6 個月 (180天)。".into();
                 clinical_notes.push("第 4 劑通常建議於出生滿 18 個月施打。".into());
             }
@@ -1674,6 +1674,12 @@ fn get_travel_advisory(
     })
 }
 
+#[tauri::command]
+fn launch_external_calendar_url(app: tauri::AppHandle, url: String) -> Result<(), String> {
+    use tauri_plugin_opener::OpenerExt;
+    app.opener().open_url(&url, None::<&str>).map_err(|e| e.to_string())
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     #[cfg(target_os = "windows")]
@@ -1685,10 +1691,10 @@ pub fn run() {
             get_eligible_vaccines,
             get_all_vaccines,
             calculate_catch_up,
-            get_travel_advisory
+            get_travel_advisory,
+            launch_external_calendar_url
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
 
-// Force rebuild

@@ -1129,13 +1129,16 @@ function openCalendarModal(title, dateDisplayStr, details) {
 
   if (directLink) {
     directLink.href = calUrl;
-    directLink.onclick = (e) => {
+    directLink.onclick = async (e) => {
       e.preventDefault();
-      // 使用 window.open / tauri opener 打開外置瀏覽器
-      if (window.__TAURI__?.opener?.openUrl) {
-        window.__TAURI__.opener.openUrl(calUrl);
-      } else {
-        window.open(calUrl, '_blank');
+      try {
+        await invoke('launch_external_calendar_url', { url: calUrl });
+      } catch (err) {
+        if (window.__TAURI__?.opener?.openUrl) {
+          window.__TAURI__.opener.openUrl(calUrl);
+        } else {
+          window.open(calUrl, '_blank');
+        }
       }
     };
   }
