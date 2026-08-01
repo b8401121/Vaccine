@@ -7,6 +7,9 @@ let allVaccinesList = [];
 let currentFilter = 'all';
 let lastQueryData = null;
 
+// Navigation history stack for Android back button support
+const tabHistoryStack = ['tab-calculator'];
+
 window.addEventListener('DOMContentLoaded', () => {
   setupDateSelectors();
   setupCatchupDateSelectors();
@@ -19,6 +22,7 @@ window.addEventListener('DOMContentLoaded', () => {
   setupLibraryFilterAndSearch();
   setupModalEvents();
   setupCalendarModalEvents();
+  setupAndroidBackButtonHandler();
 
   // On mobile, hide all print-related elements
   if (isMobile) {
@@ -32,6 +36,63 @@ window.addEventListener('DOMContentLoaded', () => {
   // 預先載入疫苗圖鑑庫
   loadVaccineLibrary();
 });
+
+// Android 手機返回鍵監聽處理
+function setupAndroidBackButtonHandler() {
+  // 推入初始歷史紀錄，讓 window.onpopstate 能攔截返回鍵
+  history.pushState({ tab: 'tab-calculator' }, '');
+
+  window.addEventListener('popstate', (e) => {
+    // 優先檢查：若有開著的 Modal 彈窗，優先關閉彈窗
+    const openModals = document.querySelectorAll('.modal-overlay:not(.hidden)');
+    if (openModals.length > 0) {
+      openModals.forEach(m => m.classList.add('hidden'));
+      // 補上一筆歷史紀錄，防止退回頁面
+      history.pushState({ tab: tabHistoryStack[tabHistoryStack.length - 1] || 'tab-calculator' }, '');
+      return;
+    }
+
+    // 其次檢查：若頁籤歷史堆疊還有上一頁
+    if (tabHistoryStack.length > 1) {
+      tabHistoryStack.pop(); // 移除當前頁
+      const previousTabId = tabHistoryStack[tabHistoryStack.length - 1];
+      switchTab(previousTabId, false); // 切換回上一頁 (不重複推入歷史)
+      history.pushState({ tab: previousTabId }, '');
+    } else {
+      // 已在最第一頁，允許直接返回/跳出程式
+    }
+  });
+}
+
+function switchTab(targetId, pushHistory = true) {
+  const tabBtns = document.querySelectorAll('.tab-btn');
+  tabBtns.forEach(b => {
+    if (b.getAttribute('data-target') === targetId) {
+      b.classList.add('active');
+    } else {
+      b.classList.remove('active');
+    }
+  });
+
+  document.querySelectorAll('.tab-page').forEach(page => {
+    page.classList.add('hidden');
+    page.classList.remove('active');
+  });
+
+  const activePage = document.getElementById(targetId);
+  if (activePage) {
+    activePage.classList.remove('hidden');
+    activePage.classList.add('active');
+  }
+
+  if (pushHistory) {
+    if (tabHistoryStack[tabHistoryStack.length - 1] !== targetId) {
+      tabHistoryStack.push(targetId);
+      history.pushState({ tab: targetId }, '');
+    }
+  }
+}
+
 
 
 function setupDateSelectors() {
@@ -324,20 +385,8 @@ function setupTabs() {
   const tabBtns = document.querySelectorAll('.tab-btn');
   tabBtns.forEach(btn => {
     btn.addEventListener('click', () => {
-      tabBtns.forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-
       const targetId = btn.getAttribute('data-target');
-      document.querySelectorAll('.tab-page').forEach(page => {
-        page.classList.add('hidden');
-        page.classList.remove('active');
-      });
-
-      const activePage = document.getElementById(targetId);
-      if (activePage) {
-        activePage.classList.remove('hidden');
-        activePage.classList.add('active');
-      }
+      switchTab(targetId, true);
     });
   });
 }
