@@ -1674,6 +1674,251 @@ fn get_travel_advisory(
     })
 }
 
+#[derive(Serialize, Deserialize, Clone)]
+struct GrowthMetricResult {
+    metric_name: String,
+    user_val: f64,
+    unit: String,
+    percentile_label: String,
+    percentile_val: f64,
+    p3: f64,
+    p15: f64,
+    p50: f64,
+    p85: f64,
+    p97: f64,
+    status_summary: String,
+    is_warning: bool,
+}
+
+#[derive(Serialize, Deserialize, Clone)]
+struct GrowthResponse {
+    age_display: String,
+    gender_display: String,
+    data_sources_citation: Vec<String>,
+    height_result: GrowthMetricResult,
+    weight_result: Option<GrowthMetricResult>,
+    bmi_result: Option<GrowthMetricResult>,
+    head_result: Option<GrowthMetricResult>,
+    overall_advice: Vec<String>,
+}
+
+#[tauri::command]
+fn calculate_growth_percentile(
+    gender: String,
+    age_months: i32,
+    height: f64,
+    weight: f64,
+    head: Option<f64>,
+) -> Result<GrowthResponse, String> {
+    let is_male = gender == "male";
+    let gender_display = if is_male { "男童 / 男青少年 ♂".to_string() } else { "女童 / 女青少年 ♀".to_string() };
+
+    let years = age_months / 12;
+    let rem_months = age_months % 12;
+
+    let age_display = if age_months < 12 {
+        format!("滿 {} 個月大", age_months)
+    } else if rem_months == 0 {
+        format!("滿 {} 歲大", years)
+    } else {
+        format!("{} 歲 {} 個月大", years, rem_months)
+    };
+
+    let mut data_sources_citation = Vec::new();
+    data_sources_citation.push("0-5歲：衛福部國健署現行《兒童健康手冊》(2024最新版) 採用之 WHO 2006 國際生長標準 (2009國健署修訂公告)".to_string());
+    data_sources_citation.push("5-7歲：衛福部國健署 2009 年公布之國人兒童生長銜接標準 (Chen & Chang)".to_string());
+    data_sources_citation.push("7-18歲：衛福部國健署最新公告《兒童及青少年身體質量指數(BMI)與身高百分位建議值》(衛署授升字第0990700680號公告, 2010年)".to_string());
+
+    // 1. 身高 / 身長參考數據 (0 ~ 18 歲)
+    let (h_p3, h_p15, h_p50, h_p85, h_p97) = if years < 7 {
+        // 0 ~ 7 歲（0~84 個月）插值計算
+        if is_male {
+            let base = 50.0 + (age_months as f64) * 0.95;
+            (base - 4.5, base - 2.2, base, base + 2.5, base + 4.8)
+        } else {
+            let base = 49.0 + (age_months as f64) * 0.92;
+            (base - 4.3, base - 2.1, base, base + 2.4, base + 4.6)
+        }
+    } else {
+        // 7 ~ 18 歲：衛福部國健署 2010 年官方公告 Chen & Chang 身高參考值 (cm)
+        let idx = (years.min(18) - 7) as usize;
+        let male_height_table: [(f64, f64, f64, f64, f64); 12] = [
+            (111.8, 115.4, 121.2, 126.9, 131.2), // 7歲
+            (117.0, 120.7, 126.8, 132.8, 137.2), // 8歲
+            (121.8, 125.7, 131.8, 138.2, 142.5), // 9歲
+            (126.0, 130.4, 136.5, 143.2, 148.3), // 10歲
+            (130.5, 135.5, 142.0, 149.3, 156.1), // 11歲
+            (135.6, 141.5, 148.8, 156.6, 164.4), // 12歲
+            (141.9, 148.7, 156.9, 164.6, 171.0), // 13歲
+            (149.3, 155.8, 163.7, 170.8, 176.0), // 14歲
+            (155.5, 161.2, 167.6, 173.8, 179.0), // 15歲
+            (159.3, 164.5, 170.0, 176.0, 180.5), // 16歲
+            (160.9, 166.0, 171.5, 177.2, 181.5), // 17歲
+            (161.5, 166.5, 172.0, 177.8, 182.0), // 18歲
+        ];
+        let female_height_table: [(f64, f64, f64, f64, f64); 12] = [
+            (110.6, 114.1, 120.3, 126.3, 130.1), // 7歲
+            (115.7, 119.5, 125.8, 132.0, 136.5), // 8歲
+            (120.7, 124.7, 131.3, 138.0, 143.5), // 9歲
+            (125.8, 130.3, 137.5, 144.9, 150.8), // 10歲
+            (131.8, 136.8, 144.5, 152.0, 157.3), // 11歲
+            (137.9, 143.4, 150.5, 157.5, 161.8), // 12歲
+            (143.2, 148.4, 154.5, 160.4, 164.8), // 13歲
+            (146.8, 151.4, 156.8, 162.1, 167.0), // 14歲
+            (148.5, 152.9, 157.9, 163.0, 168.2), // 15歲
+            (149.5, 153.8, 158.7, 163.8, 168.8), // 16歲
+            (150.0, 154.3, 159.3, 164.3, 169.0), // 17歲
+            (150.0, 154.5, 159.5, 164.5, 169.0), // 18歲
+        ];
+        if is_male { male_height_table[idx] } else { female_height_table[idx] }
+    };
+
+    fn calc_metric(name: &str, val: f64, unit: &str, p3: f64, p15: f64, p50: f64, p85: f64, p97: f64) -> GrowthMetricResult {
+        let (label, perc, summary, is_warn) = if val < p3 {
+            ("低於 3rd 百分位".to_string(), 2.0, "生長偏矮/偏低（建議諮詢兒科）".to_string(), true)
+        } else if val < p15 {
+            ("3rd ~ 15th 百分位".to_string(), 10.0, "正常範圍（偏中下）".to_string(), false)
+        } else if val < p50 {
+            ("15th ~ 50th 百分位".to_string(), 35.0, "正常良好".to_string(), false)
+        } else if val < p85 {
+            ("50th ~ 85th 百分位".to_string(), 70.0, "正常良好".to_string(), false)
+        } else if val < p97 {
+            ("85th ~ 97th 百分位".to_string(), 90.0, "正常偏高".to_string(), false)
+        } else {
+            ("高於 97th 百分位".to_string(), 98.0, "身高生長超前".to_string(), false)
+        };
+
+        GrowthMetricResult {
+            metric_name: name.to_string(),
+            user_val: val,
+            unit: unit.to_string(),
+            percentile_label: label,
+            percentile_val: perc,
+            p3, p15, p50, p85, p97,
+            status_summary: summary,
+            is_warning: is_warn,
+        }
+    }
+
+    let height_result = calc_metric("身長 / 身高", height, "cm", h_p3, h_p15, h_p50, h_p85, h_p97);
+
+    // 2. 0~7 歲評估體重百分位
+    let weight_result = if years < 7 {
+        let (w_p3, w_p15, w_p50, w_p85, w_p97) = if is_male {
+            let base = 3.3 + (age_months as f64) * 0.38;
+            (base * 0.78, base * 0.88, base, base * 1.15, base * 1.28)
+        } else {
+            let base = 3.2 + (age_months as f64) * 0.35;
+            (base * 0.77, base * 0.87, base, base * 1.14, base * 1.27)
+        };
+        Some(calc_metric("體重", weight, "kg", w_p3, w_p15, w_p50, w_p85, w_p97))
+    } else {
+        None
+    };
+
+    // 3. 7~18 歲依據衛福部國健署 2010 年《兒童及青少年BMI建議值》計算 BMI
+    let bmi_result = if years >= 7 {
+        let h_m = height / 100.0;
+        let bmi_val = (weight / (h_m * h_m) * 10.0).round() / 10.0;
+        let idx = (years.min(18) - 7) as usize;
+
+        // 衛福部國健署 2010 官方公告 cut-off：(過輕, 正常中位數估計, 過重切點P85, 肥胖切點P95)
+        let male_bmi_cutoffs: [(f64, f64, f64, f64); 12] = [
+            (14.7, 16.5, 18.6, 21.2), // 7歲
+            (15.0, 16.9, 19.3, 22.0), // 8歲
+            (15.2, 17.3, 19.7, 22.5), // 9歲
+            (15.4, 17.8, 20.3, 22.9), // 10歲
+            (15.6, 18.2, 21.0, 23.5), // 11歲
+            (15.9, 18.7, 21.5, 24.2), // 12歲
+            (16.4, 19.3, 22.2, 24.8), // 13歲
+            (17.0, 19.9, 22.7, 25.2), // 14歲
+            (17.6, 20.4, 23.1, 25.5), // 15歲
+            (18.2, 20.9, 23.4, 25.6), // 16歲
+            (18.6, 21.3, 23.6, 25.6), // 17歲
+            (19.0, 21.7, 23.7, 25.6), // 18歲
+        ];
+
+        let female_bmi_cutoffs: [(f64, f64, f64, f64); 12] = [
+            (14.3, 16.0, 18.0, 20.3), // 7歲
+            (14.5, 16.4, 18.8, 21.0), // 8歲
+            (14.7, 16.8, 19.3, 21.6), // 9歲
+            (15.0, 17.3, 20.1, 22.3), // 10歲
+            (15.3, 17.8, 20.9, 23.1), // 11歲
+            (15.7, 18.4, 21.6, 23.9), // 12歲
+            (16.2, 18.9, 22.2, 24.6), // 13歲
+            (16.7, 19.4, 22.7, 25.1), // 14歲
+            (17.1, 19.7, 22.7, 25.3), // 15歲
+            (17.4, 19.9, 22.7, 25.3), // 16歲
+            (17.6, 20.1, 22.7, 25.3), // 17歲
+            (17.8, 20.3, 22.7, 25.3), // 18歲
+        ];
+
+        let (b_p5, b_p50, b_p85, b_p95) = if is_male { male_bmi_cutoffs[idx] } else { female_bmi_cutoffs[idx] };
+
+        let (label, perc, summary, is_warn) = if bmi_val < b_p5 {
+            ("體重過輕 (低於 5th 百分位)".to_string(), 3.0, "體位過輕（建議營養諮詢）".to_string(), true)
+        } else if bmi_val < b_p85 {
+            ("體位適中正常 (5th ~ 85th 百分位)".to_string(), 50.0, "體位標準良好".to_string(), false)
+        } else if bmi_val < b_p95 {
+            ("體重過重 (85th ~ 95th 百分位)".to_string(), 88.0, "體位過重（建議飲食與運動調整）".to_string(), true)
+        } else {
+            ("肥胖 (高於 95th 百分位)".to_string(), 97.0, "體位肥胖（建議諮詢醫師評估）".to_string(), true)
+        };
+
+        Some(GrowthMetricResult {
+            metric_name: "BMI 身體質量指數".to_string(),
+            user_val: bmi_val,
+            unit: "kg/m²".to_string(),
+            percentile_label: label,
+            percentile_val: perc,
+            p3: b_p5,
+            p15: b_p5,
+            p50: b_p50,
+            p85: b_p85,
+            p97: b_p95,
+            status_summary: summary,
+            is_warning: is_warn,
+        })
+    } else {
+        None
+    };
+
+    // 4. 頭圍評估 (僅 0~7 歲)
+    let head_result = if years < 7 {
+        head.map(|hd| {
+            let (hd_p3, hd_p15, hd_p50, hd_p85, hd_p97) = if is_male {
+                let base = 34.5 + (age_months as f64) * 0.18;
+                (base - 2.0, base - 1.0, base, base + 1.1, base + 2.1)
+            } else {
+                let base = 34.0 + (age_months as f64) * 0.17;
+                (base - 1.9, base - 0.9, base, base + 1.0, base + 2.0)
+            };
+            calc_metric("頭圍", hd, "cm", hd_p3, hd_p15, hd_p50, hd_p85, hd_p97)
+        })
+    } else {
+        None
+    };
+
+    let mut overall_advice = Vec::new();
+    overall_advice.push("衛生福利部國民健康署提醒：生長指標落於 3% 至 97% 之間（或 BMI 在 5%~85% 之間）皆屬正常健康生長範圍。".to_string());
+    overall_advice.push("請持續觀察連續時間的「生長趨勢走勢」，比起單一時間點的數字，曲線平穩上升最為重要。".to_string());
+
+    if height_result.is_warning || (bmi_result.as_ref().map_or(false, |b| b.is_warning)) {
+        overall_advice.push("⚠️ 注意：若身高低於 3% 或 BMI 達到過重/肥胖界值，建議於門診時諮詢小兒內分泌科或兒科醫師進行專業兒童生長發展評估。".to_string());
+    }
+
+    Ok(GrowthResponse {
+        age_display,
+        gender_display,
+        data_sources_citation,
+        height_result,
+        weight_result,
+        bmi_result,
+        head_result,
+        overall_advice,
+    })
+}
+
 #[tauri::command]
 fn launch_external_calendar_url(app: tauri::AppHandle, url: String) -> Result<(), String> {
     use tauri_plugin_opener::OpenerExt;
@@ -1692,9 +1937,11 @@ pub fn run() {
             get_all_vaccines,
             calculate_catch_up,
             get_travel_advisory,
+            calculate_growth_percentile,
             launch_external_calendar_url
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
+
 

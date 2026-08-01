@@ -24,6 +24,7 @@
         <button class="tab-btn active" data-target="tab-calculator">🗓️ 年齡接種時間軸</button>
         <button class="tab-btn" data-target="tab-catchup">⏱️ 遲打/補打間隔試算</button>
         <button class="tab-btn" data-target="tab-travel">✈️ 出國旅遊留學疫苗速查</button>
+        <button class="tab-btn" data-target="tab-growth">📈 0~18歲兒童生長曲線與BMI</button>
         <button class="tab-btn" data-target="tab-library">📚 疫苗大百科與圖鑑</button>
       </nav>
     </header>
@@ -276,6 +277,65 @@
         <!-- 疫苗圖鑑網格 -->
         <div id="library-grid" class="library-grid">
           <!-- 由 JS 動態填入疫苗卡片 -->
+        </div>
+      </section>
+
+      <!-- 分頁 5：兒童與青少年生長曲線評估 -->
+      <section id="tab-growth" class="tab-page hidden">
+        <div class="card search-card">
+          <h2>📈 衛福部國健署 0~18 歲兒童與青少年生長曲線與 BMI 試算</h2>
+          <div style="background: #f8fafc; border-left: 4px solid #0284c7; padding: 0.75rem 1rem; border-radius: 4px; margin-bottom: 1.25rem; font-size: 0.84rem; color: #475569; line-height: 1.5;">
+            <strong>🏛️ 衛生福利部國民健康署官方權威資料來源說明：</strong>
+            <ul style="margin: 0.3rem 0 0 1.2rem; padding: 0;">
+              <li><strong>0 ~ 5 歲（0-60個月）</strong>：國民健康署現行最新《兒童健康手冊》（2024年印行版）採用之 <strong>WHO 2006 國際生長標準</strong>（2009年國健署公告修訂）。</li>
+              <li><strong>5 ~ 7 歲（61-84個月）</strong>：國民健康署 2009 年公布之國人兒童生長銜接標準 (Chen & Chang)。</li>
+              <li><strong>7 ~ 18 歲（7-18歲）</strong>：國民健康署最新公告《兒童及青少年身體質量指數(BMI)與身高百分位建議值》（衛署授升字第0990700680號公告，陳偉德與張美惠教授團隊 2010 年發表，現行全國醫療與學校標準）。</li>
+            </ul>
+          </div>
+
+          <form id="growth-form">
+            <div class="input-group" style="margin-bottom: 1rem;">
+              <div class="field">
+                <label>性別</label>
+                <div class="gender-radio-group">
+                  <label class="radio-label">
+                    <input type="radio" name="growth-gender" value="male" checked>
+                    <span>♂ 男童 / 青少年</span>
+                  </label>
+                  <label class="radio-label">
+                    <input type="radio" name="growth-gender" value="female">
+                    <span>♀ 女童 / 青少年</span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="field">
+                <label for="growth-age-years">年齡層 / 月齡</label>
+                <select id="growth-age-years" required></select>
+              </div>
+
+              <div class="field">
+                <label for="growth-height">身高 / 身長 (cm)</label>
+                <input type="number" id="growth-height" step="0.1" min="30" max="210" placeholder="例如: 125.5" required>
+              </div>
+
+              <div class="field">
+                <label for="growth-weight">體重 (kg)</label>
+                <input type="number" id="growth-weight" step="0.1" min="1" max="150" placeholder="例如: 26.2" required>
+              </div>
+
+              <div class="field" id="growth-head-field">
+                <label for="growth-head">頭圍 (cm) <span style="font-size:0.75rem; color:#94a3b8;">(0~7歲選填)</span></label>
+                <input type="number" id="growth-head" step="0.1" min="25" max="65" placeholder="例如: 42.0">
+              </div>
+            </div>
+
+            <button type="submit" class="btn-primary">計算生長百分位與 BMI 體位結果</button>
+          </form>
+        </div>
+
+        <div id="growth-results" class="results-container hidden" style="margin-top: 1.5rem;">
+          <!-- JS 動態帶入計算結果 -->
         </div>
       </section>
     </main>

@@ -17,6 +17,7 @@ window.addEventListener('DOMContentLoaded', () => {
   setupFormSubmit();
   setupCatchupFormSubmit();
   setupTravelFormSubmit();
+  setupGrowthFormSubmit();
   if (!isMobile) setupPrintButton();
   setupTabs();
   setupLibraryFilterAndSearch();
@@ -1206,3 +1207,148 @@ function setupCalendarModalEvents() {
     });
   }
 }
+
+// ----------------------------------------------------
+// 分頁 5：0~18歲兒童與青少年生長曲線與 BMI 試算
+// ----------------------------------------------------
+function setupGrowthFormSubmit() {
+  const ageSelect = document.getElementById('growth-age-years');
+  if (!ageSelect) return;
+
+  // 0~84 個月 (0~7歲前按月齡選項)
+  const groupMonths = document.createElement('optgroup');
+  groupMonths.label = '👶 0 ~ 6 歲（學齡前 - 依月齡）';
+  for (let m = 0; m <= 83; m++) {
+    const opt = document.createElement('option');
+    opt.value = m;
+    if (m === 0) {
+      opt.textContent = '剛出生 (0 個月 / 新生兒)';
+    } else if (m < 12) {
+      opt.textContent = `滿 ${m} 個月大`;
+    } else {
+      const y = Math.floor(m / 12);
+      const rem = m % 12;
+      opt.textContent = rem === 0 ? `滿 ${y} 歲` : `滿 ${y} 歲 ${rem} 個月 (${m}月齡)`;
+    }
+    if (m === 6) opt.selected = true; // 預設 6 個月
+    groupMonths.appendChild(opt);
+  }
+  ageSelect.appendChild(groupMonths);
+
+  // 7~18 歲（學齡兒童與青少年 - 依足歲）
+  const groupYears = document.createElement('optgroup');
+  groupYears.label = '🎒 7 ~ 18 歲（學齡兒童與青少年 - 依足歲）';
+  for (let y = 7; y <= 18; y++) {
+    const opt = document.createElement('option');
+    opt.value = y * 12; // 轉為月齡傳給 Rust
+    opt.textContent = `滿 ${y} 歲 (${y} 歲學齡/青少年)`;
+    groupYears.appendChild(opt);
+  }
+  ageSelect.appendChild(groupYears);
+
+  // 根據選擇的年齡隱藏/顯示頭圍區塊
+  ageSelect.addEventListener('change', () => {
+    const months = parseInt(ageSelect.value) || 0;
+    const headField = document.getElementById('growth-head-field');
+    if (headField) {
+      headField.style.display = months >= 84 ? 'none' : 'block';
+    }
+  });
+
+  const form = document.getElementById('growth-form');
+  if (!form) return;
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const gender = document.querySelector('input[name="growth-gender"]:checked').value;
+    const ageMonths = parseInt(document.getElementById('growth-age-years').value) || 0;
+    const height = parseFloat(document.getElementById('growth-height').value);
+    const weight = parseFloat(document.getElementById('growth-weight').value);
+    const headInput = document.getElementById('growth-head').value;
+    const head = headInput ? parseFloat(headInput) : null;
+
+    try {
+      const response = await invoke('calculate_growth_percentile', {
+        gender,
+        ageMonths,
+        height,
+        weight,
+        head,
+      });
+      displayGrowthResults(response);
+    } catch (err) {
+      alert(`生長曲線計算錯誤: ${err}`);
+    }
+  });
+}
+
+function displayGrowthResults(data) {
+  const { age_display, gender_display, data_sources_citation, height_result, weight_result, bmi_result, head_result, overall_advice } = data;
+  const container = document.getElementById('growth-results');
+  if (!container) return;
+
+  function renderMetricCard(metric) {
+    if (!metric) return '';
+    const badgeColor = metric.is_warning ? '#ef4444' : '#10b981';
+    const progressPercent = Math.min(100, Math.max(3, metric.percentile_val));
+
+    return `
+      <div class="card growth-metric-card" style="padding: 1.25rem; margin-bottom: 1rem; border-left: 5px solid ${badgeColor};">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.75rem; flex-wrap:wrap; gap:0.5rem;">
+          <h4 style="margin:0; font-size:1.1rem; color:#1e293b;">${metric.metric_name}：<span style="color:#0284c7; font-weight:700;">${metric.user_val} ${metric.unit}</span></h4>
+          <span style="background:${metric.is_warning ? '#fee2e2' : '#dcfce7'}; color:${metric.is_warning ? '#991b1b' : '#166534'}; padding:0.35rem 0.75rem; border-radius:20px; font-weight:700; font-size:0.85rem;">
+            ${metric.percentile_label}
+          </span>
+        </div>
+
+        <!-- 條狀圖模擬百分位曲線 -->
+        <div style="background:#e2e8f0; height:12px; border-radius:6px; overflow:hidden; position:relative; margin-bottom: 0.6rem;">
+          <div style="width: ${progressPercent}%; background: linear-gradient(90deg, #38bdf8, #0284c7); height:100%; border-radius:6px;"></div>
+        </div>
+
+        <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:#64748b;">
+          <span>3% (${metric.p3.toFixed(1)}${metric.unit})</span>
+          <span>50% (${metric.p50.toFixed(1)}${metric.unit})</span>
+          <span>97% (${metric.p97.toFixed(1)}${metric.unit})</span>
+        </div>
+
+        <div style="margin-top:0.6rem; font-size:0.88rem; color:#475569;">
+          📌 評估結論：<strong>${metric.status_summary}</strong>
+        </div>
+      </div>
+    `;
+  }
+
+  container.innerHTML = `
+    <div class="card fade-in" style="background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border: 1px solid #bae6fd; margin-bottom: 1.25rem;">
+      <h3 style="color:#0369a1; margin-bottom:0.4rem; font-size:1.25rem;">📊 生長發育與 BMI 評估報告</h3>
+      <div style="font-size:0.92rem; color:#0c4a6e; margin-bottom:0.5rem;">
+        性別：<strong>${gender_display}</strong> ｜ 年齡層：<strong>${age_display}</strong>
+      </div>
+      <div style="font-size:0.78rem; color:#475569; border-top:1px dashed #bae6fd; padding-top:0.5rem; margin-top:0.5rem;">
+        🏛️ <strong>本評估報告採用之國健署權威資料來源：</strong>
+        <ul style="margin:0.2rem 0 0 1.2rem; padding:0;">
+          ${data_sources_citation.map(src => `<li style="margin-bottom:2px;">${src}</li>`).join('')}
+        </ul>
+      </div>
+    </div>
+
+    ${renderMetricCard(height_result)}
+    ${weight_result ? renderMetricCard(weight_result) : ''}
+    ${bmi_result ? renderMetricCard(bmi_result) : ''}
+    ${head_result ? renderMetricCard(head_result) : ''}
+
+    <div class="card advice-card" style="background:#fffbeb; border:1px solid #fde68a; padding:1.25rem;">
+      <h4 style="color:#b45309; margin-bottom:0.6rem; display:flex; align-items:center; gap:0.4rem;">
+        <span>🩺</span> 國民健康署衛教建議與健康指標：
+      </h4>
+      <ul style="padding-left:1.25rem; margin:0; color:#78350f; font-size:0.88rem; line-height:1.6;">
+        ${overall_advice.map(adv => `<li style="margin-bottom:0.35rem;">${adv}</li>`).join('')}
+      </ul>
+    </div>
+  `;
+
+  container.classList.remove('hidden');
+  container.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
