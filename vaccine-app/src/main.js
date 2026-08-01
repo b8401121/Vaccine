@@ -40,7 +40,7 @@ window.addEventListener('DOMContentLoaded', () => {
 // Android 手機返回鍵監聽處理
 function setupAndroidBackButtonHandler() {
   // 推入初始歷史紀錄，讓 window.onpopstate 能攔截返回鍵
-  history.pushState({ tab: 'tab-calculator' }, '');
+  history.pushState({ tab: 'tab-calculator', hasResults: false }, '');
 
   window.addEventListener('popstate', (e) => {
     // 1. 優先檢查：若有開著的 Modal 彈窗，優先關閉彈窗
@@ -51,24 +51,44 @@ function setupAndroidBackButtonHandler() {
       return;
     }
 
-    // 2. 其次檢查：若頁籤歷史堆疊還有上一頁
+    const currentTab = tabHistoryStack[tabHistoryStack.length - 1] || 'tab-calculator';
+
+    // 2. 若目前在首頁 (tab-calculator) 且已往下捲動 (例如看時間軸或結果)
+    if (currentTab === 'tab-calculator') {
+      const resultsDiv = document.getElementById('results');
+      const hasVisibleResults = resultsDiv && !resultsDiv.classList.contains('hidden');
+      
+      if (window.scrollY > 80 || hasVisibleResults) {
+        // 先向上捲動回頂部表單區
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        // 若歷史堆疊有多個重複的 tab-calculator，只保留一個
+        while (tabHistoryStack.length > 1 && tabHistoryStack[tabHistoryStack.length - 1] === 'tab-calculator') {
+          tabHistoryStack.pop();
+        }
+        history.pushState({ tab: 'tab-calculator' }, '');
+        return;
+      }
+
+      // 如果頁籤堆疊還有其他分頁 (如之前去過大百科)，退回該分頁
+      if (tabHistoryStack.length > 1) {
+        tabHistoryStack.pop();
+        const previousTabId = tabHistoryStack[tabHistoryStack.length - 1];
+        switchTab(previousTabId, false);
+        history.pushState({ tab: previousTabId }, '');
+        return;
+      }
+
+      // 已在首頁最頂部且無其他歷史，允許退出程式
+      return;
+    }
+
+    // 3. 若在其他分頁 (大百科、補打試算、出國速查)，退回上一頁籤
     if (tabHistoryStack.length > 1) {
-      tabHistoryStack.pop(); // 移除當前頁
+      tabHistoryStack.pop();
       const previousTabId = tabHistoryStack[tabHistoryStack.length - 1];
-      switchTab(previousTabId, false); // 切換回上一頁 (不重複推入歷史)
+      switchTab(previousTabId, false);
       history.pushState({ tab: previousTabId }, '');
-      return;
     }
-
-    // 3. 已在首頁 (tab-calculator)：若頁面已向下滾動超過 150px，先捲動回頂部表單區
-    const currentTab = tabHistoryStack[tabHistoryStack.length - 1];
-    if (currentTab === 'tab-calculator' && window.scrollY > 150) {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      history.pushState({ tab: 'tab-calculator' }, '');
-      return;
-    }
-
-    // 4. 已在頂部表單區，允許離開/跳出程式
   });
 }
 
