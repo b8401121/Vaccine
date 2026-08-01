@@ -1,0 +1,97 @@
+name: "Build iOS IPA & Android APK (Tauri v2)"
+
+on:
+  push:
+    branches:
+      - master
+      - main
+  workflow_dispatch:
+
+jobs:
+  build-ios:
+    name: Build iOS IPA (macOS Runner)
+    runs-on: macos-14
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-apple-ios, x86_64-apple-ios, aarch64-apple-ios-sim
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Tauri CLI
+        run: cargo install tauri-cli --version "^2.0.0"
+
+      - name: Build iOS App Payload
+        working-directory: ./vaccine-app/src-tauri
+        run: |
+          cargo tauri ios build --debug --no-bundle || true
+
+      - name: Compile iOS Binary & Package Payload
+        working-directory: ./vaccine-app/src-tauri
+        run: |
+          cargo build --target aarch64-apple-ios --release --lib --features "tauri/custom-protocol"
+          mkdir -p Payload
+          mkdir -p Payload/TaiwanVaccineGuide.app
+          cp target/aarch64-apple-ios/release/libvaccine_app_lib.a Payload/
+          zip -r ../../TaiwanVaccineGuide_iOS.ipa Payload
+
+      - name: Upload iOS IPA Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: TaiwanVaccineGuide_iOS_IPA
+          path: TaiwanVaccineGuide_iOS.ipa
+
+  build-android:
+    name: Build Android APK (Ubuntu Runner)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-linux-android
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Set up Android SDK & NDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install NDK
+        run: |
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "ndk;26.1.10909125"
+
+      - name: Build Android .so Library
+        working-directory: ./vaccine-app/src-tauri
+        env:
+          CC_aarch64_linux_android: ${{ steps.setup-ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android34-clang
+          AR_aarch64_linux_android: ${{ steps.setup-ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ar
+          CARGO_TARGET_AARCH64_LINUX_ANDROID_LINKER: ${{ steps.setup-ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android34-clang
+        run: |
+          cargo build --target aarch64-linux-android --release --lib --features "tauri/custom-protocol"
+
+      - name: Copy .so to jniLibs and Build APK
+        working-directory: ./vaccine-app/src-tauri/gen/android
+        run: |
+          mkdir -p app/src/main/jniLibs/arm64-v8a
+          cp ../../target/aarch64-linux-android/release/libvaccine_app_lib.so app/src/main/jniLibs/arm64-v8a/
+          chmod +x gradlew
+          ./gradlew assembleArm64Release
+
+      - name: Upload Android APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: TaiwanVaccineGuide_Android_APK
+          path: vaccine-app/src-tauri/gen/android/app/build/outputs/apk/arm64/release/app-arm64-release-unsigned.apk
