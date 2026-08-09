@@ -45,9 +45,9 @@ async function fallbackInvoke(cmd, args = {}) {
 
 const invoke = (window.__TAURI__ && window.__TAURI__.core && window.__TAURI__.core.invoke) || 
                (window.__TAURI__ && window.__TAURI__.tauri && window.__TAURI__.tauri.invoke) || 
-               async (cmd, args) => {
+               (async (cmd, args) => {
   return await fallbackInvoke(cmd, args);
-};
+});
 
 // Detect if running on Android/mobile Tauri
 const isMobile = !!window.__TAURI_MOBILE__;
