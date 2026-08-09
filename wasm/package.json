@@ -1,0 +1,15 @@
+{
+  "name": "vaccine-core",
+  "type": "module",
+  "version": "0.1.0",
+  "files": [
+    "vaccine_core_bg.wasm",
+    "vaccine_core.js",
+    "vaccine_core.d.ts"
+  ],
+  "main": "vaccine_core.js",
+  "types": "vaccine_core.d.ts",
+  "sideEffects": [
+    "./snippets/*"
+  ]
+}
