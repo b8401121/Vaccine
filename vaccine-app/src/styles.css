@@ -1,20 +1,20 @@
 :root {
-  /* 極度柔和的護眼暖沙色/羊皮紙色系，大幅降低螢幕亮度 */
-  --bg-gradient: linear-gradient(135deg, #E6DCD3 0%, #D8CDBF 100%);
-  --card-bg: rgba(246, 240, 233, 0.95);  /* 放棄純白，改用極淡的米黃色 */
-  --card-border: rgba(142, 127, 107, 0.15);
-  --primary-color: #8C7A6B;              /* 溫和低彩度的暖棕色 */
-  --primary-hover: #6E5C4F;
-  --text-main: #3E362E;                  /* 降低文字對比度，採用深咖啡色 */
-  --text-muted: #786B5D;                 /* 柔和的灰棕色 */
-  --accent-color: #7D8C81;               /* 低飽和度的莫蘭迪綠 */
-  --routine-bg: #DCE0D9;                 /* 護眼綠底 */
-  --routine-color: #4C594D;
-  --high-risk-bg: #E3D6D2;               /* 護眼粉棕底 */
-  --high-risk-color: #8A5F58;
-  --primary-rgb: 140, 122, 107;          /* 對應 #8C7A6B */
-  --secondary-rgb: 125, 140, 129;        /* 對應 #7D8C81 */
-  --bg-color: #E6DCD3;                   /* 登入畫面底色 */
+  /* 極度深色的暖可可/深石板護眼模式 (Dark Mode)，完全消除刺眼白光 */
+  --bg-gradient: linear-gradient(135deg, #2A2421 0%, #1E1917 100%);
+  --card-bg: rgba(45, 38, 35, 0.95);     /* 深色卡片背景 */
+  --card-border: rgba(255, 255, 255, 0.08);
+  --primary-color: #D1A78B;              /* 溫暖的沙漠沙色 (按鈕與強調色) */
+  --primary-hover: #B58E74;
+  --text-main: #E8E3DF;                  /* 柔和的米白色文字 (非純白) */
+  --text-muted: #A39991;                 /* 暖灰色文字 */
+  --accent-color: #829C8B;               /* 莫蘭迪綠 */
+  --routine-bg: #3B4239;                 /* 深綠色底 (公費) */
+  --routine-color: #A5C2AA;              /* 淺綠字 */
+  --high-risk-bg: #4A3532;               /* 深紅色底 (自費/高風險) */
+  --high-risk-color: #D99C94;            /* 淺紅字 */
+  --primary-rgb: 209, 167, 139;          /* 對應 #D1A78B */
+  --secondary-rgb: 130, 156, 139;        /* 對應 #829C8B */
+  --bg-color: #2A2421;                   /* 登入畫面底色 */
 }
 
 * {
