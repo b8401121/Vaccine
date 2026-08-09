@@ -1,4 +1,4 @@
-import initWasm, * as WasmCore from './wasm/vaccine_core.js';
+import initWasm, * as WasmCore from './wasm/vaccine_core.js?v=2';
 
 let isWasmInitialized = false;
 
