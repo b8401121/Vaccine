@@ -20,19 +20,24 @@ async function fallbackInvoke(cmd, args = {}) {
   const wasm = await loadWasm();
   
   if (cmd === 'get_eligible_vaccines') {
-    return wasm.get_eligible_vaccines(args.year, args.month, args.day, args.isRoc, args.gender, args.location);
+    const res = wasm.get_eligible_vaccines(args.year, args.month, args.day, args.isRoc, args.gender, args.location);
+    return JSON.parse(res);
   }
   if (cmd === 'get_all_vaccines') {
-    return wasm.get_all_vaccines();
+    const res = wasm.get_all_vaccines();
+    return JSON.parse(res);
   }
   if (cmd === 'calculate_catch_up') {
-    return wasm.calculate_catch_up(args.vaccine_id, args.last_dose_num, args.year, args.month, args.day, args.is_roc);
+    const res = wasm.calculate_catch_up(args.vaccine_id, args.last_dose_num, args.year, args.month, args.day, args.is_roc);
+    return JSON.parse(res);
   }
   if (cmd === 'get_travel_advisory') {
-    return wasm.get_travel_advisory(args.destination, args.purpose);
+    const res = wasm.get_travel_advisory(args.destination, args.purpose);
+    return JSON.parse(res);
   }
   if (cmd === 'calculate_growth_percentile') {
-    return wasm.calculate_growth_percentile(args.gender, args.age_months, args.height_cm, args.weight_kg, args.head_cm);
+    const res = wasm.calculate_growth_percentile(args.gender, args.age_months, args.height_cm, args.weight_kg, args.head_cm);
+    return JSON.parse(res);
   }
   if (cmd === 'launch_external_calendar_url') {
     window.open(args.url, '_blank');

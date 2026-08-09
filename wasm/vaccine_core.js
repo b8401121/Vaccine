@@ -1,5 +1,3 @@
-/* @ts-self-types="./vaccine_core.d.ts" */
-
 /**
  * @param {string} vaccine_id
  * @param {number} last_dose_num
@@ -7,16 +5,27 @@
  * @param {number} month
  * @param {number} day
  * @param {boolean} is_roc
- * @returns {any}
+ * @returns {string}
  */
 export function calculate_catch_up(vaccine_id, last_dose_num, year, month, day, is_roc) {
-    const ptr0 = passStringToWasm0(vaccine_id, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-    const len0 = WASM_VECTOR_LEN;
-    const ret = wasm.calculate_catch_up(ptr0, len0, last_dose_num, year, month, day, is_roc);
-    if (ret[2]) {
-        throw takeFromExternrefTable0(ret[1]);
+    let deferred3_0;
+    let deferred3_1;
+    try {
+        const ptr0 = passStringToWasm0(vaccine_id, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ret = wasm.calculate_catch_up(ptr0, len0, last_dose_num, year, month, day, is_roc);
+        var ptr2 = ret[0];
+        var len2 = ret[1];
+        if (ret[3]) {
+            ptr2 = 0; len2 = 0;
+            throw takeFromExternrefTable0(ret[2]);
+        }
+        deferred3_0 = ptr2;
+        deferred3_1 = len2;
+        return getStringFromWasm0(ptr2, len2);
+    } finally {
+        wasm.__wbindgen_free(deferred3_0, deferred3_1, 1);
     }
-    return takeFromExternrefTable0(ret[0]);
 }
 
 /**
@@ -25,27 +34,49 @@ export function calculate_catch_up(vaccine_id, last_dose_num, year, month, day, 
  * @param {number} height
  * @param {number} weight
  * @param {any} head
- * @returns {any}
+ * @returns {string}
  */
 export function calculate_growth_percentile(gender, age_months, height, weight, head) {
-    const ptr0 = passStringToWasm0(gender, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-    const len0 = WASM_VECTOR_LEN;
-    const ret = wasm.calculate_growth_percentile(ptr0, len0, age_months, height, weight, head);
-    if (ret[2]) {
-        throw takeFromExternrefTable0(ret[1]);
+    let deferred3_0;
+    let deferred3_1;
+    try {
+        const ptr0 = passStringToWasm0(gender, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ret = wasm.calculate_growth_percentile(ptr0, len0, age_months, height, weight, head);
+        var ptr2 = ret[0];
+        var len2 = ret[1];
+        if (ret[3]) {
+            ptr2 = 0; len2 = 0;
+            throw takeFromExternrefTable0(ret[2]);
+        }
+        deferred3_0 = ptr2;
+        deferred3_1 = len2;
+        return getStringFromWasm0(ptr2, len2);
+    } finally {
+        wasm.__wbindgen_free(deferred3_0, deferred3_1, 1);
     }
-    return takeFromExternrefTable0(ret[0]);
 }
 
 /**
- * @returns {any}
+ * @returns {string}
  */
 export function get_all_vaccines() {
-    const ret = wasm.get_all_vaccines();
-    if (ret[2]) {
-        throw takeFromExternrefTable0(ret[1]);
+    let deferred2_0;
+    let deferred2_1;
+    try {
+        const ret = wasm.get_all_vaccines();
+        var ptr1 = ret[0];
+        var len1 = ret[1];
+        if (ret[3]) {
+            ptr1 = 0; len1 = 0;
+            throw takeFromExternrefTable0(ret[2]);
+        }
+        deferred2_0 = ptr1;
+        deferred2_1 = len1;
+        return getStringFromWasm0(ptr1, len1);
+    } finally {
+        wasm.__wbindgen_free(deferred2_0, deferred2_1, 1);
     }
-    return takeFromExternrefTable0(ret[0]);
 }
 
 /**
@@ -55,50 +86,61 @@ export function get_all_vaccines() {
  * @param {boolean} is_roc
  * @param {string} gender
  * @param {string} location
- * @returns {any}
+ * @returns {string}
  */
 export function get_eligible_vaccines(year, month, day, is_roc, gender, location) {
-    const ptr0 = passStringToWasm0(gender, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-    const len0 = WASM_VECTOR_LEN;
-    const ptr1 = passStringToWasm0(location, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-    const len1 = WASM_VECTOR_LEN;
-    const ret = wasm.get_eligible_vaccines(year, month, day, is_roc, ptr0, len0, ptr1, len1);
-    if (ret[2]) {
-        throw takeFromExternrefTable0(ret[1]);
+    let deferred4_0;
+    let deferred4_1;
+    try {
+        const ptr0 = passStringToWasm0(gender, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ptr1 = passStringToWasm0(location, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len1 = WASM_VECTOR_LEN;
+        const ret = wasm.get_eligible_vaccines(year, month, day, is_roc, ptr0, len0, ptr1, len1);
+        var ptr3 = ret[0];
+        var len3 = ret[1];
+        if (ret[3]) {
+            ptr3 = 0; len3 = 0;
+            throw takeFromExternrefTable0(ret[2]);
+        }
+        deferred4_0 = ptr3;
+        deferred4_1 = len3;
+        return getStringFromWasm0(ptr3, len3);
+    } finally {
+        wasm.__wbindgen_free(deferred4_0, deferred4_1, 1);
     }
-    return takeFromExternrefTable0(ret[0]);
 }
 
 /**
  * @param {string} destination
  * @param {string} purpose
- * @returns {any}
+ * @returns {string}
  */
 export function get_travel_advisory(destination, purpose) {
-    const ptr0 = passStringToWasm0(destination, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-    const len0 = WASM_VECTOR_LEN;
-    const ptr1 = passStringToWasm0(purpose, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-    const len1 = WASM_VECTOR_LEN;
-    const ret = wasm.get_travel_advisory(ptr0, len0, ptr1, len1);
-    if (ret[2]) {
-        throw takeFromExternrefTable0(ret[1]);
+    let deferred4_0;
+    let deferred4_1;
+    try {
+        const ptr0 = passStringToWasm0(destination, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ptr1 = passStringToWasm0(purpose, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len1 = WASM_VECTOR_LEN;
+        const ret = wasm.get_travel_advisory(ptr0, len0, ptr1, len1);
+        var ptr3 = ret[0];
+        var len3 = ret[1];
+        if (ret[3]) {
+            ptr3 = 0; len3 = 0;
+            throw takeFromExternrefTable0(ret[2]);
+        }
+        deferred4_0 = ptr3;
+        deferred4_1 = len3;
+        return getStringFromWasm0(ptr3, len3);
+    } finally {
+        wasm.__wbindgen_free(deferred4_0, deferred4_1, 1);
     }
-    return takeFromExternrefTable0(ret[0]);
 }
 function __wbg_get_imports() {
     const import0 = {
         __proto__: null,
-        __wbg_Error_408e67f47ca7b58b: function(arg0, arg1) {
-            const ret = Error(getStringFromWasm0(arg0, arg1));
-            return ret;
-        },
-        __wbg_String_8564e559799eccda: function(arg0, arg1) {
-            const ret = String(arg1);
-            const ptr1 = passStringToWasm0(ret, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-            const len1 = WASM_VECTOR_LEN;
-            getDataViewMemory0().setInt32(arg0 + 4 * 1, len1, true);
-            getDataViewMemory0().setInt32(arg0 + 4 * 0, ptr1, true);
-        },
         __wbg___wbindgen_is_null_7d13f41e1a2d5140: function(arg0) {
             const ret = arg0 === null;
             return ret;
@@ -128,35 +170,16 @@ function __wbg_get_imports() {
             const ret = new Date();
             return ret;
         },
-        __wbg_new_116be93542d39019: function() {
-            const ret = new Array();
-            return ret;
-        },
-        __wbg_new_ebe3e0f6837f0879: function() {
-            const ret = new Object();
-            return ret;
-        },
         __wbg_new_f9d6489212f3b2b3: function(arg0) {
             const ret = new Date(arg0);
             return ret;
-        },
-        __wbg_set_6be42768c690e380: function(arg0, arg1, arg2) {
-            arg0[arg1] = arg2;
-        },
-        __wbg_set_a80955eb93b145c6: function(arg0, arg1, arg2) {
-            arg0[arg1 >>> 0] = arg2;
         },
         __wbindgen_cast_0000000000000001: function(arg0) {
             // Cast intrinsic for `F64 -> Externref`.
             const ret = arg0;
             return ret;
         },
-        __wbindgen_cast_0000000000000002: function(arg0) {
-            // Cast intrinsic for `I64 -> Externref`.
-            const ret = arg0;
-            return ret;
-        },
-        __wbindgen_cast_0000000000000003: function(arg0, arg1) {
+        __wbindgen_cast_0000000000000002: function(arg0, arg1) {
             // Cast intrinsic for `Ref(String) -> Externref`.
             const ret = getStringFromWasm0(arg0, arg1);
             return ret;

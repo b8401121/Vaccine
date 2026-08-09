@@ -4,11 +4,9 @@
   "version": "0.1.0",
   "files": [
     "vaccine_core_bg.wasm",
-    "vaccine_core.js",
-    "vaccine_core.d.ts"
+    "vaccine_core.js"
   ],
   "main": "vaccine_core.js",
-  "types": "vaccine_core.d.ts",
   "sideEffects": [
     "./snippets/*"
   ]
