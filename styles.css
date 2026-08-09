@@ -5,8 +5,8 @@
   --card-border: rgba(255, 255, 255, 0.08);
   --primary-color: #D1A78B;              /* 溫暖的沙漠沙色 (按鈕與強調色) */
   --primary-hover: #B58E74;
-  --text-main: #E8E3DF;                  /* 柔和的米白色文字 (非純白) */
-  --text-muted: #A39991;                 /* 暖灰色文字 */
+  --text-main: #FFFFFF;                  /* 柔和的米白色文字 (非純白) */
+  --text-muted: #D9D2CB;                 /* 暖灰色文字 */
   --accent-color: #829C8B;               /* 莫蘭迪綠 */
   --routine-bg: #3B4239;                 /* 深綠色底 (公費) */
   --routine-color: #A5C2AA;              /* 淺綠字 */
@@ -2108,7 +2108,7 @@ input:checked + .slider:before {
 }
 
 .login-card h2 {
-  color: var(--text-color);
+  color: var(--text-main);
   margin: 0 0 8px 0;
   font-size: 1.5rem;
   font-weight: 700;
@@ -2129,11 +2129,13 @@ input:checked + .slider:before {
   display: block;
   font-size: 0.9rem;
   font-weight: 500;
-  color: var(--text-color);
+  color: var(--text-main);
   margin-bottom: 8px;
 }
 
 #login-form input {
+  color: var(--text-main);
+  background: rgba(255, 255, 255, 0.05);
   width: 100%;
   padding: 12px 16px;
   border: 1px solid var(--border-color);
@@ -2205,7 +2207,7 @@ input:checked + .slider:before {
 .logout-btn {
   background: rgba(255, 255, 255, 0.2);
   border: 1px solid rgba(255, 255, 255, 0.3);
-  color: var(--text-color);
+  color: var(--text-main);
   padding: 8px 16px;
   border-radius: 12px;
   font-size: 0.9rem;
