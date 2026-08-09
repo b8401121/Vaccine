@@ -1,0 +1,43 @@
+name: Deploy to GitHub Pages
+
+on:
+  # 只有在推送到 master 分支時才會觸發
+  push:
+    branches: ["master"]
+  # 允許手動從 Actions 頁面觸發
+  workflow_dispatch:
+
+# 設定 GitHub Pages 的權限
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# 確保同時只有一個部署在進行
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  # 部署工作
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+        
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          # 只上傳前端靜態檔案的資料夾
+          path: './vaccine-app/src'
+          
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
