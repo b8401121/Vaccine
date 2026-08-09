@@ -1,33 +1,38 @@
-import initWasm, * as WasmCore from './wasm/vaccine_core.js?v=2';
+// Wasm is loaded lazily via dynamic import so that even if loading fails,
+// the rest of the page (tabs, date selectors, etc.) still works.
+let wasmModule = null;
 
-let isWasmInitialized = false;
+async function loadWasm() {
+  if (wasmModule) return wasmModule;
+  try {
+    const mod = await import('./wasm/vaccine_core.js?v=3');
+    await mod.default(); // call initWasm
+    wasmModule = mod;
+    console.log('WebAssembly core initialized successfully.');
+  } catch (e) {
+    console.error('Failed to initialize WebAssembly:', e);
+    throw e;
+  }
+  return wasmModule;
+}
 
 async function fallbackInvoke(cmd, args = {}) {
-  if (!isWasmInitialized) {
-    try {
-      await initWasm();
-      isWasmInitialized = true;
-      console.log('WebAssembly core initialized successfully.');
-    } catch (e) {
-      console.error('Failed to initialize WebAssembly core:', e);
-      throw e;
-    }
-  }
+  const wasm = await loadWasm();
   
   if (cmd === 'get_eligible_vaccines') {
-    return WasmCore.get_eligible_vaccines(args.year, args.month, args.day, args.isRoc, args.gender, args.location);
+    return wasm.get_eligible_vaccines(args.year, args.month, args.day, args.isRoc, args.gender, args.location);
   }
   if (cmd === 'get_all_vaccines') {
-    return WasmCore.get_all_vaccines();
+    return wasm.get_all_vaccines();
   }
   if (cmd === 'calculate_catch_up') {
-    return WasmCore.calculate_catch_up(args.vaccine_id, args.last_dose_num, args.year, args.month, args.day, args.is_roc);
+    return wasm.calculate_catch_up(args.vaccine_id, args.last_dose_num, args.year, args.month, args.day, args.is_roc);
   }
   if (cmd === 'get_travel_advisory') {
-    return WasmCore.get_travel_advisory(args.destination, args.purpose);
+    return wasm.get_travel_advisory(args.destination, args.purpose);
   }
   if (cmd === 'calculate_growth_percentile') {
-    return WasmCore.calculate_growth_percentile(args.gender, args.age_months, args.height_cm, args.weight_kg, args.head_cm);
+    return wasm.calculate_growth_percentile(args.gender, args.age_months, args.height_cm, args.weight_kg, args.head_cm);
   }
   if (cmd === 'launch_external_calendar_url') {
     window.open(args.url, '_blank');
