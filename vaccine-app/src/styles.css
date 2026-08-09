@@ -2188,3 +2188,42 @@ input:checked + .slider:before {
   50% { transform: translateX(10px); }
   75% { transform: translateX(-10px); }
 }
+
+/* ==========================================================================
+   Header Actions (Logout)
+   ========================================================================== */
+.header-actions {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+}
+
+.logout-btn {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: var(--text-color);
+  padding: 8px 16px;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.logout-btn:hover {
+  background: rgba(239, 68, 68, 0.15); /* light red hover */
+  border-color: var(--danger-color);
+  color: var(--danger-color);
+}
+
+@media (max-width: 768px) {
+  .header-actions {
+    position: static;
+    margin-top: 12px;
+    margin-bottom: 12px;
+    display: flex;
+    justify-content: center;
+  }
+}
