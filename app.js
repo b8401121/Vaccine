@@ -1483,3 +1483,15 @@ function setupLoginSystem() {
     });
   }
 }
+
+
+// Setup logout button
+const logoutBtn = document.getElementById('logout-btn');
+if (logoutBtn) {
+  logoutBtn.addEventListener('click', () => {
+    if (confirm('確定要登出系統嗎？')) {
+      sessionStorage.removeItem('wuent_auth');
+      window.location.reload();
+    }
+  });
+}
