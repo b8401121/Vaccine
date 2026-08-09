@@ -28,7 +28,11 @@ async function fallbackInvoke(cmd, args = {}) {
     return JSON.parse(res);
   }
   if (cmd === 'calculate_catch_up') {
-    const res = wasm.calculate_catch_up(args.vaccine_id, args.last_dose_num, args.year, args.month, args.day, args.is_roc);
+    const vaccine_id = args.vaccineId !== undefined ? args.vaccineId : args.vaccine_id;
+    const last_dose_num = args.lastDoseNum !== undefined ? args.lastDoseNum : args.last_dose_num;
+    const is_roc = args.isRoc !== undefined ? args.isRoc : args.is_roc;
+    
+    const res = wasm.calculate_catch_up(vaccine_id, last_dose_num, args.year, args.month, args.day, is_roc);
     return JSON.parse(res);
   }
   if (cmd === 'get_travel_advisory') {
