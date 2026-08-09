@@ -38,7 +38,9 @@ async function fallbackInvoke(cmd, args = {}) {
   throw new Error(`Command ${cmd} not implemented in WebAssembly`);
 }
 
-const invoke = window.__TAURI__?.core?.invoke || window.__TAURI__?.tauri?.invoke || async (cmd, args) => {
+const invoke = (window.__TAURI__ && window.__TAURI__.core && window.__TAURI__.core.invoke) || 
+               (window.__TAURI__ && window.__TAURI__.tauri && window.__TAURI__.tauri.invoke) || 
+               async (cmd, args) => {
   return await fallbackInvoke(cmd, args);
 };
 
