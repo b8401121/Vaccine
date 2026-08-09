@@ -2108,7 +2108,7 @@ input:checked + .slider:before {
 }
 
 .login-card h2 {
-  color: var(--text-color);
+  color: var(--text-main);
   margin: 0 0 8px 0;
   font-size: 1.5rem;
   font-weight: 700;
@@ -2129,11 +2129,13 @@ input:checked + .slider:before {
   display: block;
   font-size: 0.9rem;
   font-weight: 500;
-  color: var(--text-color);
+  color: var(--text-main);
   margin-bottom: 8px;
 }
 
 #login-form input {
+  color: var(--text-main);
+  background: rgba(255, 255, 255, 0.05);
   width: 100%;
   padding: 12px 16px;
   border: 1px solid var(--border-color);
@@ -2205,7 +2207,7 @@ input:checked + .slider:before {
 .logout-btn {
   background: rgba(255, 255, 255, 0.2);
   border: 1px solid rgba(255, 255, 255, 0.3);
-  color: var(--text-color);
+  color: var(--text-main);
   padding: 8px 16px;
   border-radius: 12px;
   font-size: 0.9rem;
