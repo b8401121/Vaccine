@@ -1,19 +1,20 @@
 :root {
-  --bg-gradient: linear-gradient(135deg, #FAF7F2 0%, #F5F1E9 50%, #F6EFEA 100%);
-  --card-bg: rgba(255, 255, 255, 0.85);
-  --card-border: rgba(224, 212, 198, 0.5);
-  --primary-color: #C08575;      /* 溫暖的陶土粉色 */
-  --primary-hover: #A86F60;
-  --text-main: #4A4036;          /* 暖深棕色，取代刺眼的黑灰 */
-  --text-muted: #8A7C70;         /* 暖灰棕色 */
-  --accent-color: #8CA08E;       /* 溫和的鼠尾草綠 */
-  --routine-bg: #EEF3ED;         /* 柔和綠背景 */
-  --routine-color: #5C7760;
-  --high-risk-bg: #F9EFEA;       /* 柔和粉背景 */
-  --high-risk-color: #B56B5C;
-  --primary-rgb: 192, 133, 117;  /* 對應 #C08575 的 RGB，用於 login overlay */
-  --secondary-rgb: 140, 160, 142; /* 對應 #8CA08E 的 RGB */
-  --bg-color: #FAF7F2;           /* 用於 login overlay 背景底色 */
+  /* 極度柔和的護眼暖沙色/羊皮紙色系，大幅降低螢幕亮度 */
+  --bg-gradient: linear-gradient(135deg, #E6DCD3 0%, #D8CDBF 100%);
+  --card-bg: rgba(246, 240, 233, 0.95);  /* 放棄純白，改用極淡的米黃色 */
+  --card-border: rgba(142, 127, 107, 0.15);
+  --primary-color: #8C7A6B;              /* 溫和低彩度的暖棕色 */
+  --primary-hover: #6E5C4F;
+  --text-main: #3E362E;                  /* 降低文字對比度，採用深咖啡色 */
+  --text-muted: #786B5D;                 /* 柔和的灰棕色 */
+  --accent-color: #7D8C81;               /* 低飽和度的莫蘭迪綠 */
+  --routine-bg: #DCE0D9;                 /* 護眼綠底 */
+  --routine-color: #4C594D;
+  --high-risk-bg: #E3D6D2;               /* 護眼粉棕底 */
+  --high-risk-color: #8A5F58;
+  --primary-rgb: 140, 122, 107;          /* 對應 #8C7A6B */
+  --secondary-rgb: 125, 140, 129;        /* 對應 #7D8C81 */
+  --bg-color: #E6DCD3;                   /* 登入畫面底色 */
 }
 
 * {
