@@ -11,7 +11,29 @@
   <script src="qrcode.js"></script>
 </head>
 <body>
-  <div class="app-container">
+  <!-- 登入畫面 -->
+  <div id="login-overlay" class="login-overlay">
+    <div class="login-card">
+      <img src="app-icon.png" alt="Icon" class="login-icon">
+      <h2>預防接種指南助手</h2>
+      <p class="login-subtitle">桃園 吳鎮宇親子耳鼻喉科診所</p>
+      
+      <form id="login-form">
+        <div class="input-group">
+          <label for="login-account">使用者帳號</label>
+          <input type="text" id="login-account" placeholder="請輸入帳號" required autocomplete="username">
+        </div>
+        <div class="input-group">
+          <label for="login-password">系統密碼</label>
+          <input type="password" id="login-password" placeholder="請輸入密碼" required autocomplete="current-password">
+        </div>
+        <div id="login-error" class="login-error hidden">帳號或密碼錯誤，請重新輸入。</div>
+        <button type="submit" class="primary-btn login-btn">登入系統</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="app-container hidden" id="main-app-container">
     <header class="app-header">
       <div class="logo">
         <img src="app-icon.png" alt="桃園 吳鎮宇親子耳鼻喉科診所 Icon" class="app-header-icon">
