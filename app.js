@@ -36,7 +36,13 @@ async function fallbackInvoke(cmd, args = {}) {
     return JSON.parse(res);
   }
   if (cmd === 'calculate_growth_percentile') {
-    const res = wasm.calculate_growth_percentile(args.gender, args.age_months, args.height_cm, args.weight_kg, args.head_cm);
+    // Map the properties correctly since frontend uses camelCase/shorthand but WASM expects explicit args
+    const age_months = args.ageMonths !== undefined ? args.ageMonths : args.age_months;
+    const height_cm = args.height !== undefined ? args.height : args.height_cm;
+    const weight_kg = args.weight !== undefined ? args.weight : args.weight_kg;
+    const head_cm = args.head !== undefined ? args.head : args.head_cm;
+    
+    const res = wasm.calculate_growth_percentile(args.gender, age_months, height_cm, weight_kg, head_cm);
     return JSON.parse(res);
   }
   if (cmd === 'launch_external_calendar_url') {
