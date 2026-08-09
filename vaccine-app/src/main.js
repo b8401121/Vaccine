@@ -1,4 +1,46 @@
-const invoke = window.__TAURI__?.core?.invoke || window.__TAURI__?.tauri?.invoke || (async (cmd, args) => { console.warn('Tauri invoke fallback', cmd, args); });
+import initWasm, * as WasmCore from './wasm/vaccine_core.js';
+
+let isWasmInitialized = false;
+
+async function fallbackInvoke(cmd, args = {}) {
+  if (!isWasmInitialized) {
+    try {
+      await initWasm();
+      isWasmInitialized = true;
+      console.log('WebAssembly core initialized successfully.');
+    } catch (e) {
+      console.error('Failed to initialize WebAssembly core:', e);
+      throw e;
+    }
+  }
+  
+  if (cmd === 'get_eligible_vaccines') {
+    return WasmCore.get_eligible_vaccines(args.year, args.month, args.day, args.isRoc, args.gender, args.location);
+  }
+  if (cmd === 'get_all_vaccines') {
+    return WasmCore.get_all_vaccines();
+  }
+  if (cmd === 'calculate_catch_up') {
+    return WasmCore.calculate_catch_up(args.vaccine_id, args.last_dose_num, args.year, args.month, args.day, args.is_roc);
+  }
+  if (cmd === 'get_travel_advisory') {
+    return WasmCore.get_travel_advisory(args.destination, args.purpose);
+  }
+  if (cmd === 'calculate_growth_percentile') {
+    return WasmCore.calculate_growth_percentile(args.gender, args.age_months, args.height_cm, args.weight_kg, args.head_cm);
+  }
+  if (cmd === 'launch_external_calendar_url') {
+    window.open(args.url, '_blank');
+    return;
+  }
+  
+  console.warn('Unknown Wasm invoke command:', cmd, args);
+  throw new Error(`Command ${cmd} not implemented in WebAssembly`);
+}
+
+const invoke = window.__TAURI__?.core?.invoke || window.__TAURI__?.tauri?.invoke || async (cmd, args) => {
+  return await fallbackInvoke(cmd, args);
+};
 
 // Detect if running on Android/mobile Tauri
 const isMobile = !!window.__TAURI_MOBILE__;
