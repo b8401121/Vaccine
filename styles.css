@@ -1,0 +1,2057 @@
+:root {
+  --bg-gradient: linear-gradient(135deg, #F5F0E8 0%, #EBF0F0 50%, #F0EBF5 100%);
+  --card-bg: rgba(255, 253, 248, 0.96);
+  --card-border: rgba(180, 170, 155, 0.3);
+  --primary-color: #4A7C88;
+  --primary-hover: #3A6270;
+  --text-main: #2D3748;
+  --text-muted: #718096;
+  --accent-color: #5B728A;
+  --routine-bg: #E8F0E9;
+  --routine-color: #3D7A5A;
+  --high-risk-bg: #F0E8E6;
+  --high-risk-color: #8B4A42;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Outfit', 'Noto Sans TC', sans-serif;
+  background: var(--bg-gradient);
+  background-attachment: fixed;
+  color: var(--text-main);
+  min-height: 100vh;
+  padding: 2rem 1rem;
+}
+
+.app-container {
+  max-width: 1050px;
+  margin: 0 auto;
+}
+
+.app-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.app-header .logo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.8rem;
+}
+
+.app-header-icon {
+  width: 150px;
+  height: 150px;
+  border-radius: 24px;
+  object-fit: contain;
+  background: #ffffff;
+  padding: 8px;
+  box-shadow: 0 10px 30px rgba(74, 124, 136, 0.25);
+  border: 2.5px solid rgba(74, 124, 136, 0.25);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  flex-shrink: 0;
+}
+
+.app-header-icon:hover {
+  transform: scale(1.04);
+  box-shadow: 0 14px 40px rgba(74, 124, 136, 0.35);
+}
+
+.app-header h1 {
+  font-size: 2.2rem;
+  font-weight: 700;
+  background: linear-gradient(to right, #4A7C88, #5B728A, #7A6A88);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin: 0;
+}
+
+.subtitle {
+  color: var(--text-muted);
+  margin-top: 0.5rem;
+  font-size: 1.05rem;
+}
+
+/* 頂部頁籤分頁導覽 (等寬同大小) */
+.top-nav-tabs {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: stretch;
+  gap: 0.6rem;
+  margin-top: 1.2rem;
+  width: 100%;
+}
+
+.tab-btn {
+  flex: 1 1 0px;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  white-space: normal;
+  word-break: break-word;
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(180, 170, 155, 0.4);
+  color: #5B728A;
+  padding: 0.65rem 0.5rem;
+  border-radius: 14px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 6px rgba(74, 124, 136, 0.08);
+}
+
+.tab-btn:hover {
+  color: #1e293b;
+  background: #ffffff;
+  border-color: var(--primary-color);
+}
+
+.tab-btn.active {
+  background: linear-gradient(135deg, #4A7C88, #5B728A);
+  color: white;
+  border-color: transparent;
+  box-shadow: 0 4px 15px rgba(74, 124, 136, 0.3);
+}
+
+.tab-page {
+  display: block;
+}
+
+.tab-page.hidden {
+  display: none !important;
+}
+
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 16px;
+  padding: 1.75rem;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 10px 30px -5px rgba(244, 114, 182, 0.12);
+  margin-bottom: 2rem;
+}
+
+.search-card h2, .library-header-card h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 1.25rem;
+  color: #3A6270;
+}
+
+.calendar-switch {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+  background: #fff5f7;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  width: fit-content;
+  border: 1px solid #fecdd3;
+}
+
+.switch-label {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.type-text {
+  font-weight: 600;
+  color: var(--accent-color);
+}
+
+/* Custom Toggle Switch */
+.toggle {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+}
+
+.toggle input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: #334155;
+  transition: .3s;
+  border-radius: 24px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: .3s;
+  border-radius: 50%;
+}
+
+input:checked + .slider {
+  background-color: var(--primary-color);
+}
+
+input:checked + .slider:before {
+  transform: translateX(20px);
+}
+
+.input-group {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.field label {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.field input, .field select {
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  border: 1.5px solid #cbd5e1;
+  background: #ffffff;
+  color: #1e293b;
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.gender-radio-group {
+  display: flex;
+  gap: 0.75rem;
+  height: 46px;
+  align-items: center;
+}
+
+.radio-label {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.6rem 0.8rem;
+  background: #ffffff;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 8px;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+.radio-label input {
+  display: none;
+}
+
+.radio-label:has(input:checked) {
+  background: #F0E8E6;
+  border-color: var(--primary-color);
+  color: #8B4A42;
+  box-shadow: 0 0 10px rgba(74, 124, 136, 0.15);
+}
+
+.field input:focus, .field select:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(74, 124, 136, 0.15);
+}
+
+.btn-primary {
+  width: 100%;
+  padding: 0.85rem;
+  background: linear-gradient(135deg, #4A7C88, #3A6270);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.05rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(74, 124, 136, 0.3);
+  transition: transform 0.1s, box-shadow 0.2s;
+}
+
+.btn-primary:hover {
+  box-shadow: 0 6px 20px rgba(74, 124, 136, 0.45);
+  transform: translateY(-1px);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+.form-btn-group {
+  display: flex;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.form-btn-group .btn-primary {
+  flex: 3;
+}
+
+.form-btn-group .reset-btn {
+  flex: 1;
+  background: #f1f5f9;
+  border: 1.5px solid #cbd5e1;
+  color: #475569;
+  padding: 0.85rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.form-btn-group .reset-btn:hover {
+  background: #e2e8f0;
+  color: #1e293b;
+  border-color: #94a3b8;
+}
+
+.results-container {
+  margin-top: 2rem;
+}
+
+.results-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.results-header h3 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.age-badge {
+  background: #E8EEF5;
+  color: #3A5A80;
+  padding: 0.4rem 0.85rem;
+  border-radius: 20px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  border: 1px solid #A8C0D8;
+}
+
+/* 當次與下次接種日程雙卡 Summary Banner */
+.visit-schedule-banner {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.visit-schedule-card {
+  border-radius: 14px;
+  padding: 1.15rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.visit-schedule-card:hover {
+  transform: translateY(-2px);
+}
+
+.current-visit-card {
+  background: linear-gradient(135deg, #F0EDE8 0%, #E8E5DF 100%);
+  border: 1.5px solid #C8BFB0;
+  box-shadow: 0 4px 15px rgba(74, 124, 136, 0.12);
+}
+
+.next-visit-card {
+  background: linear-gradient(135deg, #EBF0F0 0%, #E0EAEA 100%);
+  border: 1.5px solid #AECDD1;
+  box-shadow: 0 4px 15px rgba(91, 114, 138, 0.1);
+}
+
+.visit-card-badge {
+  align-self: flex-start;
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 0.25rem 0.65rem;
+  border-radius: 20px;
+}
+
+.current-badge-pill {
+  background: #4A7C88;
+  color: #ffffff;
+}
+
+.next-badge-pill {
+  background: #5B728A;
+  color: #ffffff;
+}
+
+.visit-card-milestone {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin-top: 0.2rem;
+}
+
+.visit-card-date {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #334155;
+}
+
+.legend {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.75rem;
+  flex-wrap: wrap;
+}
+
+/* 垂直時間軸 Vertical Timeline */
+.vertical-timeline {
+  position: relative;
+  margin-left: 20px;
+  padding-left: 25px;
+  border-left: 3px solid #cbd5e1;
+}
+
+.timeline-item {
+  position: relative;
+  margin-bottom: 2.25rem;
+}
+
+.timeline-marker {
+  position: absolute;
+  left: -40px;
+  top: 0;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #ffffff;
+  border: 2px solid #94a3b8;
+  z-index: 2;
+}
+
+.marker-dot {
+  font-size: 0.9rem;
+}
+
+/* 歷史站點 Past */
+.past-node .timeline-marker {
+  border-color: #cbd5e1;
+  color: #94a3b8;
+  background: #f8fafc;
+}
+.past-node .timeline-content {
+  opacity: 0.75;
+  filter: grayscale(15%);
+}
+
+/* 未來預計 Next */
+.next-node .timeline-marker {
+  border-color: #818cf8;
+  color: #6366f1;
+  background: #eef2ff;
+}
+
+/* 當前推薦站點 Current */
+.current-node .timeline-marker {
+  border-color: #4A7C88;
+  color: white;
+  background: #4A7C88;
+  box-shadow: 0 0 15px rgba(74, 124, 136, 0.5);
+  animation: pulse-ring 2s infinite;
+}
+
+@keyframes pulse-ring {
+  0% { box-shadow: 0 0 0 0 rgba(74, 124, 136, 0.6); }
+  70% { box-shadow: 0 0 0 12px rgba(74, 124, 136, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(74, 124, 136, 0); }
+}
+
+.current-node .timeline-content {
+  border: 2px solid #4A7C88;
+  background: #fff5f7;
+  box-shadow: 0 8px 30px rgba(74, 124, 136, 0.15);
+}
+
+.timeline-content {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 14px;
+  padding: 1.25rem 1.5rem;
+  backdrop-filter: blur(10px);
+}
+
+.timeline-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.6rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+/* 當次/下次接種日期列 inside milestone card */
+.milestone-visit-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 0.85rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  margin-bottom: 0.85rem;
+}
+
+.current-visit-bar {
+  background: linear-gradient(90deg, #F0EDE8 0%, #E8E5DF 100%);
+  border: 1px solid #C8BFB0;
+  border-left: 4px solid #4A7C88;
+}
+
+.next-visit-bar {
+  background: linear-gradient(90deg, #EBF0F0 0%, #E0EAEA 100%);
+  border: 1px solid #AECDD1;
+  border-left: 4px solid #5B728A;
+}
+
+.visit-bar-icon {
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.visit-bar-label {
+  color: #475569;
+  font-weight: 500;
+}
+
+.visit-bar-date {
+  color: #1e293b;
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.current-visit-bar .visit-bar-date {
+  color: #8B4A42;
+}
+
+.next-visit-bar .visit-bar-date {
+  color: #3A6270;
+}
+
+.timeline-header-title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.add-cal-btn {
+  background: #E8EEF5;
+  color: #3A5A80;
+  border: 1px solid #A8C0D8;
+  padding: 0.35rem 0.75rem;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.add-cal-btn:hover {
+  background: #4A7C88;
+  color: #ffffff;
+  box-shadow: 0 0 10px rgba(74, 124, 136, 0.3);
+  transform: scale(1.03);
+}
+
+.milestone-title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.standalone-current-age-banner {
+  background: linear-gradient(135deg, #4A7C88 0%, #3A6270 100%);
+  border: 1.5px solid #4A7C88;
+  color: #ffffff;
+  padding: 0.6rem 1.25rem;
+  border-radius: 12px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin-bottom: 0.85rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  box-shadow: 0 4px 20px rgba(74, 124, 136, 0.3);
+}
+
+.standalone-current-age-banner strong {
+  color: #fef08a;
+}
+
+.timeline-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.timeline-vaccine-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 0.5rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  transition: transform 0.2s, border-color 0.2s;
+}
+
+.timeline-vaccine-card:hover {
+  transform: translateY(-2px);
+  border-color: #cbd5e1;
+}
+
+.current-vaccine-card {
+  border-color: #4A7C88;
+  background: #ffffff;
+  box-shadow: 0 4px 15px rgba(74, 124, 136, 0.1);
+}
+
+/* 可點擊疫苗卡片 */
+.clickable-vaccine-card {
+  cursor: pointer;
+  position: relative;
+}
+
+.clickable-vaccine-card:hover {
+  transform: translateY(-3px);
+  border-color: #4A7C88 !important;
+  box-shadow: 0 6px 20px rgba(74, 124, 136, 0.18) !important;
+}
+
+.clickable-vaccine-card:hover .vaccine-card-click-hint {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* 點擊提示 bar — 預設隱藏，hover 浮現 */
+.vaccine-card-click-hint {
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 0.18s ease, transform 0.18s ease;
+  margin-top: 0.35rem;
+  padding: 0.3rem 0.6rem;
+  background: linear-gradient(90deg, #eaf3f4, #e8eff0);
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #4A7C88;
+  text-align: center;
+  border: 1px solid #c0d8dc;
+  letter-spacing: 0.02em;
+  pointer-events: none;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.card-header h4 {
+  font-size: 1.05rem;
+  font-weight: 600;
+  margin: 0;
+  color: #1e293b;
+}
+
+.meta-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  font-size: 0.8rem;
+}
+
+.dose-badge, .timing-badge {
+  background: #f1f5f9;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  color: #475569;
+  border: 1px solid #e2e8f0;
+}
+
+.due-now-badge {
+  background: #F0E8E6;
+  color: #8B4A42;
+  border: 1px solid #fecdd3;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  font-weight: 700;
+}
+
+.dose-desc {
+  font-size: 0.85rem;
+  color: #64748b;
+  line-height: 1.4;
+  margin-top: 0.25rem;
+}
+
+.status-pill {
+  font-size: 0.8rem;
+  padding: 0.25rem 0.65rem;
+  border-radius: 12px;
+  font-weight: 600;
+}
+
+.status-pill.clickable {
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.status-pill.clickable:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 10px rgba(74, 124, 136, 0.3);
+}
+
+.past-pill { background: #F0EDE8; color: #8A8070; border: 1px solid #C8BFB0; }
+.current-pill { background: #E0EAEB; color: #3A6270; border: 1px solid #8AB8C0; }
+.next-pill { background: #E8EEF5; color: #3A5A80; border: 1px solid #A8C0D8; }
+
+.tag {
+  padding: 0.25rem 0.6rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.tag.routine {
+  background: #E8F0E9;
+  color: #3D7A5A;
+  border: 1px solid #A8CDB5;
+}
+
+.tag.subsidized {
+  background: #E8EEF5;
+  color: #3A5A80;
+  border: 1px solid #A8C0D8;
+}
+
+.tag.self-paid {
+  background: #F5EFE0;
+  color: #7A6030;
+  border: 1px solid #D4BC88;
+}
+
+.tag.both-cat {
+  background: #EEE8F5;
+  color: #5A3A7A;
+  border: 1px solid #C0A8D8;
+}
+
+.tag.high-risk {
+  background: #F0E8E6;
+  color: #8B4A42;
+  border: 1px solid #D4A8A0;
+}
+
+/* 同時接種組合與部位指南 Co-administration Box */
+.co-admin-box {
+  margin-top: 1rem;
+  background: #EFF4F5;
+  border: 1.5px solid #B8CDD1;
+  border-radius: 10px;
+  padding: 0.85rem 1.15rem;
+}
+
+.co-admin-header {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: #3A6270;
+  font-size: 0.92rem;
+  margin-bottom: 0.4rem;
+}
+
+.co-admin-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding-left: 0.2rem;
+}
+
+.co-admin-list li {
+  font-size: 0.88rem;
+  color: #334155;
+  line-height: 1.45;
+  position: relative;
+  padding-left: 1.1rem;
+}
+
+.co-admin-list li::before {
+  content: '▸';
+  position: absolute;
+  left: 0;
+  color: #0284c7;
+  font-weight: bold;
+}
+
+/* ---------------------------------------------------- */
+/* 分頁 2：疫苗大百科與圖鑑庫 (Library & Filter) */
+/* ---------------------------------------------------- */
+.library-header-card p {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+}
+
+.library-filter-bar {
+  margin-top: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.search-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.search-input-wrapper .search-icon {
+  position: absolute;
+  left: 1rem;
+  font-size: 1.1rem;
+  color: var(--text-muted);
+}
+
+.search-input-wrapper input {
+  width: 100%;
+  padding: 0.85rem 1rem 0.85rem 2.8rem;
+  border-radius: 12px;
+  border: 1.5px solid #cbd5e1;
+  background: #ffffff;
+  color: #1e293b;
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.search-input-wrapper input:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(74, 124, 136, 0.15);
+}
+
+.filter-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.chip {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  color: #64748b;
+  padding: 0.45rem 1rem;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.chip:hover {
+  color: #1e293b;
+  border-color: var(--primary-color);
+}
+
+.chip.active {
+  background: linear-gradient(135deg, #4A7C88 0%, #5B728A 100%);
+  color: white;
+  border-color: transparent;
+  box-shadow: 0 3px 10px rgba(74, 124, 136, 0.25);
+}
+
+.library-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+  gap: 1.25rem;
+}
+
+.library-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 1.25rem;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  cursor: pointer;
+  transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+}
+
+.library-card:hover {
+  transform: translateY(-4px);
+  border-color: #4A7C88;
+  box-shadow: 0 10px 25px rgba(74, 124, 136, 0.12);
+}
+
+.library-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.target-tag {
+  font-size: 0.8rem;
+  color: #6366f1;
+  font-weight: 600;
+}
+
+.library-card-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 0.2rem;
+}
+
+.library-aliases {
+  font-size: 0.8rem;
+  color: #64748b;
+  margin-bottom: 0.75rem;
+}
+
+.prevent-disease-box {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  padding: 0.6rem 0.8rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  margin-bottom: 0.75rem;
+}
+
+.prevent-disease-box strong {
+  color: #0284c7;
+}
+
+.prevent-disease-box p {
+  color: #334155;
+  margin-top: 0.2rem;
+}
+
+.library-desc-preview {
+  font-size: 0.85rem;
+  color: #64748b;
+  line-height: 1.4;
+  margin-bottom: 1rem;
+}
+
+.btn-detail-open {
+  background: #E8EEF5;
+  border: 1px solid #A8C0D8;
+  color: #3A5A80;
+  padding: 0.5rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.library-card:hover .btn-detail-open {
+  background: #E8EEF5;
+  border: 1px solid #A8C0D8;
+  color: #3A5A80;
+  padding: 0.5rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+/* ---------------------------------------------------- */
+/* Modal 詳細彈出視窗 */
+/* ---------------------------------------------------- */
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+  padding: 1rem;
+}
+
+.modal-overlay.hidden {
+  display: none !important;
+}
+
+.modal-card {
+  background: #FDFAF6;
+  border: 1.5px solid #D4C9B8;
+  border-radius: 20px;
+  width: 100%;
+  max-width: 650px;
+  max-height: 85vh;
+  overflow-y: auto;
+  padding: 2rem;
+  position: relative;
+  box-shadow: 0 20px 50px rgba(74, 124, 136, 0.15);
+}
+
+.modal-close-btn {
+  position: absolute;
+  top: 1.25rem;
+  right: 1.25rem;
+  background: #f1f5f9;
+  border: none;
+  color: #64748b;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.modal-close-btn:hover {
+  background: #f43f5e;
+  color: white;
+}
+
+.modal-header-section {
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.modal-category-tag {
+  display: inline-block;
+  background: #F0E8E6;
+  color: #8B4A42;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.modal-header-section h2 {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.modal-aliases {
+  font-size: 0.9rem;
+  color: #64748b;
+  margin-top: 0.2rem;
+}
+
+.modal-body-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.modal-block h3 {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #0284c7;
+  margin-bottom: 0.4rem;
+}
+
+.disease-text, .desc-text, .notes-text {
+  font-size: 0.95rem;
+  color: #334155;
+  line-height: 1.6;
+}
+
+.schedule-block {
+  background: #f8fafc;
+  padding: 1rem;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+}
+
+.schedule-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.4rem;
+}
+
+.schedule-list li {
+  font-size: 0.95rem;
+  color: #1e293b;
+  background: #F5F0E8;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  border: 1px solid #D8D0C0;
+}
+
+.notes-block {
+  background: #fff1f2;
+  border: 1px solid #fecdd3;
+  padding: 1rem;
+  border-radius: 12px;
+}
+
+.notes-text {
+  color: #9f1239;
+}
+
+.app-footer {
+  text-align: center;
+  margin-top: 3rem;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* Catch-up Calculator Styles */
+.catchup-result-card {
+  border-left: 4px solid #f43f5e;
+  background: #ffffff;
+}
+
+.catchup-card-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  margin-bottom: 1.25rem;
+}
+
+.catchup-tag {
+  align-self: flex-start;
+  font-size: 0.75rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 6px;
+  background: #F0E8E6;
+  color: #8B4A42;
+  border: 1px solid #fecdd3;
+}
+
+.catchup-date-banner {
+  background: linear-gradient(135deg, #F0EDE8 0%, #E8E5DF 100%);
+  border: 1.5px solid #C8BFB0;
+  border-radius: 12px;
+  padding: 1.5rem;
+  text-align: center;
+  margin-bottom: 1.25rem;
+}
+
+.catchup-date-banner .date-label {
+  font-size: 0.9rem;
+  color: #64748b;
+  margin-bottom: 0.3rem;
+}
+
+.catchup-date-banner .date-value {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #4A7C88;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.75rem;
+}
+
+.catchup-status-badge {
+  display: inline-block;
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 0.4rem 1rem;
+  border-radius: 20px;
+}
+
+.catchup-status-badge.ready {
+  background: #E8F0E9;
+  color: #3D7A5A;
+  border: 1px solid #A8CDB5;
+}
+
+.catchup-status-badge.waiting {
+  background: #F5EFE0;
+  color: #7A6030;
+  border: 1px solid #D4BC88;
+}
+
+.catchup-rule-box {
+  background: #f8fafc;
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.25rem;
+  border-left: 3.5px solid #0284c7;
+}
+
+.catchup-rule-box .rule-title {
+  font-size: 0.88rem;
+  color: #64748b;
+  margin-bottom: 0.3rem;
+}
+
+.catchup-rule-box .rule-text {
+  font-size: 0.95rem;
+  color: #1e293b;
+  font-weight: 500;
+}
+
+.catchup-notes-box {
+  background: #fff1f2;
+  border: 1px solid #fecdd3;
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+}
+
+/* Travel Advisory Styles */
+.travel-header-banner {
+  background: linear-gradient(135deg, #EBF0F0 0%, #E0EAEA 100%);
+  border: 1px solid #AECDD1;
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.travel-header-banner h3 {
+  font-size: 1.35rem;
+  color: #2D3748;
+}
+
+.travel-purpose-badge {
+  background: #e0e7ff;
+  color: #4338ca;
+  border: 1px solid #c7d2fe;
+  padding: 0.35rem 0.85rem;
+  border-radius: 20px;
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.travel-section {
+  margin-bottom: 1.5rem;
+}
+
+.travel-section-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 0.85rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.travel-section-title.mandatory-title { color: #8B4A42; }
+.travel-section-title.recommended-title { color: #7A6030; }
+.travel-section-title.booster-title { color: #3A5A80; }
+
+.travel-cards-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1rem;
+}
+
+.travel-item-card {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 1.15rem;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.travel-item-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 15px rgba(244, 63, 94, 0.12);
+}
+
+.travel-item-card.mandatory-card {
+  border-left: 4px solid #ef4444;
+}
+
+.travel-item-card.recommended-card {
+  border-left: 4px solid #f59e0b;
+}
+
+.travel-item-card.booster-card {
+  border-left: 4px solid #0284c7;
+}
+
+.travel-card-top {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-bottom: 0.5rem;
+}
+
+.travel-card-top h5 {
+  font-size: 1.05rem;
+  color: #1e293b;
+}
+
+.travel-badge {
+  align-self: flex-start;
+  font-size: 0.72rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 6px;
+  font-weight: 600;
+}
+
+.mandatory-badge { background: #F0E8E6; color: #8B4A42; border: 1px solid #D4A8A0; }
+.recommended-badge { background: #F5EFE0; color: #7A6030; border: 1px solid #D4BC88; }
+.booster-badge { background: #e0f2fe; color: #3A6270; border: 1px solid #7dd3fc; }
+
+.travel-timing {
+  font-size: 0.85rem;
+  color: #0284c7;
+  font-weight: 600;
+  margin-bottom: 0.4rem;
+}
+
+.travel-desc {
+  font-size: 0.88rem;
+  color: #475569;
+  line-height: 1.5;
+}
+
+.travel-notes-box {
+  background: #fff1f2;
+  border: 1px solid #fecdd3;
+  border-radius: 12px;
+  padding: 1.15rem;
+  margin-top: 1.5rem;
+}
+
+.travel-notes-box h4 {
+  color: #8B4A42;
+}
+
+.travel-notes-box li {
+  color: #334155;
+}
+
+/* Print Report Styles & @media print optimization */
+.printable-report-wrapper {
+  display: none;
+}
+
+.results-header-left {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.print-btn {
+  font-size: 0.9rem;
+  padding: 0.5rem 1rem;
+  background: #E8EEF5;
+  color: #3A5A80;
+  border: 1px solid #A8C0D8;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.print-btn:hover {
+  background: #4A7C88;
+  color: #ffffff;
+  box-shadow: 0 0 12px rgba(74, 124, 136, 0.3);
+}
+
+/* ── 列印前疫苗勾選 Modal 樣式 ── */
+.print-select-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 1.25rem 1.5rem 0.85rem;
+  border-bottom: 1px solid #d4c9b8;
+  background: linear-gradient(135deg, #f5f3ef, #eff4f5);
+}
+
+.print-select-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.6rem 1.25rem;
+  background: #f9f7f3;
+  border-bottom: 1px solid #e8e0d4;
+}
+
+.print-select-tool-btn {
+  font-size: 0.8rem;
+  padding: 0.3rem 0.75rem;
+  border-radius: 20px;
+  border: 1px solid #b8cdd1;
+  background: #e8eff0;
+  color: #3a6270;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.18s;
+}
+
+.print-select-tool-btn:hover {
+  background: #4A7C88;
+  color: #fff;
+  border-color: #4A7C88;
+}
+
+.print-select-count-badge {
+  margin-left: auto;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #4A7C88;
+  background: #e0eaeb;
+  padding: 0.25rem 0.7rem;
+  border-radius: 20px;
+  border: 1px solid #b8cdd1;
+}
+
+.print-select-list {
+  max-height: 380px;
+  overflow-y: auto;
+  padding: 0.5rem 1.25rem 0.75rem;
+}
+
+.print-select-section-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #4A7C88;
+  background: #eaf3f4;
+  padding: 0.3rem 0.65rem;
+  border-radius: 6px;
+  border-left: 3px solid #4A7C88;
+  margin: 0.5rem 0 0.35rem;
+  letter-spacing: 0.02em;
+}
+
+.print-select-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 0.65rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s;
+  border: 1px solid transparent;
+  margin-bottom: 0.25rem;
+}
+
+.print-select-item:hover {
+  background: #f0f4f5;
+  border-color: #c8d8dc;
+}
+
+.print-select-item input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: #4A7C88;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.ps-vaccine-name {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #2D3748;
+  flex: 1;
+}
+
+.ps-cat-badge {
+  font-size: 0.72rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 10px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.ps-cat-routine     { background: #E8F0E9; color: #3D7A5A; border: 1px solid #A8CDB5; }
+.ps-cat-subsidized  { background: #E8EEF5; color: #3A5A80; border: 1px solid #A8C0D8; }
+.ps-cat-selfpaid    { background: #F5EFE0; color: #7A6030; border: 1px solid #D4BC88; }
+.ps-cat-highriskselfpaid { background: #F5EFE0; color: #7A6030; border: 1px solid #D4BC88; }
+
+.ps-dose-info {
+  font-size: 0.76rem;
+  color: #718096;
+  white-space: nowrap;
+}
+
+.print-select-footer {
+  display: flex;
+  gap: 0.75rem;
+  padding: 0.85rem 1.25rem;
+  border-top: 1px solid #d4c9b8;
+  background: #f9f7f3;
+}
+
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 0.4cm 0.6cm 0.4cm 0.6cm;
+  }
+
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    box-shadow: none !important;
+  }
+
+  html, body {
+    background: #ffffff !important;
+    color: #1a202c !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    font-size: 11px !important;
+    line-height: 1.4 !important;
+    font-family: 'Noto Sans TC', 'Microsoft JhengHei', sans-serif !important;
+  }
+
+  /* 隱藏所有非列印元素 */
+  .app-container > *:not(.printable-report-wrapper) {
+    display: none !important;
+  }
+
+  .printable-report-wrapper {
+    display: block !important;
+    width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    background: #ffffff !important;
+    color: #1a202c !important;
+    box-sizing: border-box !important;
+  }
+
+  /* ── 頁首 ── */
+  .print-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    border-bottom: 2px solid #4A7C88;
+    padding-bottom: 4px;
+    margin-bottom: 6px;
+  }
+
+  .print-title-block h2 {
+    font-size: 18px !important;
+    color: #2D5F6A !important;
+    margin: 0 0 2px 0;
+    font-weight: 700;
+  }
+
+  .print-subtitle {
+    font-size: 10px !important;
+    color: #718096 !important;
+    margin: 0;
+  }
+
+  .print-date-stamp {
+    font-size: 10px !important;
+    color: #718096 !important;
+    text-align: right;
+    line-height: 1.4;
+  }
+
+  /* ── 基本資料列 ── */
+  .print-meta-grid {
+    background: #f5f3ef !important;
+    border: 1px solid #c8bfb0 !important;
+    border-radius: 4px;
+    padding: 6px 10px;
+    margin-bottom: 8px;
+    font-size: 11px !important;
+    line-height: 1.5;
+  }
+
+  .print-meta-item {
+    margin: 0 !important;
+    color: #2D3748 !important;
+  }
+
+  .print-meta-item strong {
+    color: #2D3748 !important;
+  }
+
+  /* ── 兩表格上下排列 (Vertically Stacked Layout) ── */
+  .print-content-block {
+    display: block !important;
+    width: 100% !important;
+    margin-top: 0 !important;
+    margin-bottom: 10px !important;
+  }
+
+  .print-section-heading {
+    font-size: 13px !important;
+    font-weight: 700;
+    color: #1a202c !important;
+    border-left: 4px solid #4A7C88 !important;
+    padding: 3px 0 3px 8px;
+    margin-bottom: 5px;
+    background: #EBF0F0;
+    border-radius: 0 4px 4px 0;
+  }
+
+  .print-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 0;
+    font-size: 11px !important;
+    table-layout: fixed;
+  }
+
+  .print-table th {
+    background: #e8eff0 !important;
+    color: #1a202c !important;
+    font-weight: 700;
+    font-size: 11px !important;
+    padding: 5px 8px;
+    border: 1px solid #b8cdd1;
+    text-align: left;
+    word-break: keep-all;
+  }
+
+  .print-table td {
+    border: 1px solid #c8d8dc;
+    padding: 5px 8px;
+    font-size: 11px !important;
+    vertical-align: top;
+    word-break: break-word;
+    color: #2D3748 !important;
+    line-height: 1.4;
+  }
+
+  /* ── 衛教叮嚀 ── */
+  .print-notes-block {
+    background: #fffcf0 !important;
+    border: 1px solid #e8d898 !important;
+    border-radius: 4px;
+    padding: 6px 10px;
+    margin-top: 8px;
+    font-size: 10.5px !important;
+    page-break-inside: avoid;
+  }
+
+  .print-notes-block h4 {
+    font-size: 11.5px !important;
+    color: #7A6030 !important;
+    margin: 0 0 3px 0;
+  }
+
+  .print-notes-block ol {
+    padding-left: 16px;
+    margin: 0;
+    color: #4a3810 !important;
+  }
+
+  .print-notes-block li {
+    margin-bottom: 2px;
+    line-height: 1.4;
+  }
+
+  /* ── 簽章列 ── */
+  .print-footer-signatures {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 12px;
+    padding-top: 8px;
+    border-top: 1px solid #c8bfb0;
+    font-size: 11px !important;
+    color: #475569 !important;
+  }
+
+  .sig-box {
+    flex: 1;
+    padding: 0 10px;
+  }
+
+  /* 防止跨頁斷裂 */
+  .print-content-block,
+  .print-notes-block,
+  .print-footer-signatures {
+    page-break-inside: avoid;
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== 手機裝置響應式樣式 (Android / Mobile) ===== */
+@media (max-width: 640px) {
+
+  /* 防止任何元素超出螢幕寬度 */
+  html, body {
+    overflow-x: hidden;
+    width: 100%;
+  }
+
+  body {
+    padding: 0.6rem 0.5rem;
+    padding-top: max(1.2rem, env(safe-area-inset-top, 1.2rem));
+  }
+
+  .app-container {
+    max-width: 100%;
+    width: 100%;
+    overflow-x: hidden;
+  }
+
+  /* 標題縮小與向下預留安全邊界 (避免前鏡頭/挖孔屏擋住) */
+  .app-header {
+    margin-top: 0.8rem;
+    margin-bottom: 0.6rem;
+  }
+  .app-header .logo {
+    gap: 0.5rem;
+  }
+  .app-header h1 {
+    font-size: 1.2rem;
+  }
+  .subtitle {
+    font-size: 0.78rem;
+    margin-top: 0.3rem;
+  }
+  .app-header-icon {
+    width: 96px;
+    height: 96px;
+    border-radius: 16px;
+    padding: 5px;
+  }
+
+  /* 頁籤按鈕：2×2 格線，不需滑動 */
+  .top-nav-tabs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.45rem;
+    overflow-x: visible;
+    padding: 0;
+    margin-top: 0.8rem;
+  }
+
+  .tab-btn {
+    flex-shrink: unset;
+    white-space: normal;
+    text-align: center;
+    font-size: 0.78rem;
+    padding: 0.55rem 0.4rem;
+    line-height: 1.3;
+    border-radius: 10px;
+    width: 100%;
+  }
+
+  /* 卡片內距縮小，寬度鎖定 */
+  .card {
+    padding: 0.85rem 0.75rem;
+    border-radius: 12px;
+    margin-bottom: 0.85rem;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  .search-card h2, .library-header-card h2 {
+    font-size: 0.95rem;
+    margin-bottom: 0.75rem;
+  }
+
+  /* 曆法切換列縮小 */
+  .calendar-switch {
+    padding: 0.35rem 0.65rem;
+    gap: 0.45rem;
+    margin-bottom: 0.85rem;
+    width: fit-content;
+    max-width: 100%;
+  }
+  .switch-label, .type-text {
+    font-size: 0.8rem;
+  }
+
+  /* ─── 輸入表單格線：正確5欄配置 ─── */
+  /* 年份 | 月份
+     日期 | 性別
+     縣市（滿版）       */
+  .input-group {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.55rem;
+    margin-bottom: 1rem;
+    width: 100%;
+  }
+
+  /* 年份欄 → 第1行第1格 */
+  .input-group .field:nth-child(1) { grid-column: 1; }
+  /* 月份欄 → 第1行第2格 */
+  .input-group .field:nth-child(2) { grid-column: 2; }
+  /* 日期欄 → 第2行第1格 */
+  .input-group .field:nth-child(3) { grid-column: 1; }
+  /* 性別欄 → 第2行第2格 */
+  .input-group .field:nth-child(4) { grid-column: 2; }
+  /* 縣市欄 → 滿版（橫跨2欄） */
+  .input-group .field:nth-child(5) { grid-column: 1 / -1; }
+
+  /* 輸入欄 touch 友善加大 */
+  .field input, .field select {
+    padding: 0.7rem 0.6rem;
+    font-size: 0.95rem;
+    min-height: 46px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  .field label {
+    font-size: 0.78rem;
+  }
+
+  /* 性別選項觸控加大 */
+  .gender-radio-group {
+    height: 46px;
+    gap: 0.4rem;
+  }
+  .radio-label {
+    padding: 0.6rem 0.3rem;
+    font-size: 0.85rem;
+    border-radius: 7px;
+  }
+
+  /* 主要按鈕全寬 */
+  .btn-primary {
+    width: 100%;
+    padding: 0.85rem 1rem;
+    font-size: 0.95rem;
+    border-radius: 10px;
+    box-sizing: border-box;
+  }
+
+  /* 結果標頭 */
+  .results-header {
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: flex-start;
+  }
+
+  /* 疫苗大百科篩選按鈕 */
+  .filter-chips {
+    gap: 0.35rem;
+    flex-wrap: wrap;
+  }
+  .chip {
+    font-size: 0.75rem;
+    padding: 0.38rem 0.6rem;
+  }
+
+  /* 搜尋欄 */
+  .search-input {
+    font-size: 0.9rem;
+    padding: 0.7rem 0.9rem;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  /* 疫苗庫卡片 */
+  .vaccine-card {
+    padding: 0.75rem 0.8rem;
+  }
+  .vaccine-card h3 {
+    font-size: 0.95rem;
+  }
+  .vaccine-card p {
+    font-size: 0.82rem;
+  }
+
+  /* 時間軸 */
+  .timeline-milestone {
+    padding: 0.75rem 0.8rem;
+  }
+  .milestone-title {
+    font-size: 0.92rem;
+  }
+
+  /* 隱藏列印相關元素 (Android 無列印功能) */
+  body.is-mobile #print-report-btn,
+  body.is-mobile .print-btn,
+  body.is-mobile #printable-report,
+  body.is-mobile #print-select-modal,
+  body.is-mobile #jump-to-current {
+    display: none !important;
+  }
+
+  /* Modal 全寬 */
+  .modal-card {
+    padding: 0.85rem;
+    border-radius: 12px;
+    width: 95vw;
+    max-width: 95vw;
+    box-sizing: border-box;
+  }
+
+  /* 補打試算欄位 */
+  .catchup-input-group {
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+
+  /* Visit schedule banner */
+  .visit-schedule-banner {
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+  .visit-schedule-card {
+    width: 100%;
+    box-sizing: border-box;
+  }
+}
+
+/* 極小螢幕 (< 375px) 額外縮小 */
+@media (max-width: 375px) {
+  .app-header h1 {
+    font-size: 1rem;
+  }
+  .tab-btn {
+    font-size: 0.7rem;
+    padding: 0.45rem 0.55rem;
+  }
+  .card {
+    padding: 0.75rem 0.6rem;
+  }
+  .field input, .field select {
+    font-size: 0.88rem;
+    min-height: 42px;
+  }
+}
+
+/* 📍 列印按鈕放置於當次框框正上方配置 ── */
+.current-visit-wrapper, .next-visit-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.main-print-action-btn {
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #4A7C88, #3A6270);
+  color: white;
+  border: 1px solid rgba(74, 124, 136, 0.2);
+  box-shadow: 0 4px 12px rgba(74, 124, 136, 0.18);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.main-print-action-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(74, 124, 136, 0.28);
+  background: linear-gradient(135deg, #5B728A, #4A7C88);
+}
+
+.next-visit-spacer {
+  height: 38px; /* 完美對齊左方列印按鈕與間隙 */
+  visibility: hidden;
+}
+
+
+@media (max-width: 768px) {
+  .next-visit-spacer {
+    display: none;
+  }
+}
+
+/* 🖨️ 時間軸當次框框內的列印/匯出衛教單按鈕 */
+.timeline-header-actions {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.inline-timeline-print-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.9rem;
+  font-size: 0.88rem;
+  font-weight: 700;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #4A7C88, #3A6270);
+  color: #ffffff;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 3px 10px rgba(74, 124, 136, 0.25);
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.inline-timeline-print-btn:hover {
+  background: linear-gradient(135deg, #5B728A, #4A7C88);
+  transform: translateY(-1px);
+  box-shadow: 0 5px 14px rgba(74, 124, 136, 0.35);
+}
+
+@media (max-width: 768px) {
+  .timeline-header-actions {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .inline-timeline-print-btn {
+    font-size: 0.82rem;
+    padding: 0.4rem 0.75rem;
+  }
+}

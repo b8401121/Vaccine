@@ -1909,15 +1909,15 @@ pub fn get_eligible_vaccines(
     is_roc: bool,
     gender: String,
     location: String,
-) -> Result<JsValue, JsValue> {
-    let res = get_eligible_vaccines_core(year, month, day, is_roc, gender, location).map_err(|e| JsValue::from_str(&e))?;
-    Ok(serde_wasm_bindgen::to_value(&res).map_err(|e| JsValue::from_str(&e.to_string()))?)
+) -> Result<String, String> {
+    let res = get_eligible_vaccines_core(year, month, day, is_roc, gender, location).map_err(|e| e.to_string())?;
+    serde_json::to_string(&res).map_err(|e| e.to_string())
 }
 
 #[wasm_bindgen]
-pub fn get_all_vaccines() -> Result<JsValue, JsValue> {
+pub fn get_all_vaccines() -> Result<String, String> {
     let res = get_all_vaccines_core();
-    Ok(serde_wasm_bindgen::to_value(&res).map_err(|e| JsValue::from_str(&e.to_string()))?)
+    serde_json::to_string(&res).map_err(|e| e.to_string())
 }
 
 #[wasm_bindgen]
@@ -1928,18 +1928,18 @@ pub fn calculate_catch_up(
     month: u32,
     day: u32,
     is_roc: bool,
-) -> Result<JsValue, JsValue> {
-    let res = calculate_catch_up_core(vaccine_id, last_dose_num, year, month, day, is_roc).map_err(|e| JsValue::from_str(&e))?;
-    Ok(serde_wasm_bindgen::to_value(&res).map_err(|e| JsValue::from_str(&e.to_string()))?)
+) -> Result<String, String> {
+    let res = calculate_catch_up_core(vaccine_id, last_dose_num, year, month, day, is_roc).map_err(|e| e.to_string())?;
+    serde_json::to_string(&res).map_err(|e| e.to_string())
 }
 
 #[wasm_bindgen]
 pub fn get_travel_advisory(
     destination: String,
     purpose: String,
-) -> Result<JsValue, JsValue> {
-    let res = get_travel_advisory_core(destination, purpose).map_err(|e| JsValue::from_str(&e))?;
-    Ok(serde_wasm_bindgen::to_value(&res).map_err(|e| JsValue::from_str(&e.to_string()))?)
+) -> Result<String, String> {
+    let res = get_travel_advisory_core(destination, purpose).map_err(|e| e.to_string())?;
+    serde_json::to_string(&res).map_err(|e| e.to_string())
 }
 
 #[wasm_bindgen]
@@ -1949,8 +1949,8 @@ pub fn calculate_growth_percentile(
     height: f64,
     weight: f64,
     head: JsValue,
-) -> Result<JsValue, JsValue> {
+) -> Result<String, String> {
     let head_val: Option<f64> = if head.is_null() || head.is_undefined() { None } else { Some(head.as_f64().unwrap_or(0.0)) };
-    let res = calculate_growth_percentile_core(gender, age_months, height, weight, head_val).map_err(|e| JsValue::from_str(&e))?;
-    Ok(serde_wasm_bindgen::to_value(&res).map_err(|e| JsValue::from_str(&e.to_string()))?)
+    let res = calculate_growth_percentile_core(gender, age_months, height, weight, head_val).map_err(|e| e.to_string())?;
+    serde_json::to_string(&res).map_err(|e| e.to_string())
 }

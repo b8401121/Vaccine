@@ -1,43 +1,33 @@
-// Wasm is loaded lazily via dynamic import so that even if loading fails,
-// the rest of the page (tabs, date selectors, etc.) still works.
-let wasmModule = null;
+import initWasm, * as WasmCore from './wasm/vaccine_core.js';
 
-async function loadWasm() {
-  if (wasmModule) return wasmModule;
-  try {
-    const mod = await import('./wasm/vaccine_core.js?t=' + Date.now());
-    await mod.default(); // call initWasm
-    wasmModule = mod;
-    console.log('WebAssembly core initialized successfully.');
-  } catch (e) {
-    console.error('Failed to initialize WebAssembly:', e);
-    throw e;
-  }
-  return wasmModule;
-}
+let isWasmInitialized = false;
 
 async function fallbackInvoke(cmd, args = {}) {
-  const wasm = await loadWasm();
+  if (!isWasmInitialized) {
+    try {
+      await initWasm();
+      isWasmInitialized = true;
+      console.log('WebAssembly core initialized successfully.');
+    } catch (e) {
+      console.error('Failed to initialize WebAssembly core:', e);
+      throw e;
+    }
+  }
   
   if (cmd === 'get_eligible_vaccines') {
-    const res = wasm.get_eligible_vaccines(args.year, args.month, args.day, args.isRoc, args.gender, args.location);
-    return JSON.parse(res);
+    return WasmCore.get_eligible_vaccines(args.year, args.month, args.day, args.isRoc, args.gender, args.location);
   }
   if (cmd === 'get_all_vaccines') {
-    const res = wasm.get_all_vaccines();
-    return JSON.parse(res);
+    return WasmCore.get_all_vaccines();
   }
   if (cmd === 'calculate_catch_up') {
-    const res = wasm.calculate_catch_up(args.vaccine_id, args.last_dose_num, args.year, args.month, args.day, args.is_roc);
-    return JSON.parse(res);
+    return WasmCore.calculate_catch_up(args.vaccine_id, args.last_dose_num, args.year, args.month, args.day, args.is_roc);
   }
   if (cmd === 'get_travel_advisory') {
-    const res = wasm.get_travel_advisory(args.destination, args.purpose);
-    return JSON.parse(res);
+    return WasmCore.get_travel_advisory(args.destination, args.purpose);
   }
   if (cmd === 'calculate_growth_percentile') {
-    const res = wasm.calculate_growth_percentile(args.gender, args.age_months, args.height_cm, args.weight_kg, args.head_cm);
-    return JSON.parse(res);
+    return WasmCore.calculate_growth_percentile(args.gender, args.age_months, args.height_cm, args.weight_kg, args.head_cm);
   }
   if (cmd === 'launch_external_calendar_url') {
     window.open(args.url, '_blank');
@@ -48,11 +38,9 @@ async function fallbackInvoke(cmd, args = {}) {
   throw new Error(`Command ${cmd} not implemented in WebAssembly`);
 }
 
-const invoke = (window.__TAURI__ && window.__TAURI__.core && window.__TAURI__.core.invoke) || 
-               (window.__TAURI__ && window.__TAURI__.tauri && window.__TAURI__.tauri.invoke) || 
-               (async (cmd, args) => {
+const invoke = window.__TAURI__?.core?.invoke || window.__TAURI__?.tauri?.invoke || async (cmd, args) => {
   return await fallbackInvoke(cmd, args);
-});
+};
 
 // Detect if running on Android/mobile Tauri
 const isMobile = !!window.__TAURI_MOBILE__;
