@@ -75,6 +75,8 @@ let lastQueryData = null;
 const tabHistoryStack = ['tab-calculator'];
 
 window.addEventListener('DOMContentLoaded', () => {
+  setupLoginSystem();
+  
   setupDateSelectors();
   setupCatchupDateSelectors();
   setupCalendarToggle();
@@ -1431,3 +1433,53 @@ function displayGrowthResults(data) {
   container.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
+
+
+// ==========================================
+// 系統登入與權限控制
+// ==========================================
+function setupLoginSystem() {
+  const loginOverlay = document.getElementById('login-overlay');
+  const mainApp = document.getElementById('main-app-container');
+  const loginForm = document.getElementById('login-form');
+  const errorMsg = document.getElementById('login-error');
+
+  // 檢查是否已經登入過 (存在 sessionStorage)
+  if (sessionStorage.getItem('wuent_auth') === 'granted') {
+    loginOverlay.classList.add('hidden');
+    mainApp.classList.remove('hidden');
+    return; // 已經登入，直接顯示主程式
+  }
+
+  // 攔截登入表單送出
+  if (loginForm) {
+    loginForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const accountInput = document.getElementById('login-account').value.trim();
+      const passwordInput = document.getElementById('login-password').value.trim();
+
+      // 檢查帳號密碼
+      if (accountInput === 'wuent' && passwordInput === '033787876') {
+        // 登入成功
+        sessionStorage.setItem('wuent_auth', 'granted');
+        errorMsg.classList.add('hidden');
+        
+        // 隱藏登入畫面並顯示主畫面
+        loginOverlay.classList.add('hidden');
+        mainApp.classList.remove('hidden');
+        
+        // 如果是剛登入成功，可能需要觸發一次 Resize 讓一些排版(如日曆)重整
+        setTimeout(() => window.dispatchEvent(new Event('resize')), 100);
+      } else {
+        // 登入失敗
+        errorMsg.classList.remove('hidden');
+        
+        // 震動動畫提示錯誤
+        const card = document.querySelector('.login-card');
+        card.style.animation = 'none';
+        card.offsetHeight; // trigger reflow
+        card.style.animation = 'shake 0.4s ease';
+      }
+    });
+  }
+}
