@@ -5,8 +5,8 @@
   --card-border: rgba(255, 255, 255, 0.08);
   --primary-color: #D1A78B;              /* 溫暖的沙漠沙色 (按鈕與強調色) */
   --primary-hover: #B58E74;
-  --text-main: #E8E3DF;                  /* 柔和的米白色文字 (非純白) */
-  --text-muted: #A39991;                 /* 暖灰色文字 */
+  --text-main: #FFFFFF;                  /* 柔和的米白色文字 (非純白) */
+  --text-muted: #D9D2CB;                 /* 暖灰色文字 */
   --accent-color: #829C8B;               /* 莫蘭迪綠 */
   --routine-bg: #3B4239;                 /* 深綠色底 (公費) */
   --routine-color: #A5C2AA;              /* 淺綠字 */
