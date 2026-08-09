@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "台灣疫苗指南助手",
+  "productName": "桃園 吳鎮宇親子耳鼻喉科診所 ‧ 預防接種指南助手",
   "version": "0.1.0",
   "identifier": "com.tauri.vaccine.app",
   "build": {
@@ -13,7 +13,7 @@
     },
     "windows": [
       {
-        "title": "台灣疫苗指南助手",
+        "title": "桃園 吳鎮宇親子耳鼻喉科診所 ‧ 預防接種指南助手",
         "width": 1000,
         "height": 800,
         "resizable": true

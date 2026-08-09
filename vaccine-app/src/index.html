@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>台灣疫苗接種建議時程查詢</title>
+  <title>桃園 吳鎮宇親子耳鼻喉科診所 ‧ 預防接種指南助手</title>
   <link rel="stylesheet" href="styles.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -14,8 +14,8 @@
   <div class="app-container">
     <header class="app-header">
       <div class="logo">
-        <img src="app-icon.png" alt="Vaccine Guide Icon" class="app-header-icon">
-        <h1>台灣預防接種指南助手</h1>
+        <img src="app-icon.png" alt="桃園 吳鎮宇親子耳鼻喉科診所 Icon" class="app-header-icon">
+        <h1>桃園 吳鎮宇親子耳鼻喉科診所 ‧ 預防接種指南助手</h1>
       </div>
       <p class="subtitle">自動試算兒童與成人公自費疫苗時程 ‧ 衛福部疾管署官方標準</p>
       
@@ -114,22 +114,28 @@
               <h3>疫苗接種時間軸</h3>
               <div id="age-badge" class="age-badge">目前年齡：--</div>
             </div>
-            <button id="print-report-btn" class="btn-secondary print-btn">
-              🖨️ 一鍵列印 / 匯出衛教單
-            </button>
           </div>
 
           <!-- 當次與下次接種日程雙卡 Summary Banner -->
           <div class="visit-schedule-banner">
-            <div class="visit-schedule-card current-visit-card">
-              <div class="visit-card-badge current-badge-pill">📍 當次建議接種 (Current Visit)</div>
-              <div class="visit-card-milestone" id="summary-current-milestone">階段：--</div>
-              <div class="visit-card-date" id="summary-current-date">📅 建議接種日期：--</div>
+            <div class="current-visit-wrapper">
+              <button id="print-report-btn" class="main-print-action-btn">
+                🖨️ 一鍵列印 / 匯出衛教單
+              </button>
+              <div class="visit-schedule-card current-visit-card">
+                <div class="visit-card-badge current-badge-pill">📍 當次建議接種 (Current Visit)</div>
+                <div class="visit-card-milestone" id="summary-current-milestone">階段：--</div>
+                <div class="visit-card-date" id="summary-current-date">📅 建議接種日期：--</div>
+              </div>
             </div>
-            <div class="visit-schedule-card next-visit-card">
-              <div class="visit-card-badge next-badge-pill">📆 下次預計接種 (Next Visit)</div>
-              <div class="visit-card-milestone" id="summary-next-milestone">階段：--</div>
-              <div class="visit-card-date" id="summary-next-date">📅 預估接種日期：--</div>
+            
+            <div class="next-visit-wrapper">
+              <div class="next-visit-spacer"></div>
+              <div class="visit-schedule-card next-visit-card">
+                <div class="visit-card-badge next-badge-pill">📆 下次預計接種 (Next Visit)</div>
+                <div class="visit-card-milestone" id="summary-next-milestone">階段：--</div>
+                <div class="visit-card-date" id="summary-next-date">📅 預估接種日期：--</div>
+              </div>
             </div>
           </div>
 
