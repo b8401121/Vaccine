@@ -388,6 +388,10 @@ function displayVaccines(data) {
         `;
       }
 
+      const inlineCurrentPrintBtn = m.status === 'Current'
+        ? `<button class="inline-timeline-print-btn">🖨️ 列印 / 匯出本次衛教單</button>`
+        : '';
+
       node.innerHTML = `
         ${currentAgeBannerHtml}
         <div class="timeline-marker">
@@ -399,9 +403,12 @@ function displayVaccines(data) {
               <h3 class="milestone-title">${m.title}</h3>
               <span class="status-pill ${statusClass}-pill">${statusLabel}</span>
             </div>
-            <button class="add-cal-btn" data-title="${m.title}" data-date="${m.target_date || ''}" data-vaccines="${m.vaccines.map(v => v.name).join('、')}">
-              📱 📅 手機掃碼行事曆
-            </button>
+            <div class="timeline-header-actions">
+              ${inlineCurrentPrintBtn}
+              <button class="add-cal-btn" data-title="${m.title}" data-date="${m.target_date || ''}" data-vaccines="${m.vaccines.map(v => v.name).join('、')}">
+                📱 📅 手機掃碼行事曆
+              </button>
+            </div>
           </div>
           ${visitDateBarHtml}
           <div class="timeline-cards-grid">
@@ -432,6 +439,14 @@ function displayVaccines(data) {
         const dateToUse = (targetDate && targetDate.length === 10) ? targetDate : todayStr;
 
         openCalendarModal(`預防接種提醒 — ${title}`, dateToUse, `建議接種疫苗：${vaccines}`);
+      });
+    });
+
+    // 時間軸當次框框內「列印/匯出衛教單」按鈕
+    timelineContainer.querySelectorAll('.inline-timeline-print-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (!lastQueryData) return;
+        openPrintSelectModal(lastQueryData);
       });
     });
   }
