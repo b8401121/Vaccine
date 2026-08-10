@@ -2234,3 +2234,31 @@ input:checked + .slider:before {
     justify-content: center;
   }
 }
+
+/* ==========================================
+   Growth Curve Specific Print Rules
+   ========================================== */
+@media print {
+  body.print-mode-growth .app-container > * {
+    display: none !important;
+  }
+  body.print-mode-growth .app-container > main {
+    display: block !important;
+  }
+  body.print-mode-growth main > section {
+    display: none !important;
+  }
+  body.print-mode-growth main > #tab-growth {
+    display: block !important;
+  }
+  body.print-mode-growth #tab-growth > * {
+    display: none !important;
+  }
+  body.print-mode-growth #tab-growth > #growth-results {
+    display: block !important;
+    width: 100% !important;
+  }
+  body.print-mode-growth .hide-on-print {
+    display: none !important;
+  }
+}

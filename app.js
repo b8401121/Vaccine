@@ -1402,7 +1402,10 @@ function displayGrowthResults(data) {
 
   container.innerHTML = `
     <div class="card fade-in" style="background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border: 1px solid #bae6fd; margin-bottom: 1.25rem;">
-      <h3 style="color:#0369a1; margin-bottom:0.4rem; font-size:1.25rem;">📊 生長發育與 BMI 評估報告</h3>
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:0.4rem;">
+        <h3 style="color:#0369a1; margin:0; font-size:1.25rem;">📊 生長發育與 BMI 評估報告</h3>
+        <button onclick="printGrowthReport()" class="print-btn hide-on-print" style="font-size:0.85rem; padding:0.4rem 0.8rem; flex-shrink:0;">🖨️ 列印報告</button>
+      </div>
       <div style="font-size:0.92rem; color:#0c4a6e; margin-bottom:0.5rem;">
         性別：<strong>${gender_display}</strong> ｜ 年齡層：<strong>${age_display}</strong>
       </div>
@@ -1495,3 +1498,19 @@ if (logoutBtn) {
     }
   });
 }
+
+// ==========================================
+// 生長曲線專用列印功能
+// ==========================================
+window.printGrowthReport = function() {
+  document.body.classList.add('print-mode-growth');
+  window.print();
+  // 為了保險起見，設定一個 timeout 清除 (某些瀏覽器不會觸發 afterprint)
+  setTimeout(() => {
+    document.body.classList.remove('print-mode-growth');
+  }, 1000);
+};
+
+window.addEventListener('afterprint', () => {
+  document.body.classList.remove('print-mode-growth');
+});
