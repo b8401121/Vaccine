@@ -1217,11 +1217,57 @@ function generateGoogleCalendarUrl(title, startDateStr, details) {
   return `${baseUrl}?${params.toString()}`;
 }
 
+// 產生適用於 iOS / Apple Calendar / Outlook 之 iCalendar (.ics) 內容
+function generateIcsFileContent(title, startDateStr, details) {
+  const dateParts = startDateStr.split('-');
+  let y = dateParts[0];
+  let m = dateParts[1] ? dateParts[1].padStart(2, '0') : '01';
+  let d = dateParts[2] ? dateParts[2].padStart(2, '0') : '01';
+
+  const dtStart = `${y}${m}${d}T090000Z`;
+  const dtEnd = `${y}${m}${d}T100000Z`;
+  const cleanSummary = title.replace(/\n/g, ' ');
+  const cleanDesc = `${details}\\n\\n提醒：請攜帶兒童預防接種紀錄黃卡與健保卡至診所就診。`.replace(/\n/g, '\\n');
+
+  return [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//Taiwan Vaccine Guide Assistant//TW',
+    'CALSCALE:GREGORIAN',
+    'METHOD:PUBLISH',
+    'BEGIN:VEVENT',
+    `SUMMARY:${cleanSummary}`,
+    `DTSTART:${dtStart}`,
+    `DTEND:${dtEnd}`,
+    `DESCRIPTION:${cleanDesc}`,
+    'LOCATION:預防接種醫療診所諮詢門診',
+    'STATUS:CONFIRMED',
+    'END:VEVENT',
+    'END:VCALENDAR'
+  ].join('\r\n');
+}
+
+function downloadIcsForAppleCalendar(title, startDateStr, details) {
+  const icsContent = generateIcsFileContent(title, startDateStr, details);
+  const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8;' });
+  
+  // 建立 Blob URL 下載
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `疫苗接種提醒_${startDateStr}.ics`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
 function openCalendarModal(title, dateDisplayStr, details) {
   const modal = document.getElementById('calendar-modal');
   const modalTitle = document.getElementById('cal-modal-title');
   const modalDate = document.getElementById('cal-modal-date');
   const directLink = document.getElementById('cal-direct-link');
+  const appleBtn = document.getElementById('cal-apple-btn');
   const copyBtn = document.getElementById('cal-copy-link-btn');
 
   const calUrl = generateGoogleCalendarUrl(title, dateDisplayStr, details);
@@ -1242,6 +1288,12 @@ function openCalendarModal(title, dateDisplayStr, details) {
           window.open(calUrl, '_blank');
         }
       }
+    };
+  }
+
+  if (appleBtn) {
+    appleBtn.onclick = () => {
+      downloadIcsForAppleCalendar(title, dateDisplayStr, details);
     };
   }
 
