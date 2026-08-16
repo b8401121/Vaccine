@@ -394,8 +394,17 @@
             使用手機相機或 LINE 掃描功能照向 QR Code，即可將疫苗預約提醒一鍵存入手機日曆！
           </p>
 
-          <div id="qrcode-container" style="display: flex; justify-content: center; margin-bottom: 1.25rem;">
+          <!-- QR Code 系統切換頁籤 -->
+          <div class="qr-tab-group" style="display: flex; justify-content: center; gap: 0.5rem; margin-bottom: 1rem;">
+            <button id="qr-tab-google" class="chip active" style="padding: 0.4rem 0.8rem; font-weight: 600; cursor: pointer;">🌐 Google 日曆 QR</button>
+            <button id="qr-tab-apple" class="chip" style="padding: 0.4rem 0.8rem; font-weight: 600; cursor: pointer; background: #333333; color: #ffffff; border-color: #555555;">🍏 iOS 相機直掃 QR</button>
+          </div>
+
+          <div id="qrcode-container" style="display: flex; justify-content: center; margin-bottom: 0.75rem;">
             <!-- QR Code 圖檔 -->
+          </div>
+          <div id="qr-hint-text" style="font-size: 0.78rem; color: #34d399; margin-bottom: 1.25rem;">
+            提示：iPhone 內建相機直接照向此 QR Code 即可加入 iOS 日曆！
           </div>
 
           <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 10px; border: 1px solid var(--card-border); margin-bottom: 1.25rem; text-align: left;">
@@ -405,12 +414,15 @@
             <div id="cal-modal-date" style="font-weight: 700; color: #34d399;">--</div>
           </div>
 
-          <div style="display: flex; gap: 0.75rem;">
-            <a id="cal-direct-link" href="#" target="_blank" class="btn-primary" style="flex: 1; text-decoration: none; display: inline-block; text-align: center; padding: 0.75rem; font-size: 0.95rem;">
-              📅 開啟 Google 日曆
+          <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 1rem;">
+            <a id="cal-direct-link" href="#" target="_blank" class="btn-primary" style="flex: 1; min-width: 130px; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; padding: 0.65rem 0.5rem; font-size: 0.88rem;">
+              🌐 Google 日曆
             </a>
-            <button id="cal-copy-link-btn" class="btn-secondary" style="flex: 1; padding: 0.75rem; font-size: 0.95rem;">
-              🔗 複製行事曆連結
+            <button id="cal-apple-btn" class="btn-primary" style="flex: 1; min-width: 130px; background: linear-gradient(135deg, #000000, #333333); border-color: #555; padding: 0.65rem 0.5rem; font-size: 0.88rem;">
+              🍏 iOS / Apple 日曆
+            </button>
+            <button id="cal-copy-link-btn" class="btn-secondary" style="flex: 1; min-width: 130px; padding: 0.65rem 0.5rem; font-size: 0.88rem;">
+              🔗 複製連結
             </button>
           </div>
         </div>
