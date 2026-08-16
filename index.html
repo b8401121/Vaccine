@@ -407,11 +407,22 @@
             提示：iPhone 內建相機直接照向此 QR Code 即可加入 iOS 日曆！
           </div>
 
-          <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 10px; border: 1px solid var(--card-border); margin-bottom: 1.25rem; text-align: left;">
+          <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 10px; border: 1px solid var(--card-border); margin-bottom: 1rem; text-align: left;">
             <div style="font-size: 0.85rem; color: #94a3b8; margin-bottom: 0.2rem;">📌 提醒事件名稱：</div>
             <div id="cal-modal-title" style="font-weight: 700; color: #f8fafc; margin-bottom: 0.6rem;">--</div>
-            <div style="font-size: 0.85rem; color: #94a3b8; margin-bottom: 0.2rem;">⏰ 建議提醒日期：</div>
-            <div id="cal-modal-date" style="font-weight: 700; color: #34d399;">--</div>
+            
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.4rem;">
+              <label for="cal-date-input" style="font-size: 0.85rem; color: #94a3b8;">📅 預約提醒日期 (可點擊修改)：</label>
+              <span id="cal-min-date-badge" style="font-size: 0.75rem; color: #38bdf8; background: rgba(56, 189, 248, 0.1); padding: 2px 8px; border-radius: 4px;"></span>
+            </div>
+            
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+              <input type="date" id="cal-date-input" style="flex: 1; padding: 0.5rem 0.75rem; border-radius: 8px; border: 1.5px solid #38bdf8; background: #0f172a; color: #ffffff; font-size: 1rem; font-weight: 600; outline: none;">
+              <button id="cal-reset-date-btn" class="btn-secondary" style="padding: 0.5rem 0.75rem; font-size: 0.8rem; white-space: nowrap;">重設原日期</button>
+            </div>
+
+            <!-- 醫療安全警示 / 提早延後評估提示區 -->
+            <div id="cal-date-warning-box" class="hidden" style="margin-top: 0.75rem; padding: 0.6rem 0.8rem; border-radius: 6px; font-size: 0.82rem; line-height: 1.5;"></div>
           </div>
 
           <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 1rem;">
