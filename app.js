@@ -1262,6 +1262,20 @@ function downloadIcsForAppleCalendar(title, startDateStr, details) {
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
+// 產生適用於 iOS 相機直接掃描加入日曆的 iCalendar VEVENT 簡化字串
+function generateIcsQrString(title, startDateStr, details) {
+  const dateParts = startDateStr.split('-');
+  let y = dateParts[0];
+  let m = dateParts[1] ? dateParts[1].padStart(2, '0') : '01';
+  let d = dateParts[2] ? dateParts[2].padStart(2, '0') : '01';
+
+  const dtStart = `${y}${m}${d}T090000Z`;
+  const dtEnd = `${y}${m}${d}T100000Z`;
+  const cleanSummary = title.replace(/\n/g, ' ');
+
+  return `BEGIN:VEVENT\nSUMMARY:${cleanSummary}\nDTSTART:${dtStart}\nDTEND:${dtEnd}\nDESCRIPTION:${details}\nLOCATION:預防接種門診\nEND:VEVENT`;
+}
+
 function openCalendarModal(title, dateDisplayStr, details) {
   const modal = document.getElementById('calendar-modal');
   const modalTitle = document.getElementById('cal-modal-title');
@@ -1270,7 +1284,12 @@ function openCalendarModal(title, dateDisplayStr, details) {
   const appleBtn = document.getElementById('cal-apple-btn');
   const copyBtn = document.getElementById('cal-copy-link-btn');
 
+  const qrTabGoogle = document.getElementById('qr-tab-google');
+  const qrTabApple = document.getElementById('qr-tab-apple');
+  const qrHintText = document.getElementById('qr-hint-text');
+
   const calUrl = generateGoogleCalendarUrl(title, dateDisplayStr, details);
+  const appleIcsQrText = generateIcsQrString(title, dateDisplayStr, details);
 
   if (modalTitle) modalTitle.textContent = title;
   if (modalDate) modalDate.textContent = `預估建議日期：${dateDisplayStr}`;
@@ -1297,14 +1316,40 @@ function openCalendarModal(title, dateDisplayStr, details) {
     };
   }
 
-  const qrContainer = document.getElementById('qrcode-container');
-  if (qrContainer && window.QRCode) {
-    qrContainer.innerHTML = ''; // 清除前一次生成的 QR Code，避免重疊
-    new window.QRCode(qrContainer, {
-      text: calUrl,
-      width: 180,
-      height: 180
-    });
+  function renderQrCode(text) {
+    const qrContainer = document.getElementById('qrcode-container');
+    if (qrContainer && window.QRCode) {
+      qrContainer.innerHTML = '';
+      new window.QRCode(qrContainer, {
+        text: text,
+        width: 180,
+        height: 180
+      });
+    }
+  }
+
+  // 預設渲染 Google 日曆 QR
+  renderQrCode(calUrl);
+  if (qrTabGoogle) qrTabGoogle.classList.add('active');
+  if (qrTabApple) qrTabApple.classList.remove('active');
+  if (qrHintText) qrHintText.textContent = '提示：點選下方按鈕或掃碼加入 Google 日曆！';
+
+  if (qrTabGoogle) {
+    qrTabGoogle.onclick = () => {
+      qrTabGoogle.classList.add('active');
+      if (qrTabApple) qrTabApple.classList.remove('active');
+      renderQrCode(calUrl);
+      if (qrHintText) qrHintText.textContent = '提示：點選下方按鈕或掃碼加入 Google 日曆！';
+    };
+  }
+
+  if (qrTabApple) {
+    qrTabApple.onclick = () => {
+      qrTabApple.classList.add('active');
+      if (qrTabGoogle) qrTabGoogle.classList.remove('active');
+      renderQrCode(appleIcsQrText);
+      if (qrHintText) qrHintText.textContent = '🍏 iPhone 內建相機朝向此 QR Code 即可直接加入 iOS 日曆！';
+    };
   }
 
   if (copyBtn) {
