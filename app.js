@@ -5,7 +5,7 @@ let wasmModule = null;
 async function loadWasm() {
   if (wasmModule) return wasmModule;
   try {
-    const mod = await import('./wasm2/vaccine_core.js?t=' + Date.now());
+    const mod = await import('./wasm3/vaccine_core.js?t=' + Date.now());
     await mod.default(); // call initWasm
     wasmModule = mod;
     console.log('WebAssembly core initialized successfully.');
@@ -1217,256 +1217,57 @@ function generateGoogleCalendarUrl(title, startDateStr, details) {
   return `${baseUrl}?${params.toString()}`;
 }
 
-// 產生適用於 iOS / Apple Calendar / Outlook 之 iCalendar (.ics) 內容
-function generateIcsFileContent(title, startDateStr, details) {
-  const dateParts = startDateStr.split('-');
-  let y = dateParts[0];
-  let m = dateParts[1] ? dateParts[1].padStart(2, '0') : '01';
-  let d = dateParts[2] ? dateParts[2].padStart(2, '0') : '01';
-
-  const dtStart = `${y}${m}${d}T090000Z`;
-  const dtEnd = `${y}${m}${d}T100000Z`;
-  const cleanSummary = title.replace(/\n/g, ' ');
-  const cleanDesc = `${details}\\n\\n提醒：請攜帶兒童預防接種紀錄黃卡與健保卡至診所就診。`.replace(/\n/g, '\\n');
-
-  return [
-    'BEGIN:VCALENDAR',
-    'VERSION:2.0',
-    'PRODID:-//Taiwan Vaccine Guide Assistant//TW',
-    'CALSCALE:GREGORIAN',
-    'METHOD:PUBLISH',
-    'BEGIN:VEVENT',
-    `SUMMARY:${cleanSummary}`,
-    `DTSTART:${dtStart}`,
-    `DTEND:${dtEnd}`,
-    `DESCRIPTION:${cleanDesc}`,
-    'LOCATION:預防接種醫療診所諮詢門診',
-    'STATUS:CONFIRMED',
-    'END:VEVENT',
-    'END:VCALENDAR'
-  ].join('\r\n');
-}
-
-function downloadIcsForAppleCalendar(title, startDateStr, details) {
-  const icsContent = generateIcsFileContent(title, startDateStr, details);
-  const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8;' });
-  
-  // 建立 Blob URL 下載
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `疫苗接種提醒_${startDateStr}.ics`;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
-}
-
-// 產生適用於 iOS 相機直接掃描加入日曆的 iCalendar VEVENT 簡化字串
-function generateIcsQrString(title, startDateStr, details) {
-  const dateParts = startDateStr.split('-');
-  let y = dateParts[0];
-  let m = dateParts[1] ? dateParts[1].padStart(2, '0') : '01';
-  let d = dateParts[2] ? dateParts[2].padStart(2, '0') : '01';
-
-  const dtStart = `${y}${m}${d}T090000Z`;
-  const dtEnd = `${y}${m}${d}T100000Z`;
-  const cleanSummary = title.replace(/\n/g, ' ');
-
-  return `BEGIN:VEVENT\nSUMMARY:${cleanSummary}\nDTSTART:${dtStart}\nDTEND:${dtEnd}\nDESCRIPTION:${details}\nLOCATION:預防接種門診\nEND:VEVENT`;
-}
-
-function openCalendarModal(title, dateDisplayStr, details, milestoneData = {}) {
+function openCalendarModal(title, dateDisplayStr, details) {
   const modal = document.getElementById('calendar-modal');
   const modalTitle = document.getElementById('cal-modal-title');
-  const dateInput = document.getElementById('cal-date-input');
-  const resetBtn = document.getElementById('cal-reset-date-btn');
-  const minDateBadge = document.getElementById('cal-min-date-badge');
-  const warningBox = document.getElementById('cal-date-warning-box');
-
+  const modalDate = document.getElementById('cal-modal-date');
   const directLink = document.getElementById('cal-direct-link');
-  const appleBtn = document.getElementById('cal-apple-btn');
   const copyBtn = document.getElementById('cal-copy-link-btn');
 
-  const qrTabGoogle = document.getElementById('qr-tab-google');
-  const qrTabApple = document.getElementById('qr-tab-apple');
-  const qrHintText = document.getElementById('qr-hint-text');
-
-  const origDateStr = (dateDisplayStr && dateDisplayStr.length === 10) ? dateDisplayStr : (() => {
-    const t = new Date();
-    return `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`;
-  })();
-
-  let currentDateStr = origDateStr;
-  let currentQrMode = 'google'; // 'google' or 'apple'
+  const calUrl = generateGoogleCalendarUrl(title, dateDisplayStr, details);
 
   if (modalTitle) modalTitle.textContent = title;
-  if (dateInput) dateInput.value = origDateStr;
-  if (minDateBadge) minDateBadge.textContent = `原建議基準：${origDateStr}`;
+  if (modalDate) modalDate.textContent = `預估建議日期：${dateDisplayStr}`;
 
-  // 醫療安全評估函式 (檢查是否提早、提早之理由)
-  function validateAndExplainDate(selectedDateStr, baseDateStr) {
-    if (!selectedDateStr || !baseDateStr) return { isEarly: false, isDelayed: false, message: '' };
-
-    const selectedTime = new Date(selectedDateStr).getTime();
-    const baseTime = new Date(baseDateStr).getTime();
-    const diffDays = Math.round((selectedTime - baseTime) / (1000 * 60 * 60 * 24));
-
-    if (diffDays < 0) {
-      const daysEarly = Math.abs(diffDays);
-      const vaccineList = milestoneData.vaccines ? milestoneData.vaccines.map(v => v.name).join('、') : '';
-      return {
-        isEarly: true,
-        isDelayed: false,
-        days: daysEarly,
-        message: `⚠️ <strong>不建議提早接種（提早了 ${daysEarly} 天）</strong><br>` +
-                 `• <strong>醫療法規與抗體生成理由</strong>：衛生福利部疾病管制署 (Taiwan CDC) 及 ACIP 規範，各年齡劑次均有嚴格之「<strong>最小接種月齡/年齡限制</strong>」與「<strong>兩劑最短安全間隔</strong>」。若提早施打，可能因嬰幼兒體內母體抗體干擾或免疫系統未成熟，導致<strong>抗體效價生成不足而失效</strong>，甚至視為無效劑次需重新補打。<br>` +
-                 `• <strong>建議處置</strong>：請勿早於 ${baseDateStr} 接種。若因出國等特殊需求需提前，請務必先由兒科醫師評估是否符合提前接種例外條款。`
-      };
-    } else if (diffDays > 0) {
-      const daysLate = diffDays;
-      return {
-        isEarly: false,
-        isDelayed: true,
-        days: daysLate,
-        message: `ℹ️ <strong>預約延後 ${daysLate} 天提醒</strong><br>` +
-                 `• <strong>延後施打原則</strong>：若因幼兒發燒、生病或家長行程需延後，<strong>直接順延接種即可，不需從頭重打</strong>。<br>` +
-                 `• <strong>安全提醒</strong>：延後期間體內可能暫時缺乏足夠抗體保護，請於康復後儘速回診完成接種。`
-      };
-    }
-
-    return {
-      isEarly: false,
-      isDelayed: false,
-      message: `✅ <strong>日期符合原建議時程 (${baseDateStr})</strong>`
-    };
-  }
-
-  function renderQrCode(text) {
-    const qrContainer = document.getElementById('qrcode-container');
-    if (qrContainer && window.QRCode) {
-      qrContainer.innerHTML = '';
-      new window.QRCode(qrContainer, {
-        text: text,
-        width: 180,
-        height: 180
-      });
-    }
-  }
-
-  function updateCalendarLinksAndQr() {
-    const calUrl = generateGoogleCalendarUrl(title, currentDateStr, details);
-    const appleIcsQrText = generateIcsQrString(title, currentDateStr, details);
-
-    // 更新警示區塊
-    const evalResult = validateAndExplainDate(currentDateStr, origDateStr);
-    if (warningBox) {
-      warningBox.classList.remove('hidden');
-      if (evalResult.isEarly) {
-        warningBox.style.background = 'rgba(239, 68, 68, 0.15)';
-        warningBox.style.border = '1px solid #ef4444';
-        warningBox.style.color = '#fca5a5';
-      } else if (evalResult.isDelayed) {
-        warningBox.style.background = 'rgba(234, 179, 8, 0.15)';
-        warningBox.style.border = '1px solid #eab308';
-        warningBox.style.color = '#fde047';
-      } else {
-        warningBox.style.background = 'rgba(16, 185, 129, 0.15)';
-        warningBox.style.border = '1px solid #10b981';
-        warningBox.style.color = '#6ee7b7';
-      }
-      warningBox.innerHTML = evalResult.message;
-    }
-
-    // 更新 QR Code
-    if (currentQrMode === 'google') {
-      renderQrCode(calUrl);
-      if (qrHintText) qrHintText.textContent = `提示：點選下方按鈕或掃碼加入 Google 日曆 (${currentDateStr})！`;
-    } else {
-      renderQrCode(appleIcsQrText);
-      if (qrHintText) qrHintText.textContent = `🍏 iPhone 內建相機朝向此 QR Code 即可直接加入 iOS 日曆 (${currentDateStr})！`;
-    }
-
-    // 更新按鈕連結
-    if (directLink) {
-      directLink.href = calUrl;
-      directLink.onclick = async (e) => {
-        e.preventDefault();
-        try {
-          await invoke('launch_external_calendar_url', { url: calUrl });
-        } catch (err) {
-          if (window.__TAURI__?.opener?.openUrl) {
-            window.__TAURI__.opener.openUrl(calUrl);
-          } else {
-            window.open(calUrl, '_blank');
-          }
-        }
-      };
-    }
-
-    if (appleBtn) {
-      appleBtn.onclick = () => {
-        downloadIcsForAppleCalendar(title, currentDateStr, details);
-      };
-    }
-
-    if (copyBtn) {
-      copyBtn.onclick = () => {
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-          navigator.clipboard.writeText(calUrl).then(() => {
-            alert(`已成功複製 ${currentDateStr} 的手機行事曆提醒連結！`);
-          }).catch(() => {
-            alert('行事曆連結：\n' + calUrl);
-          });
+  if (directLink) {
+    directLink.href = calUrl;
+    directLink.onclick = async (e) => {
+      e.preventDefault();
+      try {
+        await invoke('launch_external_calendar_url', { url: calUrl });
+      } catch (err) {
+        if (window.__TAURI__?.opener?.openUrl) {
+          window.__TAURI__.opener.openUrl(calUrl);
         } else {
-          alert('行事曆連結：\n' + calUrl);
+          window.open(calUrl, '_blank');
         }
-      };
-    }
-  }
-
-  // 監聽日期變更
-  if (dateInput) {
-    dateInput.onchange = () => {
-      if (dateInput.value) {
-        currentDateStr = dateInput.value;
-        updateCalendarLinksAndQr();
       }
     };
   }
 
-  // 監聽重設按鈕
-  if (resetBtn) {
-    resetBtn.onclick = () => {
-      currentDateStr = origDateStr;
-      if (dateInput) dateInput.value = origDateStr;
-      updateCalendarLinksAndQr();
-    };
+  const qrContainer = document.getElementById('qrcode-container');
+  if (qrContainer && window.QRCode) {
+    qrContainer.innerHTML = ''; // 清除前一次生成的 QR Code，避免重疊
+    new window.QRCode(qrContainer, {
+      text: calUrl,
+      width: 180,
+      height: 180
+    });
   }
 
-  // QR 頁籤切換
-  if (qrTabGoogle) {
-    qrTabGoogle.onclick = () => {
-      currentQrMode = 'google';
-      qrTabGoogle.classList.add('active');
-      if (qrTabApple) qrTabApple.classList.remove('active');
-      updateCalendarLinksAndQr();
+  if (copyBtn) {
+    copyBtn.onclick = () => {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(calUrl).then(() => {
+          alert('已成功複製手機行事曆提醒連結！');
+        }).catch(() => {
+          alert('行事曆連結：\n' + calUrl);
+        });
+      } else {
+        alert('行事曆連結：\n' + calUrl);
+      }
     };
   }
-
-  if (qrTabApple) {
-    qrTabApple.onclick = () => {
-      currentQrMode = 'apple';
-      qrTabApple.classList.add('active');
-      if (qrTabGoogle) qrTabGoogle.classList.remove('active');
-      updateCalendarLinksAndQr();
-    };
-  }
-
-  // 初始化首次渲染
-  if (qrTabGoogle) qrTabGoogle.classList.add('active');
-  if (qrTabApple) qrTabApple.classList.remove('active');
-  updateCalendarLinksAndQr();
 
   if (modal) modal.classList.remove('hidden');
 }
