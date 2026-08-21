@@ -5,7 +5,7 @@ let wasmModule = null;
 async function loadWasm() {
   if (wasmModule) return wasmModule;
   try {
-    const mod = await import('./wasm2/vaccine_core.js?t=' + Date.now());
+    const mod = await import('./wasm3/vaccine_core.js?t=' + Date.now());
     await mod.default(); // call initWasm
     wasmModule = mod;
     console.log('WebAssembly core initialized successfully.');

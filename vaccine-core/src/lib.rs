@@ -196,18 +196,55 @@ pub fn get_eligible_vaccines_core(
     let is_kaohsiung = location.contains("高雄");
     let is_island = location.contains("金門") || location.contains("連江") || location.contains("澎湖");
 
-    // 輪狀病毒縣市補助描述
-    let rotavirus_desc = if is_taipei {
-        "🏛️ 台北市獨家定額補助：設籍台北市一般幼兒定額補助 2,100 元！低收/中低收/罕病/第3胎以上全額公費免費。".to_string()
-    } else if is_new_taipei || is_taoyuan || is_taichung || is_tainan || is_kaohsiung {
-        format!("🏛️ {}弱勢補助：低收、中低收入戶及特定山地原住民區幼兒享全額免費補助，一般幼兒自費口服。", location)
-    } else if is_island {
-        format!("🏛️ {}離島補助：離島地區提供弱勢及特定幼兒全額免費補助，一般幼兒自費口服。", location)
-    } else {
-        "自費口服疫苗 (2劑型或3劑型)。註：多數縣市針對低收/中低收/第3胎以上幼兒提供全額公費補助。".to_string()
+    // 輪狀病毒公費判斷與縣市補助描述
+    let rotavirus_start = NaiveDate::from_ymd_opt(2027, 1, 1).unwrap();
+    let calculate_target_date = |add_months: i32| -> NaiveDate {
+        let mut year = dob.year() + (add_months / 12);
+        let mut month = dob.month() + (add_months % 12) as u32;
+        if month > 12 {
+            year += 1;
+            month -= 12;
+        }
+        NaiveDate::from_ymd_opt(year, month, dob.day().min(28)).unwrap_or(dob)
     };
 
-    let rotavirus_cat = if is_taipei { "Subsidized" } else { "SelfPaid" };
+    let rotavirus_2m_public = calculate_target_date(2) >= rotavirus_start;
+    let rotavirus_4m_public = calculate_target_date(4) >= rotavirus_start;
+    let rotavirus_6m_public = calculate_target_date(6) >= rotavirus_start;
+
+    let get_rotavirus_cat = |is_public: bool| -> String {
+        if is_public { "Routine".to_string() } else if is_taipei { "Subsidized".to_string() } else { "SelfPaid".to_string() }
+    };
+    let rotavirus_2m_cat = get_rotavirus_cat(rotavirus_2m_public);
+    let rotavirus_4m_cat = get_rotavirus_cat(rotavirus_4m_public);
+    let rotavirus_6m_cat = get_rotavirus_cat(rotavirus_6m_public);
+
+    let get_rotavirus_desc = |is_public: bool| -> String {
+        if is_public {
+            "2027年起納入全國公費幼兒常規疫苗。預防幼兒嚴重輪狀病毒腸胃炎。".to_string()
+        } else if is_taipei {
+            "🏛️ 台北市獨家定額補助：設籍台北市一般幼兒定額補助 2,100 元！低收/中低收/罕病/第3胎以上全額公費免費。".to_string()
+        } else if is_new_taipei || is_taoyuan || is_taichung || is_tainan || is_kaohsiung {
+            format!("🏛️ {}弱勢補助：低收、中低收入戶及特定山地原住民區幼兒享全額免費補助，一般幼兒自費口服。", location)
+        } else if is_island {
+            format!("🏛️ {}離島補助：離島地區提供弱勢及特定幼兒全額免費補助，一般幼兒自費口服。", location)
+        } else {
+            "自費口服疫苗 (2劑型或3劑型)。註：多數縣市針對低收/中低收/第3胎以上幼兒提供全額公費補助。".to_string()
+        }
+    };
+    let rotavirus_2m_desc = get_rotavirus_desc(rotavirus_2m_public);
+    let rotavirus_4m_desc = get_rotavirus_desc(rotavirus_4m_public);
+    let rotavirus_6m_desc = get_rotavirus_desc(rotavirus_6m_public);
+
+    let get_rotavirus_dose_info = |is_public: bool, dose: i32| -> String {
+        if is_public {
+            format!("公費第 {} 劑", dose)
+        } else if is_taipei {
+            format!("北市補助 / 自費第 {} 劑", dose)
+        } else {
+            format!("自費口服第 {} 劑", dose)
+        }
+    };
 
     let mut milestones_out = Vec::new();
 
@@ -261,10 +298,10 @@ pub fn get_eligible_vaccines_core(
                 },
                 VaccineItem {
                     name: "輪狀病毒疫苗 (Rotavirus)".into(),
-                    dose_info: if is_taipei { "北市補助 / 自費第 1 劑" } else { "自費口服第 1 劑" }.into(),
+                    dose_info: get_rotavirus_dose_info(rotavirus_2m_public, 1).into(),
                     timing_info: "滿 2 個月".into(),
-                    category: rotavirus_cat.into(),
-                    description: rotavirus_desc.clone(),
+                    category: rotavirus_2m_cat.clone().into(),
+                    description: rotavirus_2m_desc.clone(),
                     audience: "Children".into(),
                 },
                 VaccineItem {
@@ -300,10 +337,10 @@ pub fn get_eligible_vaccines_core(
                 },
                 VaccineItem {
                     name: "輪狀病毒疫苗 (Rotavirus)".into(),
-                    dose_info: if is_taipei { "北市補助 / 自費第 2 劑" } else { "自費口服第 2 劑" }.into(),
+                    dose_info: get_rotavirus_dose_info(rotavirus_4m_public, 2).into(),
                     timing_info: "滿 4 個月".into(),
-                    category: rotavirus_cat.into(),
-                    description: rotavirus_desc.clone(),
+                    category: rotavirus_4m_cat.clone().into(),
+                    description: rotavirus_4m_desc.clone(),
                     audience: "Children".into(),
                 },
                 VaccineItem {
@@ -356,6 +393,14 @@ pub fn get_eligible_vaccines_core(
                     timing_info: "滿 6 個月以上".into(),
                     category: "Routine".into(),
                     description: "滿6個月即可接種流感疫苗，8歲以下初次接種需打2劑".into(),
+                    audience: "Children".into(),
+                },
+                VaccineItem {
+                    name: "輪狀病毒疫苗 (Rotavirus)".into(),
+                    dose_info: format!("{} (僅限3劑型廠牌)", get_rotavirus_dose_info(rotavirus_6m_public, 3)).into(),
+                    timing_info: "滿 6 個月".into(),
+                    category: rotavirus_6m_cat.clone().into(),
+                    description: rotavirus_6m_desc.clone(),
                     audience: "Children".into(),
                 },
             ],
@@ -963,10 +1008,10 @@ pub fn get_all_vaccines_core() -> Vec<VaccineDetailDoc> {
             id: "rotavirus".into(),
             name: "輪狀病毒疫苗 (Rotavirus Vaccine)".into(),
             aliases: "輪狀口服疫苗".into(),
-            category: "SelfPaid".into(),
+            category: "Both".into(),
             target_audience: "嬰幼兒 (2-8個月大)".into(),
             prevent_disease: "輪狀病毒引發之嬰幼兒嚴重嘔吐、水瀉、脫水與住院".into(),
-            full_description: "口服活性減毒疫苗。北市定額補助$2,100元，低收/中低收/罕病/第3胎全額公費免費。".into(),
+            full_description: "口服活性減毒疫苗。自 2027 年 1 月 1 日起全面納入全國公費幼兒常規疫苗，併同提供 2 劑型及 3 劑型選擇。(2027年前維持自費/縣市定額補助/弱勢全額補助)".into(),
             schedule: vec![
                 "2劑型：出生滿 2 個月、4 個月各口服 1 劑".into(),
                 "3劑型：出生滿 2 個月、4 個月、6 個月各口服 1 劑".into(),
