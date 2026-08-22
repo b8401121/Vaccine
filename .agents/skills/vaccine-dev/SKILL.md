@@ -78,6 +78,10 @@ Copy-Item ".\app\build\outputs\apk\arm64\release\app-arm64-release-unsigned.apk"
 - GitHub Pages 由 `gh-pages` 分支驅動。當前端 JS / HTML 更新時，需同步更新 `gh-pages` 分支。
 - 若 CDN 快取頑固，可透過實體檔案換名（如 `app.js`、`styles_final.css`）或更新 Query 參數以確保使用者載入最新版本。
 
+### E. 子資源完整性保護 (SRI - Subresource Integrity)
+- 前端 `index.html` 引入之 `<link rel="stylesheet">` 與 `<script>` 均配置 `integrity="sha384-..." crossorigin="anonymous"`。
+- 當修改 `app.js`、`styles_final.css` 或 `qrcode.js` 時，必須執行 `python update_sri.py` 重新計算並更新 `index.html` 中的 SHA-384 雜湊值，防止資源被竄改並避免瀏覽器因 SRI 雜湊不符合而拒絕載入。
+
 ---
 
 ## 4. 常用編譯與維護指令

@@ -40,6 +40,10 @@ Vaccine/
   1. **針對 Wasm**：每次更新 Rust 核心後，請把編譯出來的資料夾換個名字 (例如從 `wasm2/` 換成 `wasm3/`)，並同步修改 `app.js` 裡的 import 路徑。
   2. **針對 JS / CSS**：若大幅修改樣式或邏輯，請直接把實體檔案重新命名 (例如 `styles.css` 改為 `styles_final.css`，`main.js` 改為 `app.js`)，並更新 `index.html` 的引用。
 
+### 4. 子資源完整性防護 (SRI - Subresource Integrity)
+- **安全規範**：系統所有前端靜態資源（CSS、JS、QR Code 庫等）均於 `index.html` 內嵌 SHA-384 加密雜湊驗證 (`integrity="..." crossorigin="anonymous"`)，防止被中間人竄改或快取汙染。
+- **維護方式**：若修改了前端樣式或腳本，請執行 `python update_sri.py` 或透過 `python vaccine_fix.py` 一鍵自動計算雜湊並部署。
+
 ---
 
 ## 編譯與部署 SOP
