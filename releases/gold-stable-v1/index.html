@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>桃園 吳鎮宇親子耳鼻喉科診所 ‧ 預防接種指南助手</title>
+  <link rel="stylesheet" href="styles_final.css?v=20260924f">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <script src="qrcode.js?v=20260924i"></script>
+</head>
+<body>
+  <!-- 登入畫面 -->
+  <div id="login-overlay" class="login-overlay">
+    <div class="login-card">
+      <img src="app-icon.png" alt="Icon" class="login-icon">
+      <h2>預防接種指南助手</h2>
+      <p class="login-subtitle">桃園 吳鎮宇親子耳鼻喉科診所</p>
+      
+      <form id="login-form">
+        <div class="input-group">
+          <label for="login-account">使用者帳號</label>
+          <input type="text" id="login-account" placeholder="請輸入帳號" required autocomplete="username">
+        </div>
+        <div class="input-group">
+          <label for="login-password">系統密碼</label>
+          <input type="password" id="login-password" placeholder="請輸入密碼" required autocomplete="current-password">
+        </div>
+        <div id="login-error" class="login-error hidden">帳號或密碼錯誤，請重新輸入。</div>
+        <button type="submit" class="primary-btn login-btn">登入系統</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="app-container hidden" id="main-app-container">
+    <header class="app-header">
+      <div class="logo">
+        <img src="app-icon.png" alt="桃園 吳鎮宇親子耳鼻喉科診所 Icon" class="app-header-icon">
+        <h1>桃園 吳鎮宇親子耳鼻喉科診所 ‧ 預防接種指南助手</h1>
+      </div>
+      <p class="subtitle">自動試算兒童與成人公自費疫苗時程 ‧ 衛福部疾管署官方標準</p>
+      
+      <div class="header-actions">
+        <button id="logout-btn" class="logout-btn">登出系統</button>
+      </div>
+      
+      <!-- 頂部頁籤分頁導覽 -->
+      <nav class="top-nav-tabs">
+        <button class="tab-btn active" data-target="tab-calculator">🗓️ 年齡接種時間軸</button>
+        <button class="tab-btn" data-target="tab-catchup">⏱️ 遲打/補打間隔試算</button>
+        <button class="tab-btn" data-target="tab-travel">✈️ 出國旅遊留學疫苗速查</button>
+        <button class="tab-btn" data-target="tab-growth">📈 0~18歲兒童生長曲線與BMI</button>
+        <button class="tab-btn" data-target="tab-library">📚 疫苗大百科與圖鑑</button>
+      </nav>
+    </header>
+
+    <main class="main-content">
+      <!-- 分頁 1：生日試算與時間軸 -->
+      <section id="tab-calculator" class="tab-page active">
+        <div class="card search-card">
+          <h2>📅 請選擇出生日期與性別</h2>
+          
+          <form id="dob-form">
+            <div class="calendar-switch">
+              <span class="switch-label">曆法選取：</span>
+              <label class="toggle">
+                <input type="checkbox" id="calendar-toggle">
+                <span class="slider"></span>
+              </label>
+              <span id="calendar-type-text" class="type-text">西元年 (AD)</span>
+            </div>
+
+            <div class="input-group">
+              <div class="field">
+                <label for="year">年份</label>
+                <input type="number" id="year" required placeholder="如: 1990">
+              </div>
+              <div class="field">
+                <label for="month">月份</label>
+                <select id="month" required></select>
+              </div>
+              <div class="field">
+                <label for="day">日期</label>
+                <select id="day" required></select>
+              </div>
+              <div class="field">
+                <label>性別</label>
+                <div class="gender-radio-group">
+                  <label class="radio-label">
+                    <input type="radio" name="gender" value="female" checked>
+                    <span>♀ 女性</span>
+                  </label>
+                  <label class="radio-label">
+                    <input type="radio" name="gender" value="male">
+                    <span>♂ 男性</span>
+                  </label>
+                </div>
+              </div>
+              <div class="field">
+                <label for="location">居住縣市 (地方特惠/補助)</label>
+                <select id="location">
+                  <option value="桃園市" selected>桃園市 (含長者/男國中生補助)</option>
+                  <option value="臺北市">臺北市 (含輪狀/男國中生補助)</option>
+                  <option value="新北市">新北市 (含男國中生補助)</option>
+                  <option value="基隆市">基隆市</option>
+                  <option value="新竹市">新竹市</option>
+                  <option value="新竹縣">新竹縣</option>
+                  <option value="苗栗縣">苗栗縣</option>
+                  <option value="臺中市">臺中市</option>
+                  <option value="彰化縣">彰化縣</option>
+                  <option value="南投縣">南投縣</option>
+                  <option value="雲林縣">雲林縣</option>
+                  <option value="嘉義市">嘉義市</option>
+                  <option value="嘉義縣">嘉義縣</option>
+                  <option value="臺南市">臺南市</option>
+                  <option value="高雄市">高雄市</option>
+                  <option value="屏東縣">屏東縣</option>
+                  <option value="宜蘭縣">宜蘭縣</option>
+                  <option value="花蓮縣">花蓮縣</option>
+                  <option value="臺東縣">臺東縣</option>
+                  <option value="澎湖縣">澎湖縣</option>
+                  <option value="金門縣">金門縣 (離島加碼補助)</option>
+                  <option value="連江縣">連江縣 (馬祖離島補助)</option>
+                  <option value="全國標準">全國標準 / 其他縣市</option>
+                </select>
+              </div>
+            </div>
+            
+            <div class="form-btn-group">
+              <button type="submit" class="btn-primary">查詢疫苗時程與縣市補助</button>
+              <button type="button" id="reset-form-btn" class="btn-secondary reset-btn">🔄 重置資料</button>
+            </div>
+          </form>
+        </div>
+
+        <div id="results" class="results-container hidden">
+          <div class="results-header">
+            <div class="results-header-left">
+              <h3>疫苗接種時間軸</h3>
+              <div id="age-badge" class="age-badge">目前年齡：--</div>
+            </div>
+          </div>
+
+          <!-- 當次與下次接種日程雙卡 Summary Banner -->
+          <div class="visit-schedule-banner">
+            <div class="current-visit-wrapper">
+              <button id="print-report-btn" class="main-print-action-btn">
+                🖨️ 一鍵列印 / 匯出衛教單
+              </button>
+              <div class="visit-schedule-card current-visit-card">
+                <div class="visit-card-badge current-badge-pill">📍 當次建議接種 (Current Visit)</div>
+                <div class="visit-card-milestone" id="summary-current-milestone">階段：--</div>
+                <div class="visit-card-date" id="summary-current-date">📅 建議接種日期：--</div>
+                <div class="visit-card-vaccines-container" id="summary-current-vaccines">
+                  <!-- 當次應打疫苗清單與流感高亮標籤由 JS 動態生成 -->
+                </div>
+              </div>
+            </div>
+            
+            <div class="next-visit-wrapper">
+              <div class="next-visit-spacer"></div>
+              <div class="visit-schedule-card next-visit-card">
+                <div class="visit-card-badge next-badge-pill">📆 下次預計接種 (Next Visit)</div>
+                <div class="visit-card-milestone" id="summary-next-milestone">階段：--</div>
+                <div class="visit-card-date" id="summary-next-date">📅 預估接種日期：--</div>
+                <div class="visit-card-vaccines-container" id="summary-next-vaccines">
+                  <!-- 下次預估疫苗清單由 JS 動態生成 -->
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="legend">
+            <span class="tag routine">公費常規</span>
+            <span class="tag subsidized">🏛️ 地方縣市補助</span>
+            <span class="tag self-paid">💰 自費建議</span>
+            <span class="status-pill past-pill">✓ 歷史已過站點</span>
+            <span class="status-pill current-pill clickable" id="jump-to-current" title="點擊直接跳轉至當前站點">📍 當前推薦站點 🎯</span>
+            <span class="status-pill next-pill">⏳ 未來預計站點</span>
+          </div>
+
+          <!-- 2026 流感疫苗動態適應症推薦卡片 (由 JS 依據計算年齡動態填入) -->
+          <div id="flu-rec-banner-container"></div>
+
+          <!-- 垂直時間軸容器 -->
+          <div class="vertical-timeline" id="timeline-container">
+            <!-- 由 JS 動態渲染卡片與站點 -->
+          </div>
+        </div>
+      </section>
+
+      <!-- 分頁 3：遲打 / 補打最短間隔試算器 -->
+      <section id="tab-catchup" class="tab-page hidden">
+        <div class="card search-card">
+          <h2>⏱️ 遲打 / 補打最短間隔試算器 (衛福部 ACIP 規範)</h2>
+          <p style="color: #94a3b8; font-size: 0.9rem; margin-bottom: 1.25rem;">
+            依據衛生福利部 ACIP 疫苗補打與最小間隔指引，選擇目標疫苗與上一劑施打日期，自動試算「最早合法可補打日期」。
+          </p>
+
+          <form id="catchup-form">
+            <div class="input-group">
+              <div class="field">
+                <label for="catchup-vaccine">目標疫苗種類</label>
+                <select id="catchup-vaccine" required>
+                  <option value="dtap-hib-ipv" selected>五合一疫苗 (DTaP-Hib-IPV)</option>
+                  <option value="hepb">B 型肝炎疫苗 (HepB)</option>
+                  <option value="pcv">13價結合型肺炎鏈球菌疫苗 (PCV13)</option>
+                  <option value="rotavirus">輪狀病毒疫苗 (Rotavirus)</option>
+                  <option value="varicella">水痘疫苗 (Varicella)</option>
+                  <option value="mmr">麻疹腮腺炎德國麻疹混合疫苗 (MMR)</option>
+                  <option value="je">日本腦炎疫苗 (JE - 細胞培養減毒)</option>
+                  <option value="hepa">A 型肝炎疫苗 (HepA)</option>
+                  <option value="ev71">腸病毒 A71 型疫苗 (EV71)</option>
+                  <option value="hpv">九價人類乳突病毒疫苗 (HPV 9價)</option>
+                  <option value="shingles">非活性帶狀疱疹疫苗 (Shingrix)</option>
+                </select>
+              </div>
+
+              <div class="field">
+                <label for="catchup-dose">已完成之上一劑劑次</label>
+                <select id="catchup-dose" required>
+                  <option value="1" selected>已完成 第 1 劑 (準備試算 第 2 劑)</option>
+                  <option value="2">已完成 第 2 劑 (準備試算 第 3 劑 / 追加劑)</option>
+                  <option value="3">已完成 第 3 劑 (準備試算 第 4 劑 / 追加劑)</option>
+                </select>
+              </div>
+
+              <div class="field">
+                <label for="catchup-year">上一劑年份 (西元)</label>
+                <input type="number" id="catchup-year" required placeholder="如: 2024">
+              </div>
+              <div class="field">
+                <label for="catchup-month">上一劑月份</label>
+                <select id="catchup-month" required></select>
+              </div>
+              <div class="field">
+                <label for="catchup-day">上一劑日期</label>
+                <select id="catchup-day" required></select>
+              </div>
+            </div>
+
+            <button type="submit" class="btn-primary">試算最早可補打日期</button>
+          </form>
+        </div>
+
+        <div id="catchup-result" class="results-container hidden" style="margin-top: 1.5rem;">
+          <!-- 試算結果內容由 JS 動態生成 -->
+        </div>
+      </section>
+
+      <!-- 分頁 4：出國旅遊留學疫苗速查 -->
+      <section id="tab-travel" class="tab-page hidden">
+        <div class="card search-card">
+          <h2>✈️ 出國旅遊醫學與留學疫苗速查</h2>
+          <p style="color: #94a3b8; font-size: 0.9rem; margin-bottom: 1.25rem;">
+            依據衛生福利部疾病管制署旅遊醫學與國際衛生指引，選擇目的地與出國目的，速查強制簽證疫苗與強烈建議項目。
+          </p>
+
+          <form id="travel-form">
+            <div class="input-group">
+              <div class="field">
+                <label for="travel-destination">目的地國家 / 地區</label>
+                <select id="travel-destination" required>
+                  <option value="all_global" selected>🌍 全球通用 ‧ 國際預防接種、黃皮書與藥物綜合指南 (CDC 官方)</option>
+                  <option value="africa_latam">🇦🇫 🇧🇷 🇰🇪 非洲 / 中南美洲 (黃熱病 / 小兒麻痺流行區 / 旅遊)</option>
+                  <option value="southeast_asia">🇹🇭 🇻🇳 🇮🇩 🇮🇳 東南亞 / 南亞 (泰國 / 越南 / 印尼 / 印度)</option>
+                  <option value="us_eu_study">🇺🇸 🇬🇧 🇨🇦 🇪🇺 歐美留學 (美國 / 英國 / 加拿大 / 歐洲)</option>
+                  <option value="saudi_hajj">🇸🇦 中東 / 沙烏地阿拉伯 (麥加朝聖 Hajj/Umrah)</option>
+                  <option value="japan_korea">🇯🇵 🇰🇷 日本 / 韓國 (觀光 / 留學 / 工作假期)</option>
+                </select>
+              </div>
+
+              <div class="field">
+                <label for="travel-purpose">出國目的 / 身分</label>
+                <select id="travel-purpose" required>
+                  <option value="study" selected>🎓 留學 / 學校宿舍入住 (需英文體檢疫苗單)</option>
+                  <option value="travel">✈️ 觀光旅遊 / 自由行 / 假期</option>
+                  <option value="hajj">🕌 國際朝聖 / 宗教活動 (需黃皮書簽證)</option>
+                  <option value="work">💼 長期駐點 / 工作派遣</option>
+                </select>
+              </div>
+            </div>
+
+            <button type="submit" class="btn-primary">查詢出國必備與建議疫苗</button>
+          </form>
+        </div>
+
+        <div id="travel-result" class="results-container hidden" style="margin-top: 1.5rem;">
+          <!-- 查詢結果內容由 JS 動態生成 -->
+        </div>
+      </section>
+
+      <!-- 分頁 2：疫苗大百科與完整時程庫 -->
+      <section id="tab-library" class="tab-page hidden">
+        <div class="card library-header-card">
+          <div class="library-top-bar">
+            <h2>📚 全台疫苗總覽與衛教資訊大百科</h2>
+            <p>點擊任何疫苗卡片即可查閱詳細預防疾病、公自費資格、劑次與施打禁忌。</p>
+          </div>
+
+          <div class="library-filter-bar">
+            <div class="search-input-wrapper">
+              <span class="search-icon">🔍</span>
+              <input type="text" id="library-search" placeholder="搜尋疫苗名稱、別名或預防疾病 (如: HPV, 腸病毒, 帶狀疱疹)...">
+            </div>
+
+            <div class="filter-chips">
+              <button class="chip active" data-filter="all">全部疫苗</button>
+              <button class="chip" data-filter="flu2026" style="background: rgba(234, 88, 12, 0.15); color: #c2410c; border-color: #f97316; font-weight: 700;">🍂 2026流感 (8大廠牌)</button>
+              <button class="chip" data-filter="Routine">公費常規</button>
+              <button class="chip" data-filter="SelfPaid">自費建議</button>
+              <button class="chip" data-filter="child">兒童/幼兒</button>
+              <button class="chip" data-filter="adult">成人/長者</button>
+            </div>
+
+            <button id="open-flu2026-modal-btn" class="flu-guide-banner-btn" type="button">
+              <span>🍂 點擊查看【2026台灣流感疫苗大PK】8大廠牌規格、適用年齡與公自費比較攻略</span>
+              <span>詳細比較表 ➔</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 疫苗圖鑑網格 -->
+        <div id="library-grid" class="library-grid">
+          <!-- 由 JS 動態填入疫苗卡片 -->
+        </div>
+      </section>
+
+      <!-- 分頁 5：兒童與青少年生長曲線評估 -->
+      <section id="tab-growth" class="tab-page hidden">
+        <div class="card search-card">
+          <h2>📈 衛福部國健署 0~18 歲兒童與青少年生長曲線與 BMI 試算</h2>
+          <div style="background: #f8fafc; border-left: 4px solid #0284c7; padding: 0.75rem 1rem; border-radius: 4px; margin-bottom: 1.25rem; font-size: 0.84rem; color: #475569; line-height: 1.5;">
+            <strong>🏛️ 衛生福利部國民健康署官方權威資料來源說明：</strong>
+            <ul style="margin: 0.3rem 0 0 1.2rem; padding: 0;">
+              <li><strong>0 ~ 5 歲（0-60個月）</strong>：國民健康署現行最新《兒童健康手冊》（2024年印行版）採用之 <strong>WHO 2006 國際生長標準</strong>（2009年國健署公告修訂）。</li>
+              <li><strong>5 ~ 7 歲（61-84個月）</strong>：國民健康署 2009 年公布之國人兒童生長銜接標準 (Chen & Chang)。</li>
+              <li><strong>7 ~ 18 歲（7-18歲）</strong>：國民健康署最新公告《兒童及青少年身體質量指數(BMI)與身高百分位建議值》（衛署授升字第0990700680號公告，陳偉德與張美惠教授團隊 2010 年發表，現行全國醫療與學校標準）。</li>
+            </ul>
+          </div>
+
+          <form id="growth-form">
+            <div class="input-group" style="margin-bottom: 1rem;">
+              <div class="field">
+                <label>性別</label>
+                <div class="gender-radio-group">
+                  <label class="radio-label">
+                    <input type="radio" name="growth-gender" value="male" checked>
+                    <span>♂ 男童 / 青少年</span>
+                  </label>
+                  <label class="radio-label">
+                    <input type="radio" name="growth-gender" value="female">
+                    <span>♀ 女童 / 青少年</span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="field">
+                <label for="growth-age-years">年齡層 / 月齡</label>
+                <select id="growth-age-years" required></select>
+              </div>
+
+              <div class="field">
+                <label for="growth-height">身高 / 身長 (cm)</label>
+                <input type="number" id="growth-height" step="0.1" min="30" max="210" placeholder="例如: 125.5" required>
+              </div>
+
+              <div class="field">
+                <label for="growth-weight">體重 (kg)</label>
+                <input type="number" id="growth-weight" step="0.1" min="1" max="150" placeholder="例如: 26.2" required>
+              </div>
+
+              <div class="field" id="growth-head-field">
+                <label for="growth-head">頭圍 (cm) <span style="font-size:0.75rem; color:#94a3b8;">(0~7歲選填)</span></label>
+                <input type="number" id="growth-head" step="0.1" min="25" max="65" placeholder="例如: 42.0">
+              </div>
+            </div>
+
+            <button type="submit" class="btn-primary">計算生長百分位與 BMI 體位結果</button>
+          </form>
+        </div>
+
+        <div id="growth-results" class="results-container hidden" style="margin-top: 1.5rem;">
+          <!-- JS 動態帶入計算結果 -->
+        </div>
+      </section>
+    </main>
+
+    <!-- 疫苗詳細介紹與時程 Modal 彈出視窗 -->
+    <div id="vaccine-modal" class="modal-overlay hidden">
+      <div class="modal-card fade-in">
+        <button class="modal-close-btn" id="modal-close">✕</button>
+        <div id="modal-content">
+          <!-- 內容由 JS 動態生成 -->
+        </div>
+      </div>
+    </div>
+
+    <!-- 2026 流感疫苗 8 大廠牌 PK 比較 Modal -->
+    <div id="flu2026-modal" class="modal-overlay hidden">
+      <div class="modal-card fade-in" style="max-width: 840px; padding: 1.5rem; text-align: left; max-height: 90vh; overflow-y: auto;">
+        <button class="modal-close-btn" id="flu2026-modal-close">✕</button>
+        <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.5rem;">
+          <span style="font-size: 1.8rem;">🍂</span>
+          <h2 style="font-size: 1.35rem; color: #ea580c; margin: 0;">2026 台灣流感疫苗 8 大廠牌規格與年齡選用全攻略</h2>
+        </div>
+        <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 1.1rem; line-height: 1.5;">
+          資料來源：衛生福利部疾病管制署 (Taiwan CDC) 官方標準與最新流感疫苗指引。市售 8 款涵蓋傳統雞胚、細胞培養、長者加強型與免打針鼻噴型。
+        </p>
+
+        <h3 style="font-size: 1.05rem; color: var(--text-main); margin-bottom: 0.5rem;">📊 8 大廠牌規格與公自費一覽表</h3>
+        <div class="flu-table-wrapper">
+          <table class="flu-table">
+            <thead>
+              <tr>
+                <th>廠牌與品名</th>
+                <th>製造技術 / 劑型</th>
+                <th>適用年齡</th>
+                <th>公自費類別</th>
+                <th>特色與適應症</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>東洋 輔流威護</strong><br><small style="color:var(--text-muted);">Flucelvax Tetra</small></td>
+                <td>MDCK 細胞培養<br>(四價不活化)</td>
+                <td>滿 6 個月以上<br>(全齡通用)</td>
+                <td><span class="tag routine">公費</span> / <span class="tag self-paid">自費</span></td>
+                <td>零雞蛋蛋白殘留，避免雞蛋培養突變，抗原吻合度最高！適合雞蛋過敏者。</td>
+              </tr>
+              <tr>
+                <td><strong>東洋 輔流禦</strong><br><small style="color:var(--text-muted);">Fluad Tetra</small></td>
+                <td>MF59 專利佐劑加強型<br>(四價不活化)</td>
+                <td><strong>50 歲以上</strong><br>免疫低下/免疫抑制者</td>
+                <td><span class="tag self-paid">自費</span> / <span class="tag routine">公費(機構長照)</span></td>
+                <td>添加 MF59 專利佐劑，刺激抗體效價顯著增強且持久長達 12 個月，克服免疫老化。</td>
+              </tr>
+              <tr>
+                <td><strong>賽諾菲 菲優達</strong><br><small style="color:var(--text-muted);">Efluelda High-Dose</small></td>
+                <td>4倍抗原高劑量加強型<br>(四價不活化)</td>
+                <td><strong>65 歲以上長者專用</strong></td>
+                <td><span class="tag self-paid">自費</span> / <span class="tag routine">公費(機構長照)</span></td>
+                <td>每株含 60µg HA（一般劑型 4 倍），臨床證實重症防護力提升 24.2%，顯著降低肺炎與心血管住院率。</td>
+              </tr>
+              <tr>
+                <td><strong>AZ 能伏鼻</strong><br><small style="color:var(--text-muted);">FluMist / Fluenz</small></td>
+                <td>鼻噴式活性減毒 (LAIV)<br>(免打針無痛給藥)</td>
+                <td><strong>2 歲 ～ 未滿 18 歲</strong><br>(兒童青少年)</td>
+                <td><span class="tag self-paid">全自費</span><br>(無公費)</td>
+                <td><strong>唯一免打針無痛流感疫苗！</strong>在鼻咽黏膜直接誘發第一線 IgA 防禦。<br><small style="color:#ef4444;">⚠️ 禁忌：孕婦、免疫缺損、重度氣喘或近4週曾喘鳴、長期服用阿斯匹靈者不可使用。</small></td>
+              </tr>
+              <tr>
+                <td><strong>GSK 伏流感</strong><br><small style="color:var(--text-muted);">Fluarix Tetra</small></td>
+                <td>傳統雞胚胎培養<br>(四價不活化)</td>
+                <td>滿 6 個月以上<br>(全齡通用)</td>
+                <td><span class="tag routine">公費</span> / <span class="tag self-paid">自費</span></td>
+                <td>國際疫苗領導大廠德國原廠製造，全球使用量大，安全性數據完整。</td>
+              </tr>
+              <tr>
+                <td><strong>賽諾菲 菲流達</strong><br><small style="color:var(--text-muted);">Vaxigrip Tetra</small></td>
+                <td>傳統雞胚胎培養<br>(四價不活化)</td>
+                <td>滿 6 個月以上<br>(全齡通用)</td>
+                <td><span class="tag routine">公費</span> / <span class="tag self-paid">自費</span></td>
+                <td>法國賽諾菲原裝進口，兒科與家庭醫學科常規主力，孕婦及幼童均可安心接種。</td>
+              </tr>
+              <tr>
+                <td><strong>國光 安定伏</strong><br><small style="color:var(--text-muted);">AdimFlu-S</small></td>
+                <td>傳統雞胚胎培養<br>(四價不活化)</td>
+                <td><strong>滿 3 歲以上</strong><br>(兒童至成人)</td>
+                <td><span class="tag routine">公費</span> / <span class="tag self-paid">自費</span></td>
+                <td>台灣在地國產疫苗主力，供應半數以上公費防疫計畫，成熟穩定。3歲以下不適用。</td>
+              </tr>
+              <tr>
+                <td><strong>高端 福喜健</strong><br><small style="color:var(--text-muted);">GC Flu Quadrivalent</small></td>
+                <td>傳統雞胚胎培養<br>(四價不活化)</td>
+                <td><strong>滿 3 歲以上</strong><br>(兒童至成人)</td>
+                <td><span class="tag routine">公費</span> / <span class="tag self-paid">自費</span></td>
+                <td>引進韓國生技大廠 GC Biopharma WHO預認證抗原原液，符合國際規格。3歲以下不適用。</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3 style="font-size: 1.05rem; color: var(--text-main); margin: 1.25rem 0 0.5rem 0;">🎯 依年齡與體質「3 秒選購指南」</h3>
+        <div style="background: rgba(255,255,255,0.05); padding: 1.1rem; border-radius: 10px; border: 1px solid var(--card-border); font-size: 0.9rem; line-height: 1.8;">
+          <div>👶 <strong>滿 6 個月 ~ 未滿 2 歲</strong>：推薦標準型（東洋 輔流威護【細胞培養/無蛋】、GSK 伏流感、賽諾菲 菲流達）。未滿9歲初次接種需打 2 劑（間隔4週）。</div>
+          <div>🧒 <strong>2 歲 ~ 未滿 3 歲</strong>：一般注射可選標準型；<strong>害怕打針者首選</strong>：自費 <strong>AZ 能伏鼻 (FluMist)</strong> 鼻噴式免打針。</div>
+          <div>🎒 <strong>3 歲 ~ 17 歲兒童青少年</strong>：標準型可選國光、高端、東洋細胞、GSK、賽諾菲；<strong>害怕打針者首選</strong>：自費 <strong>AZ 能伏鼻 (FluMist)</strong>。</div>
+          <div>🧑 <strong>18 歲 ~ 49 歲一般成人</strong>：選擇標準型獲得完整保護力（東洋、GSK、賽諾菲、國光、高端）。</div>
+          <div>🧓 <strong>50 歲 ~ 64 歲熟齡 / 免疫低下者</strong>：首選推薦【<strong>含佐劑加強型 東洋 輔流禦 (Fluad)</strong>】，大幅活化持久抗體。</div>
+          <div>👵 <strong>65 歲以上銀髮長者</strong>：強烈推薦長者專用加強型：【<strong>高劑量加強型 賽諾菲 菲優達 (Efluelda)</strong>】或【<strong>含佐劑加強型 東洋 輔流禦 (Fluad)</strong>】，防護重症住院！</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 手機行事曆與 QR Code 提醒 Modal 彈窗 -->
+    <div id="calendar-modal" class="modal-overlay hidden">
+      <div class="modal-card fade-in" style="max-width: 480px; text-align: center; padding: 2rem;">
+        <button class="modal-close-btn" id="calendar-modal-close">✕</button>
+        
+        <div class="calendar-modal-content">
+          <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">📱 📅</div>
+          <h3 style="font-size: 1.35rem; color: #38bdf8; margin-bottom: 0.3rem;">手機相機掃碼 ‧ 加入行事曆提醒</h3>
+          <p style="color: #94a3b8; font-size: 0.88rem; margin-bottom: 1.25rem;">
+            使用手機相機或 LINE 掃描功能照向 QR Code，即可將疫苗預約提醒一鍵存入手機日曆！
+          </p>
+
+          <!-- QR Code 系統切換頁籤 -->
+          <div class="qr-tab-group" style="display: flex; justify-content: center; gap: 0.6rem; margin-bottom: 1rem;">
+            <button id="qr-tab-google" type="button" class="chip active" style="padding: 0.5rem 1rem; font-weight: 700; cursor: pointer; border-radius: 20px; transition: all 0.2s ease;">🌐 Google 日曆 QR</button>
+            <button id="qr-tab-apple" type="button" class="chip" style="padding: 0.5rem 1rem; font-weight: 700; cursor: pointer; border-radius: 20px; transition: all 0.2s ease;">🍏 iOS 相機直掃 QR</button>
+          </div>
+
+          <div style="display: flex; justify-content: center; margin-bottom: 0.75rem;">
+            <div id="qrcode-container" style="display: inline-flex; justify-content: center; align-items: center; padding: 12px; background: #ffffff; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.25);">
+              <!-- QR Code 圖檔 -->
+            </div>
+          </div>
+          <div id="qr-hint-text" style="font-size: 0.78rem; color: #34d399; margin-bottom: 1.25rem;">
+            提示：iPhone 內建相機直接照向此 QR Code 即可加入 iOS 日曆！
+          </div>
+
+          <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 10px; border: 1px solid var(--card-border); margin-bottom: 1rem; text-align: left;">
+            <div style="font-size: 0.82rem; color: #94a3b8; margin-bottom: 0.2rem;">📌 提醒事件名稱：</div>
+            <div id="cal-modal-title" style="font-weight: 700; color: #f8fafc; font-size: 1.05rem; margin-bottom: 0.6rem;">--</div>
+
+            <!-- 本次接種項目 -->
+            <div style="font-size: 0.82rem; color: #94a3b8; margin-bottom: 0.3rem;">💉 本次接種疫苗項目 (將完整記錄於日曆)：</div>
+            <div id="cal-modal-current-vax" style="display: flex; flex-wrap: wrap; gap: 0.35rem; margin-bottom: 0.75rem;">
+              <!-- JS 動態生成 -->
+            </div>
+
+            <!-- 下次預估接種時程與項目提示框 -->
+            <div id="cal-modal-next-box" style="background: rgba(56, 189, 248, 0.08); border: 1px dashed rgba(56, 189, 248, 0.4); border-radius: 8px; padding: 0.65rem 0.8rem; margin-bottom: 0.85rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem;">
+                <span style="font-size: 0.82rem; font-weight: 700; color: #38bdf8;">🔔 下次預估接種時程 (亦記錄於備忘錄)：</span>
+                <button id="cal-set-next-date-btn" type="button" class="btn-secondary" style="padding: 0.2rem 0.5rem; font-size: 0.75rem; background: rgba(56, 189, 248, 0.2); border-color: #38bdf8; color: #38bdf8; border-radius: 4px; cursor: pointer; white-space: nowrap; display: none;">
+                  📅 切換為下次日期
+                </button>
+              </div>
+              <div id="cal-modal-next-info" style="font-size: 0.82rem; color: #cbd5e1; line-height: 1.45;">--</div>
+            </div>
+            
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.4rem;">
+              <label for="cal-date-input" style="font-size: 0.85rem; color: #94a3b8;">📅 日曆預約日期 (可點擊修改)：</label>
+              <span id="cal-min-date-badge" style="font-size: 0.75rem; color: #38bdf8; background: rgba(56, 189, 248, 0.1); padding: 2px 8px; border-radius: 4px;"></span>
+            </div>
+            
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+              <input type="date" id="cal-date-input" style="flex: 1; padding: 0.5rem 0.75rem; border-radius: 8px; border: 1.5px solid #38bdf8; background: #0f172a; color: #ffffff; font-size: 1rem; font-weight: 600; outline: none;">
+              <button id="cal-reset-date-btn" class="btn-secondary" style="padding: 0.5rem 0.75rem; font-size: 0.8rem; white-space: nowrap;">重設原日期</button>
+            </div>
+
+            <!-- 醫療安全警示 / 提早延後評估提示區 -->
+            <div id="cal-date-warning-box" class="hidden" style="margin-top: 0.75rem; padding: 0.6rem 0.8rem; border-radius: 6px; font-size: 0.82rem; line-height: 1.5;"></div>
+          </div>
+
+          <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 1rem;">
+            <a id="cal-direct-link" href="#" target="_blank" class="btn-primary" style="flex: 1; min-width: 140px; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; padding: 0.65rem 0.5rem; font-size: 0.88rem;">
+              🌐 Google 日曆
+            </a>
+            <button id="cal-apple-btn" class="btn-primary" style="flex: 1; min-width: 140px; background: linear-gradient(135deg, #000000, #333333); border-color: #555; padding: 0.65rem 0.5rem; font-size: 0.88rem;">
+              🍏 iOS / Apple 日曆
+            </button>
+            <button id="cal-copy-link-btn" class="btn-secondary" style="flex: 1; min-width: 140px; padding: 0.65rem 0.5rem; font-size: 0.88rem;">
+              🔗 複製連結
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 列印前疫苗勾選 Modal -->
+    <div id="print-select-modal" class="modal-overlay hidden">
+      <div class="modal-card fade-in" style="max-width: 560px; padding: 0; overflow: hidden;">
+        <div class="print-select-modal-header">
+          <div>
+            <div style="font-size:1.5rem; font-weight:700; color:#2D5F6A;">🖨️ 選擇本次列印疫苗</div>
+            <div style="font-size:0.82rem; color:#718096; margin-top:3px;">勾選本次實際欲衛教 / 接種的疫苗項目，單張僅印勾選的。</div>
+          </div>
+          <button class="modal-close-btn" id="print-select-modal-close" style="position:relative; top:0; right:0;">✕</button>
+        </div>
+
+        <div class="print-select-toolbar">
+          <button id="print-select-all-btn" class="print-select-tool-btn">✔ 全選</button>
+          <button id="print-deselect-all-btn" class="print-select-tool-btn">☐ 全部取消</button>
+          <span id="print-select-count" class="print-select-count-badge">已勾選 0 項</span>
+        </div>
+
+        <div id="print-select-list" class="print-select-list">
+          <!-- JS 動態填入 -->
+        </div>
+
+        <div class="print-select-footer">
+          <button id="print-select-cancel-btn" class="btn-secondary" style="flex:1;">取消</button>
+          <button id="print-select-confirm-btn" class="btn-primary" style="flex:2;">🖨️ 確認列印</button>
+        </div>
+      </div>
+    </div>
+
+
+    <div id="printable-report" class="printable-report-wrapper">
+      <div class="print-header">
+        <div class="print-title-block">
+          <h2>預防接種與自費疫苗衛教建議單</h2>
+          <p class="print-subtitle">衛生福利部疾病管制署 (Taiwan CDC) 官方標準 ‧ 專屬診所衛教聯</p>
+        </div>
+        <div class="print-date-stamp">
+          <div>列印日期：<span id="print-date"></span></div>
+          <div>衛教單位：預防接種諮詢門診</div>
+        </div>
+      </div>
+
+      <div class="print-meta-grid">
+        <div class="print-meta-item"><strong>基本資料：</strong><span id="print-meta-info">--</span></div>
+      </div>
+
+      <div class="print-content-block print-current-block">
+        <h3 class="print-section-heading">📍 當前推薦階段：<span id="print-current-visit-info" style="color: #be123c;">--</span></h3>
+        <table class="print-table">
+          <colgroup>
+            <col style="width:25%">
+            <col style="width:15%">
+            <col style="width:15%">
+            <col style="width:45%">
+          </colgroup>
+          <thead>
+            <tr>
+              <th>疫苗名稱</th>
+              <th>劑次/時程</th>
+              <th>類別</th>
+              <th>說明與補助衛教</th>
+            </tr>
+          </thead>
+          <tbody id="print-current-table-body">
+            <!-- JS 動態寫入表格 -->
+          </tbody>
+        </table>
+      </div>
+
+      <div class="print-content-block print-next-block">
+        <h3 class="print-section-heading">⏳ 下一預計階段：<span id="print-next-visit-info" style="color: #0369a1;">--</span></h3>
+        <table class="print-table">
+          <colgroup>
+            <col style="width:25%">
+            <col style="width:15%">
+            <col style="width:15%">
+            <col style="width:45%">
+          </colgroup>
+          <thead>
+            <tr>
+              <th>疫苗名稱</th>
+              <th>劑次/時程</th>
+              <th>類別</th>
+              <th>說明與注意事項</th>
+            </tr>
+          </thead>
+          <tbody id="print-next-table-body">
+            <!-- JS 動態寫入表格 -->
+          </tbody>
+        </table>
+      </div>
+
+      <div class="print-coadmin-block" id="print-coadmin-container" style="margin-top: 1.25rem; background: #f8fafc; border: 1.5px solid #cbd5e1; border-radius: 8px; padding: 0.85rem 1.15rem;">
+        <h4 style="margin: 0 0 0.5rem 0; color: #1e293b; font-size: 0.95rem;">💉 同次同時接種部位與途徑衛教指南 (Co-administration Guide)：</h4>
+        <ul id="print-coadmin-list" style="margin: 0; padding-left: 1.25rem; font-size: 0.85rem; color: #334155; line-height: 1.5;">
+          <!-- JS 動態生成當次/下次部位與口服/鼻噴/針劑指南 -->
+        </ul>
+      </div>
+
+      <div class="print-notes-block">
+        <h4>⚠️ 接種前後衛教與安全叮嚀：</h4>
+        <ol>
+          <li>若有發燒 (≥38°C) 或急性中重度疾病，請延期至康復後再行接種。</li>
+          <li><strong>不活化疫苗與口服疫苗</strong>：流感疫苗、五合一、肺炎鏈球菌等不活化針劑，以及口服輪狀病毒疫苗，彼此完全不干擾，可於同日同次分開部位安心完成。</li>
+          <li><strong>活性減毒疫苗間隔提醒</strong>：水痘、MMR、活性日本腦炎、鼻噴流感疫苗若未在同一天施打，需間隔至少 28 天以上。</li>
+          <li>接種後請在診所觀察 15-30 分鐘，確認無急性過敏反應後方可離開。</li>
+          <li>接種部位紅腫疼痛為常見反應，可局部冰敷；若高燒不退超過 48 小時，請儘速回診就醫。</li>
+        </ol>
+      </div>
+
+      <div class="print-footer-signatures">
+        <div class="sig-box">醫師 / 護理師衛教簽章：___________________</div>
+        <div class="sig-box">病患 / 家長簽收：___________________</div>
+      </div>
+    </div>
+
+    <footer class="app-footer">
+      <p>資料來源：衛生福利部疾病管制署 (Taiwan CDC) 預防接種時程與自費疫苗建議指引</p>
+    </footer>
+  </div>
+
+  <script type="module" src="app.js?v=20260924j"></script>
+</body>
+</html>
