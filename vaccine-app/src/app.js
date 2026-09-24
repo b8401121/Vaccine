@@ -445,6 +445,87 @@ function scrollToCurrentNode() {
   }
 }
 
+// 依年齡產生對應的流感疫苗卡片物件 (支援直接放入時間軸與列印)
+function getFluVaccineItemsForAge(ageYears, totalMonths) {
+  if (totalMonths < 6) {
+    return []; // 未滿6個月不符合施打條件
+  }
+
+  if (totalMonths < 24) {
+    // 6個月~未滿2歲
+    return [
+      {
+        name: "季節性流感疫苗 (滿6個月~未滿2歲幼兒推薦)",
+        dose_info: "第 1-2 劑 (8歲以下初次施打需隔4週打2劑)",
+        timing_info: "每年秋冬流感季 (滿6個月以上)",
+        category: "Routine",
+        description: "【滿6個月~未滿2歲】：建議施打標準型四價疫苗。首選【東洋 輔流威護(MDCK犬腎細胞培養/無蛋/吻合度最高)】、GSK 伏流感(德國)、賽諾菲 菲流達(法國)。8歲以下初次接種需打2劑。",
+        audience: "Children"
+      }
+    ];
+  } else if (totalMonths < 36) {
+    // 2歲~未滿3歲
+    return [
+      {
+        name: "季節性流感疫苗 (2歲~未滿3歲幼童推薦)",
+        dose_info: "每年 1-2 劑 (初次需隔4週打2劑)",
+        timing_info: "每年秋冬流感季",
+        category: "Routine",
+        description: "【2歲~未滿3歲幼童】：標準注射可選東洋輔流威護(細胞型)、GSK伏流感、賽諾菲菲流達。◆ 害怕打針者首選：自費 AZ 能伏鼻 (FluMist 唯一免打針鼻噴式活性減毒，鼻黏膜第一線IgA防衛，注意氣喘喘鳴禁忌)。",
+        audience: "Children"
+      }
+    ];
+  } else if (ageYears < 18) {
+    // 3歲~17歲
+    return [
+      {
+        name: "季節性流感疫苗 (3歲~17歲兒少推薦)",
+        dose_info: "每年 1 劑 (未滿9歲初次打2劑)",
+        timing_info: "每年秋冬流感季 (校園公費/自費)",
+        category: "Routine",
+        description: "【3歲~17歲兒童青少年】：標準注射適用國光安定伏、高端福喜健、東洋輔流威護、GSK伏流感、賽諾菲菲流達。◆ 害怕打針者首選：自費 AZ 能伏鼻 (FluMist 唯一免打針無痛鼻噴疫苗)。",
+        audience: "Children"
+      }
+    ];
+  } else if (ageYears < 50) {
+    // 18~49歲
+    return [
+      {
+        name: "季節性流感疫苗 (18~49歲成人標準防護)",
+        dose_info: "每年 1 劑",
+        timing_info: "秋冬流感季 (18-49歲一般成人)",
+        category: "Routine",
+        description: "【18~49歲青壯年】：可選擇標準型疫苗（東洋 輔流威護【細胞培養/無蛋】、GSK 伏流感、賽諾菲 菲流達、國光 安定伏、高端 福喜健）。公費資格者按時程施打，非公費者建議自費接種形成群體防護。",
+        audience: "Adults"
+      }
+    ];
+  } else if (ageYears < 65) {
+    // 50~64歲
+    return [
+      {
+        name: "季節性流感疫苗 (50~64歲熟齡佐劑加強型首選)",
+        dose_info: "每年 1 劑",
+        timing_info: "秋冬流感季 (50-64歲熟齡/免疫低下)",
+        category: "Routine",
+        description: "【50~64歲熟齡與免疫低下推薦】：建議選用【含佐劑加強型 東洋輔流禦 (Fluad)】，添加 MF59 專利佐劑能克服免疫老化，刺激更強且持久達12個月之抗體保護力。亦可選標準型（東洋輔流威護、GSK伏流感、賽諾菲菲流達、國光安定伏、高端福喜健）。",
+        audience: "Adults"
+      }
+    ];
+  } else {
+    // 65歲以上
+    return [
+      {
+        name: "季節性流感疫苗 (65歲以上銀髮長者加強型首選)",
+        dose_info: "每年 1 劑",
+        timing_info: "秋冬流感季 (65歲以上長者)",
+        category: "Routine",
+        description: "【65歲以上銀髮長者首選】：強烈建議選用加強型以克服免疫老化！首選【高劑量加強型 賽諾菲菲優達 (Efluelda High-Dose，含4倍抗原，重症保護力提升24.2%)】或【含佐劑加強型 東洋輔流禦 (Fluad)】。安養長照長者公費優先，一般長者可自費預約。亦可選一般標準型。",
+        audience: "Adults"
+      }
+    ];
+  }
+}
+
 function displayVaccines(data) {
   lastQueryData = data;
   const { age_display, child_age_detail, gender_display, location_display, current_visit_date, current_visit_milestone, next_visit_date, next_visit_milestone, milestones } = data;
@@ -467,8 +548,50 @@ function displayVaccines(data) {
 
   ageBadge.textContent = fullMetaText;
 
-  // 渲染 2026 流感疫苗動態適應症推薦卡片
+  // 渲染 2026 流感疫苗動態適應症推薦卡片 (頂部摘要橫幅)
   renderFluAgeRecommendation(ageText);
+
+  // 計算年齡數值
+  let ageYears = 0;
+  let ageMonths = 0;
+  const yMatch = ageText.match(/(\d+)\s*歲/);
+  const mMatch = ageText.match(/(\d+)\s*個?月/);
+  if (yMatch) ageYears = parseInt(yMatch[1], 10);
+  if (mMatch) ageMonths = parseInt(mMatch[1], 10);
+  const totalMonths = ageYears * 12 + ageMonths;
+
+  // 取得該年齡對應之流感疫苗卡片
+  const fluItems = getFluVaccineItemsForAge(ageYears, totalMonths);
+
+  // 確保「當前推薦站點」或首個有效站點中包含該年齡之專屬流感疫苗卡片
+  if (milestones && milestones.length > 0 && fluItems.length > 0) {
+    // 檢查 milestones 是否已經包含流感疫苗卡片（避免重複添加）
+    let hasFluInMilestones = false;
+    milestones.forEach(m => {
+      if (m.vaccines && m.vaccines.some(v => v.name.includes('流感'))) {
+        hasFluInMilestones = true;
+      }
+    });
+
+    if (!hasFluInMilestones) {
+      // 找出 Current 站點，或 Next 站點，將流感疫苗卡片加入該站點之疫苗陣列中
+      let targetMilestone = milestones.find(m => m.status === 'Current') || milestones.find(m => m.status === 'Next') || milestones[0];
+      if (targetMilestone) {
+        targetMilestone.vaccines.push(...fluItems);
+      }
+    } else {
+      // 若已有舊版流感卡片，將其升級為 2026 最新規格與詳細適應症
+      milestones.forEach(m => {
+        if (m.vaccines) {
+          m.vaccines.forEach((v, idx) => {
+            if (v.name.includes('流感') && fluItems.length > 0) {
+              m.vaccines[idx] = { ...v, ...fluItems[0] };
+            }
+          });
+        }
+      });
+    }
+  }
 
   timelineContainer.innerHTML = '';
 
