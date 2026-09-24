@@ -1,21 +1,22 @@
 :root {
-  /* 極度深色的暖可可/深石板護眼模式 (Dark Mode)，完全消除刺眼白光 */
-  --bg-gradient: linear-gradient(135deg, #2A2421 0%, #1E1917 100%);
-  --card-bg: rgba(45, 38, 35, 0.95);     /* 深色卡片背景 */
-  --card-border: rgba(255, 255, 255, 0.08);
-  --primary-color: #D1A78B;              /* 溫暖的沙漠沙色 (按鈕與強調色) */
-  --primary-hover: #B58E74;
-  --text-main: #FFFFFF;                  /* 柔和的米白色文字 (非純白) */
-  --text-muted: #D9D2CB;                 /* 暖灰色文字 */
-  --accent-color: #829C8B;               /* 莫蘭迪綠 */
-  --routine-bg: #3B4239;                 /* 深綠色底 (公費) */
-  --routine-color: #A5C2AA;              /* 淺綠字 */
-  --high-risk-bg: #4A3532;               /* 深紅色底 (自費/高風險) */
-  --high-risk-color: #D99C94;            /* 淺紅字 */
-  --primary-rgb: 209, 167, 139;          /* 對應 #D1A78B */
-  --secondary-rgb: 130, 156, 139;        /* 對應 #829C8B */
-  --bg-color: #2A2421;                   /* 登入畫面底色 */
+  --bg-gradient: linear-gradient(135deg, #F5F0E8 0%, #EBF0F0 50%, #F0EBF5 100%);
+  --card-bg: rgba(255, 253, 248, 0.96);
+  --card-border: rgba(180, 170, 155, 0.3);
+  --primary-color: #4A7C88;
+  --primary-hover: #3A6270;
+  --text-main: #2D3748;
+  --text-muted: #718096;
+  --accent-color: #5B728A;
+  --routine-bg: #E8F0E9;
+  --routine-color: #3D7A5A;
+  --high-risk-bg: #F0E8E6;
+  --high-risk-color: #8B4A42;
+  --primary-rgb: 74, 124, 136;
+  --secondary-rgb: 91, 114, 138;
+  --bg-color: #F5F0E8;
 }
+
+
 
 * {
   box-sizing: border-box;
@@ -2231,5 +2232,33 @@ input:checked + .slider:before {
     margin-bottom: 12px;
     display: flex;
     justify-content: center;
+  }
+}
+
+/* ==========================================
+   Growth Curve Specific Print Rules
+   ========================================== */
+@media print {
+  body.print-mode-growth .app-container > * {
+    display: none !important;
+  }
+  body.print-mode-growth .app-container > main {
+    display: block !important;
+  }
+  body.print-mode-growth main > section {
+    display: none !important;
+  }
+  body.print-mode-growth main > #tab-growth {
+    display: block !important;
+  }
+  body.print-mode-growth #tab-growth > * {
+    display: none !important;
+  }
+  body.print-mode-growth #tab-growth > #growth-results {
+    display: block !important;
+    width: 100% !important;
+  }
+  body.print-mode-growth .hide-on-print {
+    display: none !important;
   }
 }
