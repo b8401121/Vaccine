@@ -304,6 +304,8 @@ function setupFormSubmit() {
       // 隱藏查詢結果區塊並捲動回頂部
       const resultsDiv = document.getElementById('results');
       if (resultsDiv) resultsDiv.classList.add('hidden');
+      const fluBannerContainer = document.getElementById('flu-rec-banner-container');
+      if (fluBannerContainer) fluBannerContainer.innerHTML = '';
       lastQueryData = null;
 
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -314,6 +316,121 @@ function setupFormSubmit() {
   if (jumpBtn) {
     jumpBtn.addEventListener('click', scrollToCurrentNode);
   }
+}
+
+function renderFluAgeRecommendation(ageText) {
+  const container = document.getElementById('flu-rec-banner-container');
+  if (!container) return;
+
+  // 解析年齡文字 (如: "0歲2個月", "1歲6個月", "2歲3個月", "4歲", "25歲", "55歲", "72歲")
+  let ageYears = 0;
+  let ageMonths = 0;
+
+  const yMatch = ageText.match(/(\d+)\s*歲/);
+  const mMatch = ageText.match(/(\d+)\s*個?月/);
+
+  if (yMatch) ageYears = parseInt(yMatch[1], 10);
+  if (mMatch) ageMonths = parseInt(mMatch[1], 10);
+  const totalMonths = ageYears * 12 + ageMonths;
+
+  let title = '';
+  let badge = '2026 流感選用指南';
+  let bodyHtml = '';
+  let brandPills = [];
+
+  if (totalMonths < 6) {
+    title = '🍂 2026 流感防護提醒：未滿 6 個月嬰兒尚未達流感疫苗施打年齡';
+    badge = '同住家人防護';
+    bodyHtml = `
+      <p>依據衛福部適應症規定，目前所有市售流感疫苗均僅適用於<strong>滿 6 個月以上</strong>幼兒。</p>
+      <p style="margin-top:0.35rem; color:#b91c1c;"><strong>💡 醫師專業建議：</strong>為保護未滿半歲小寶寶，強烈建議<strong>父母、祖父母及同住照顧者</strong>務必全員接種流感疫苗，並落實洗手與佩戴口罩，形成家庭隱形防護罩！</p>
+    `;
+    brandPills = ['同住家人接種', '包被策略', '滿6個月後施打'];
+  } else if (totalMonths < 24) {
+    // 6個月 ~ 未滿2歲
+    title = '🍂 2026 流感疫苗首選推薦 (滿6個月~未滿2歲幼兒)';
+    badge = '標準四價型 / 無蛋細胞培養';
+    bodyHtml = `
+      <p>寶寶已滿 6 個月，進入流感重症高危險群！建議儘速施打流感疫苗。</p>
+      <p style="margin-top:0.35rem;"><strong>💉 適用廠牌：</strong>東洋 輔流威護 (MDCK細胞培養/無蛋蛋白/吻合度高)、GSK 伏流感 (德國雞胚)、賽諾菲 菲流達 (法國雞胚)。</p>
+      <p style="margin-top:0.35rem; color:#c2410c;"><strong>⚠️ 劑次提醒：</strong>8 歲以下「初次」接種流感疫苗之幼兒，需接種 <strong>2 劑</strong>（兩劑間隔至少 4 週），方能誘發足量抗體；若往年已接種過則僅需打 1 劑。</p>
+    `;
+    brandPills = ['東洋 輔流威護(細胞無蛋)', 'GSK 伏流感', '賽諾菲 菲流達', '初次需打2劑'];
+  } else if (totalMonths < 36) {
+    // 2歲 ~ 未滿3歲
+    title = '🍂 2026 流感疫苗首選推薦 (2歲~未滿3歲幼童)';
+    badge = '一般注射 或 自費鼻噴免打針';
+    bodyHtml = `
+      <p>滿 2 歲幼童可選擇傳統肌肉注射或<strong>唯一免打針無痛鼻噴式疫苗</strong>！</p>
+      <p style="margin-top:0.35rem;"><strong>💉 標準注射推薦：</strong>東洋 輔流威護 (細胞培養)、GSK 伏流感、賽諾菲 菲流達。</p>
+      <p style="margin-top:0.35rem; color:#b45309;"><strong>👃 害怕打針兒少首選：</strong>可自費選用 <strong>AZ 能伏鼻 (FluMist)</strong> 鼻噴式活性減毒疫苗！免打針無疼痛，直接在鼻黏膜形成第一線 IgA 防禦抗體。<br><small style="color:#ef4444;">(禁忌注意：嚴重免疫缺損、重度氣喘或近4週曾有喘鳴、長期服用阿斯匹靈者禁忌使用)</small></p>
+    `;
+    brandPills = ['AZ 能伏鼻(鼻噴免打針)', '東洋 輔流威護', 'GSK 伏流感', '賽諾菲 菲流達'];
+  } else if (ageYears < 18) {
+    // 3歲 ~ 17歲
+    title = '🍂 2026 流感疫苗首選推薦 (3歲~17歲兒童與青少年)';
+    badge = '校園公費主力 或 鼻噴免打針';
+    bodyHtml = `
+      <p>3 歲以上所有 8 大流感疫苗中已有 6 款適用（含國光安定伏、高端福喜健），校園公費與自費皆可配合施打。</p>
+      <p style="margin-top:0.35rem;"><strong>💉 適用廠牌：</strong>國光 安定伏、高端 福喜健、東洋 輔流威護 (細胞培養)、GSK 伏流感、賽諾菲 菲流達。</p>
+      <p style="margin-top:0.35rem; color:#b45309;"><strong>👃 免打針自費推薦：</strong>害怕打針的學童強烈推薦自費 <strong>AZ 能伏鼻 (FluMist)</strong> 鼻噴式活性減毒疫苗，無痛提升呼吸道黏膜免疫！</p>
+    `;
+    brandPills = ['AZ 能伏鼻(鼻噴無痛)', '國光 安定伏', '高端 福喜健', '東洋 輔流威護', 'GSK 伏流感', '賽諾菲 菲流達'];
+  } else if (ageYears < 50) {
+    // 18歲 ~ 49歲
+    title = '🍂 2026 流感疫苗首選推薦 (18~49歲青壯年)';
+    badge = '標準四價型 / 形成群聚防護';
+    bodyHtml = `
+      <p>青壯年為家庭經濟支柱與社會主要活動者，建議每年接種 1 劑流感疫苗，降低流感傳染給家中幼童與長輩風險。</p>
+      <p style="margin-top:0.35rem;"><strong>💉 推薦標準型：</strong>東洋 輔流威護 (細胞培養/精準防護)、GSK 伏流感、賽諾菲 菲流達、國光 安定伏、高端 福喜健。</p>
+      <p style="margin-top:0.35rem; color:#0369a1;"><strong>💡 貼心提醒：</strong>公費符合資格（如高風險慢性病、孕婦、6個月內嬰兒之父母）請按時公費施打；非公費者可自費預約施打。</p>
+    `;
+    brandPills = ['東洋 輔流威護(細胞型)', 'GSK 伏流感', '賽諾菲 菲流達', '國光 安定伏', '高端 福喜健'];
+  } else if (ageYears < 65) {
+    // 50歲 ~ 64歲
+    title = '🍂 2026 流感疫苗首選推薦 (50~64歲熟齡族群)';
+    badge = '強烈推薦：東洋 輔流禦 (MF59佐劑加強型)';
+    bodyHtml = `
+      <p>50 歲起人體免疫力隨年齡逐步下降（免疫老化）。研究顯示，一般標準型流感疫苗在熟齡長者體內抗體衰退速度較快。</p>
+      <p style="margin-top:0.35rem; color:#c2410c;"><strong>🔥 首選加強型：</strong>強烈建議自費預約選用【<strong>東洋 輔流禦 (Fluad) 佐劑加強型</strong>】！其添加專利 MF59 佐劑，可強效活化體內免疫系統，提供長達 <strong>12 個月</strong>的持久抗體防禦。</p>
+      <p style="margin-top:0.35rem;"><strong>💉 標準型選擇：</strong>亦可選擇東洋輔流威護、GSK伏流感、賽諾菲菲流達、國光安定伏、高端福喜健等標準型公費/自費疫苗。</p>
+    `;
+    brandPills = ['⭐ 首選：東洋 輔流禦(佐劑加強型)', '東洋 輔流威護', 'GSK 伏流感', '賽諾菲 菲流達', '公費50歲起施打'];
+  } else {
+    // 65歲以上
+    title = '🍂 2026 流感疫苗長者專用推薦 (65歲以上銀髮長輩)';
+    badge = '長者專用加強型：菲優達高劑量 / 輔流禦佐劑型';
+    bodyHtml = `
+      <p>65 歲以上為流感併發重症、肺炎住院及心血管死亡之最高風險族群！國際醫學指引高度建議長者優先施打<strong>加強型流感疫苗</strong>。</p>
+      <p style="margin-top:0.35rem; color:#b91c1c;"><strong>🏆 兩大長者專用加強型：</strong></p>
+      <ul style="margin: 0.35rem 0 0.5rem 1.25rem; font-size: 0.9rem; line-height: 1.6;">
+        <li><strong>賽諾菲 菲優達 (Efluelda High-Dose)</strong>：含 4 倍抗原量，臨床實證重症防護力提升 <strong>24.2%</strong>，大幅降低心肺併發症住院率。</li>
+        <li><strong>東洋 輔流禦 (Fluad Tetra)</strong>：添加 MF59 專利佐劑，抗體效價顯著提高且保護力長達 12 個月。</li>
+      </ul>
+      <p style="margin-top:0.25rem; color:#475569;">（公費安養機構長照長者享有專案配送加強型；社區長者亦可諮詢自費升級預約；標準型公費亦享有免費施打）</p>
+    `;
+    brandPills = ['⭐ 賽諾菲 菲優達(4倍高劑量)', '⭐ 東洋 輔流禦(佐劑加強型)', '防範重症住院+24.2%', '公費標準型免費提供'];
+  }
+
+  const pillsHtml = brandPills.map(p => `<span class="flu-brand-pill">${p}</span>`).join('');
+
+  container.innerHTML = `
+    <div class="flu-rec-banner fade-in">
+      <div class="flu-rec-banner-header">
+        <div class="flu-rec-title">
+          <span>🍂</span>
+          <span>${title}</span>
+        </div>
+        <span class="flu-rec-badge">${badge}</span>
+      </div>
+      <div class="flu-rec-content">
+        ${bodyHtml}
+      </div>
+      <div class="flu-rec-brands-list">
+        ${pillsHtml}
+      </div>
+    </div>
+  `;
 }
 
 function scrollToCurrentNode() {
@@ -349,6 +466,10 @@ function displayVaccines(data) {
   const fullMetaText = `🏙️ ${location_display} | ${gender_display} | 目前計算年齡：${ageText}`;
 
   ageBadge.textContent = fullMetaText;
+
+  // 渲染 2026 流感疫苗動態適應症推薦卡片
+  renderFluAgeRecommendation(ageText);
+
   timelineContainer.innerHTML = '';
 
   if (!milestones || milestones.length === 0) {
@@ -534,12 +655,156 @@ function setupTabs() {
   });
 }
 
+// 2026 台灣流感疫苗 8 大廠牌完整資料庫（確保前端與 Wasm 雙模皆完整呈現）
+const FLU_2026_VACCINES = [
+  {
+    id: "flu_guide_2026",
+    name: "🍂 2026 台灣流感疫苗選用攻略 (8大廠牌總覽)",
+    aliases: "2026流感疫苗 / 四價流感 / 雞胚細胞佐劑鼻噴 / 8大廠牌PK",
+    category: "Both",
+    target_audience: "滿 6 個月以上幼兒、孕婦、學童、成人至高齡長者 (全齡)",
+    prevent_disease: "預防 2026-2027 年度世界衛生組織 (WHO) 推薦之四價流感病毒株（A型 H1N1、H3N2 及 B型 Victoria、Yamagata）",
+    full_description: "2026年台灣市售流感疫苗共計 8 大廠牌，技術全面升級！涵蓋傳統雞胚培養、MDCK細胞培養、長者專用佐劑加強型、長者專用高劑量加強型，以及兒童青少年專用鼻噴式活性減毒疫苗。本指南依年齡、體質與預算提供專業適應症分析。",
+    schedule: [
+      "◆ 滿6個月~未滿9歲且初次施打：需接種 2 劑 (間隔 4 週以上)",
+      "◆ 9歲以上至成人長者：每年秋冬定期接種 1 劑",
+      "◆ 2歲~未滿18歲兒少：可選 AZ 能伏鼻 (唯一免打針鼻噴劑型)",
+      "◆ 50歲以上或免疫低下者：推薦東洋 輔流禦 (MF59佐劑加強型)",
+      "◆ 65歲以上銀髮長者：推薦賽諾菲 菲優達 (4倍高劑量加強型)"
+    ],
+    notes: "雞蛋過敏者可安心施打，亦可優先選用東洋輔流威護(細胞培養)。流感疫苗可與新冠、肺炎鏈球菌疫苗同日不同部位同時施打。"
+  },
+  {
+    id: "flu_flucelvax",
+    name: "東洋 輔流威護 四價流感疫苗 (Flucelvax Tetra)",
+    aliases: "輔流威護 / 東洋細胞流感 / MDCK 細胞培養流感疫苗 / CSL Seqirus",
+    category: "Both",
+    target_audience: "滿 6 個月以上全齡通用 (嬰幼兒、孕婦、成人、長者)",
+    prevent_disease: "季節性 A/B 型流感病毒感染及重症",
+    full_description: "【MDCK犬腎細胞培養技術】完全不經過受精雞胚培養，零雞蛋蛋白殘留，徹底杜絕病毒在雞蛋培養過程中發生的突變適應，WHO臨床證實抗原吻合度最高！適合重度雞蛋過敏者或追求精準保護力之民眾。",
+    schedule: [
+      "滿6個月以上~未滿9歲且初次接種：施打 2 劑 (間隔 4 週)",
+      "9歲以上與成人：每年接種 1 劑 (公費依配送/自費可指定)"
+    ],
+    notes: "公自費皆有供應。注射部位偶有輕微紅腫疼痛，多於2-3天內緩解。"
+  },
+  {
+    id: "flu_fluad",
+    name: "東洋 輔流禦 佐劑加強型四價流感疫苗 (Fluad Tetra)",
+    aliases: "輔流禦 / Fluad / MF59佐劑流感疫苗 / 熟齡長者加強型",
+    category: "Both",
+    target_audience: "50 歲以上熟齡長者 / 服用免疫抑制劑者 / 免疫功能低下者",
+    prevent_disease: "50歲以上族群季節性流感重症、肺炎住院及併發症",
+    full_description: "【專利 MF59 免疫佐劑】添加專利角鯊烯水包油乳化佐劑，可大幅活化抗原呈現細胞與T/B淋巴細胞，專門克服長者與慢性病患之「免疫老化 (Immunosenescence)」，抗體保護力顯著增強且持久長達 12 個月！公費優先提供安養及長照機構65歲以上長者。",
+    schedule: [
+      "50歲以上成人：每年秋冬接種 1 劑 (肌肉注射 0.5mL)",
+      "安養長照機構65歲以上長者享公費；一般50歲以上民眾可自費預約"
+    ],
+    notes: "適應症為50歲以上。局部紅腫酸痛比例略高於一般劑型，屬正常免疫反應。"
+  },
+  {
+    id: "flu_efluelda",
+    name: "賽諾菲 菲優達 高劑量四價流感疫苗 (Efluelda High-Dose)",
+    aliases: "菲優達 / 賽諾菲高劑量流感 / Efluelda / Fluzone High-Dose",
+    category: "Both",
+    target_audience: "65 歲以上銀髮長者專用",
+    prevent_disease: "高齡長者流感病毒感染、重症肺炎、心血管併發症及住院",
+    full_description: "【4倍抗原高劑量加強型】每劑每株含有 60µg 血球凝集素 (HA)，總抗原量為一般標準疫苗 (15µg) 的 4 倍！大規模國際臨床實證，針對 65 歲以上長者之流感重症預防效果較標準型顯著提升 24.2%，大幅降低長者心肺併發症與住院率！",
+    schedule: [
+      "65歲以上長者：每年秋冬接種 1 劑 (肌肉注射 0.7mL)",
+      "安養長照機構65歲以上長者公費配發；一般社區長者可自費預約施打"
+    ],
+    notes: "專為65歲以上長者設計，未滿65歲不適用。"
+  },
+  {
+    id: "flu_flumist",
+    name: "AZ 能伏鼻 鼻噴式活性減毒流感疫苗 (FluMist / Fluenz Tetra)",
+    aliases: "能伏鼻 / FluMist / 鼻噴流感疫苗 / 免打針流感疫苗 / 阿斯特捷利康",
+    category: "SelfPaid",
+    target_audience: "2 歲至未滿 18 歲兒童與青少年 (全自費)",
+    prevent_disease: "兒童與青少年流感感染、呼吸道併發症及群聚傳播",
+    full_description: "【唯一免打針無痛流感疫苗】經雙側鼻孔黏膜各噴入 0.1mL 活性減毒疫苗。模仿病毒自然感染途徑，在鼻咽呼吸道黏膜直接刺激產生強效第一線分泌型 IgA 黏膜抗體與全身性細胞免疫！免除針頭恐懼，是兒童與青少年自費首選。",
+    schedule: [
+      "2歲至未滿9歲初次接種流感疫苗者：間隔至少 4 週噴入 2 劑",
+      "曾接種過流感疫苗或9歲以上：每年施打 1 劑 (雙鼻孔各0.1mL)"
+    ],
+    notes: "⚠️【禁忌症 (不可接種)】：懷孕婦女、嚴重免疫缺陷者、長期服用阿斯匹靈(Aspirin)之兒少、重度氣喘或近4週內曾有喘鳴(wheezing)發作者。全自費，無公費。"
+  },
+  {
+    id: "flu_fluarix",
+    name: "GSK 伏流感 四價流感疫苗 (Fluarix Tetra)",
+    aliases: "伏流感 / GSK 流感疫苗 / 葛蘭素史克",
+    category: "Both",
+    target_audience: "滿 6 個月以上全齡通用 (嬰幼兒、學童、成人、長者)",
+    prevent_disease: "A 型與 B 型流感重症與併發症",
+    full_description: "【傳統雞胚培養裂解疫苗】由全球疫苗領導大廠葛蘭素史克 (GSK) 於德國/歐洲原廠生產製造。全球使用量大、臨床研究歷史悠久，安全性與有效性廣受各國衛生當局認證。",
+    schedule: [
+      "滿6個月至未滿9歲初次接種：施打 2 劑 (間隔 4 週)",
+      "9歲以上與成人：每年施打 1 劑"
+    ],
+    notes: "公費常規主力廠牌之一，自費門診亦常備。"
+  },
+  {
+    id: "flu_vaxigrip",
+    name: "賽諾菲 菲流達 四價流感疫苗 (Vaxigrip Tetra)",
+    aliases: "菲流達 / 賽諾菲流感疫苗 / 巴斯德流感疫苗",
+    category: "Both",
+    target_audience: "滿 6 個月以上全齡通用 (嬰幼兒、孕婦、成人、長者)",
+    prevent_disease: "A 型 (H1N1/H3N2) 及 B 型流感病毒引起的流行性感冒",
+    full_description: "【法國賽諾菲原裝進口】歐洲巴斯德研發中心專業製造，為台灣歷年公費採購與小兒自費門診極為信賴之標準流感疫苗廠牌，孕婦及6個月大以上嬰兒均可安心接種。",
+    schedule: [
+      "滿6個月至未滿9歲初次接種：施打 2 劑 (間隔 4 週)",
+      "9歲以上與成人：每年施打 1 劑"
+    ],
+    notes: "公費常規主力廠牌之一，自費可指定。"
+  },
+  {
+    id: "flu_adimflu",
+    name: "國光生技 安定伏 裂解型四價流感疫苗 (AdimFlu-S)",
+    aliases: "安定伏 / 國光流感疫苗",
+    category: "Both",
+    target_audience: "滿 3 歲以上幼童、學童、青少年、成人與長者",
+    prevent_disease: "預防 A/B 型流行性感冒病毒引發之感染與重症",
+    full_description: "【台灣國產流感疫苗主力】由國光生物科技於台灣在地 PIC/S GMP 廠製造，供應台灣公費防疫計畫逾半數劑量。技術成熟、品質穩定，適用於 3 歲以上民眾。",
+    schedule: [
+      "滿3歲至未滿9歲且初次接種：施打 2 劑 (間隔 4 週)",
+      "9歲以上至成人長者：每年施打 1 劑"
+    ],
+    notes: "注意：本品適應症為滿 3 歲以上，未滿 3 歲嬰幼兒請選用6個月適應症之廠牌。"
+  },
+  {
+    id: "flu_gcflu",
+    name: "高端 福喜健 四價流感疫苗 (GC Flu Quadrivalent)",
+    aliases: "福喜健 / 高端流感疫苗 / GC Biopharma",
+    category: "Both",
+    target_audience: "滿 3 歲以上幼童、學童、青少年、成人與長者",
+    prevent_disease: "預防季節性 A 型與 B 型流行性感冒病毒感染",
+    full_description: "【與韓國生技大廠 GC Biopharma 合作】引進世界衛生組織 (WHO) 預認證之四價流感抗原原液，符合國際規格，適用於滿 3 歲以上之公自費流感接種。",
+    schedule: [
+      "滿3歲至未滿9歲初次接種：施打 2 劑 (間隔 4 週)",
+      "9歲以上至成人長者：每年施打 1 劑"
+    ],
+    notes: "適應症為滿 3 歲以上，未滿 3 歲嬰幼兒請選擇適用月齡廠牌。"
+  }
+];
+
 async function loadVaccineLibrary() {
   try {
-    allVaccinesList = await invoke('get_all_vaccines');
+    const wasmList = await invoke('get_all_vaccines');
+    // 合併清單並依 ID 去重
+    const mergedMap = new Map();
+    if (Array.isArray(wasmList)) {
+      wasmList.forEach(v => mergedMap.set(v.id || v.name, v));
+    }
+    FLU_2026_VACCINES.forEach(v => {
+      mergedMap.set(v.id, v);
+    });
+    allVaccinesList = Array.from(mergedMap.values());
     renderLibraryGrid(allVaccinesList);
   } catch (err) {
-    console.error('載入疫苗圖鑑庫失敗:', err);
+    console.error('載入疫苗圖鑑庫失敗，使用內建資料庫:', err);
+    allVaccinesList = FLU_2026_VACCINES;
+    renderLibraryGrid(allVaccinesList);
   }
 }
 
@@ -571,14 +836,16 @@ function filterAndRenderLibrary() {
                           item.full_description.toLowerCase().includes(query);
 
     let matchesCategory = true;
-    if (currentFilter === 'Routine') {
+    if (currentFilter === 'flu2026') {
+      matchesCategory = item.id.startsWith('flu_') || item.name.includes('流感');
+    } else if (currentFilter === 'Routine') {
       matchesCategory = item.category === 'Routine' || item.category === 'Both';
     } else if (currentFilter === 'SelfPaid') {
       matchesCategory = item.category === 'SelfPaid' || item.category === 'Both';
     } else if (currentFilter === 'child') {
-      matchesCategory = item.target_audience.includes('兒童') || item.target_audience.includes('全齡');
+      matchesCategory = item.target_audience.includes('兒童') || item.target_audience.includes('幼兒') || item.target_audience.includes('全齡');
     } else if (currentFilter === 'adult') {
-      matchesCategory = item.target_audience.includes('成人') || item.target_audience.includes('長者') || item.target_audience.includes('全齡');
+      matchesCategory = item.target_audience.includes('成人') || item.target_audience.includes('長者') || item.target_audience.includes('熟齡') || item.target_audience.includes('全齡');
     }
 
     return matchesSearch && matchesCategory;
@@ -740,6 +1007,31 @@ function setupModalEvents() {
     modal.addEventListener('click', (e) => {
       if (e.target === modal) {
         modal.classList.add('hidden');
+      }
+    });
+  }
+
+  // 2026 流感疫苗 8 大廠牌比較表 Modal 事件綁定
+  const fluModal = document.getElementById('flu2026-modal');
+  const fluOpenBtn = document.getElementById('open-flu2026-modal-btn');
+  const fluCloseBtn = document.getElementById('flu2026-modal-close');
+
+  if (fluOpenBtn && fluModal) {
+    fluOpenBtn.addEventListener('click', () => {
+      fluModal.classList.remove('hidden');
+    });
+  }
+
+  if (fluCloseBtn && fluModal) {
+    fluCloseBtn.addEventListener('click', () => {
+      fluModal.classList.add('hidden');
+    });
+  }
+
+  if (fluModal) {
+    fluModal.addEventListener('click', (e) => {
+      if (e.target === fluModal) {
+        fluModal.classList.add('hidden');
       }
     });
   }
