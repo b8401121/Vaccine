@@ -563,34 +563,62 @@ function displayVaccines(data) {
   // 取得該年齡對應之流感疫苗卡片
   const fluItems = getFluVaccineItemsForAge(ageYears, totalMonths);
 
-  // 確保「當前推薦站點」或首個有效站點中包含該年齡之專屬流感疫苗卡片
+  // 確保「當前推薦站點」(Current) 或首個有效站點最前方包含該年齡之專屬流感疫苗卡片
   if (milestones && milestones.length > 0 && fluItems.length > 0) {
-    // 檢查 milestones 是否已經包含流感疫苗卡片（避免重複添加）
-    let hasFluInMilestones = false;
+    // 先移除任何舊的流感項目，重新置頂插入最新的流感規格卡片
+    let currentOrTargetNode = milestones.find(m => m.status === 'Current') || milestones.find(m => m.status === 'Next') || milestones[0];
+    
+    // 清除既有流感項目避免重複
     milestones.forEach(m => {
-      if (m.vaccines && m.vaccines.some(v => v.name.includes('流感'))) {
-        hasFluInMilestones = true;
+      if (m.vaccines) {
+        m.vaccines = m.vaccines.filter(v => !v.name.includes('流感'));
       }
     });
 
-    if (!hasFluInMilestones) {
-      // 找出 Current 站點，或 Next 站點，將流感疫苗卡片加入該站點之疫苗陣列中
-      let targetMilestone = milestones.find(m => m.status === 'Current') || milestones.find(m => m.status === 'Next') || milestones[0];
-      if (targetMilestone) {
-        targetMilestone.vaccines.push(...fluItems);
-      }
-    } else {
-      // 若已有舊版流感卡片，將其升級為 2026 最新規格與詳細適應症
-      milestones.forEach(m => {
-        if (m.vaccines) {
-          m.vaccines.forEach((v, idx) => {
-            if (v.name.includes('流感') && fluItems.length > 0) {
-              m.vaccines[idx] = { ...v, ...fluItems[0] };
-            }
-          });
+    // 將流感疫苗卡片以 unshift 插入目標站點的最前端，確保成為第一張顯眼卡片
+    if (currentOrTargetNode && currentOrTargetNode.vaccines) {
+      currentOrTargetNode.vaccines.unshift(...fluItems);
+    }
+  }
+
+  // 渲染「當次建議接種 (Current Visit)」與「下次預計接種 (Next Visit)」卡片內的疫苗清單與流感專屬醒目標記
+  const sumCurrentVaccinesEl = document.getElementById('summary-current-vaccines');
+  const sumNextVaccinesEl = document.getElementById('summary-next-vaccines');
+  
+  if (sumCurrentVaccinesEl) {
+    const currentMilestoneObj = milestones ? (milestones.find(m => m.status === 'Current') || milestones[0]) : null;
+    let vaxListHtml = '';
+    if (currentMilestoneObj && currentMilestoneObj.vaccines && currentMilestoneObj.vaccines.length > 0) {
+      currentMilestoneObj.vaccines.forEach(v => {
+        const isFlu = v.name.includes('流感');
+        if (isFlu) {
+          vaxListHtml += `<span class="visit-card-vax-pill visit-card-flu-pill"><span class="flu-dot"></span>🍂 ${v.name} (${v.dose_info})</span>`;
+        } else {
+          vaxListHtml += `<span class="visit-card-vax-pill">💉 ${v.name}</span>`;
         }
       });
+    } else if (fluItems.length > 0) {
+      vaxListHtml = `<span class="visit-card-vax-pill visit-card-flu-pill"><span class="flu-dot"></span>🍂 ${fluItems[0].name}</span>`;
+    } else {
+      vaxListHtml = `<span style="font-size:0.85rem; color:#64748b;">依診所排程接種常規疫苗</span>`;
     }
+    sumCurrentVaccinesEl.innerHTML = vaxListHtml;
+  }
+
+  if (sumNextVaccinesEl) {
+    const nextMilestoneObj = milestones ? milestones.find(m => m.status === 'Next') : null;
+    let nextVaxHtml = '';
+    if (nextMilestoneObj && nextMilestoneObj.vaccines && nextMilestoneObj.vaccines.length > 0) {
+      nextMilestoneObj.vaccines.slice(0, 4).forEach(v => {
+        nextVaxHtml += `<span class="visit-card-vax-pill">💉 ${v.name}</span>`;
+      });
+      if (nextMilestoneObj.vaccines.length > 4) {
+        nextVaxHtml += `<span class="visit-card-vax-pill" style="color:#64748b;">+${nextMilestoneObj.vaccines.length - 4} 項</span>`;
+      }
+    } else {
+      nextVaxHtml = `<span style="font-size:0.85rem; color:#64748b;">定期追蹤健康與疫苗接種</span>`;
+    }
+    sumNextVaccinesEl.innerHTML = nextVaxHtml;
   }
 
   timelineContainer.innerHTML = '';
