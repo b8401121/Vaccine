@@ -4,11 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>桃園 吳鎮宇親子耳鼻喉科診所 ‧ 預防接種指南助手</title>
-  <link rel="stylesheet" href="styles_final.css?v=20260924b">
+  <link rel="stylesheet" href="styles_final.css?v=20260924c">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
-  <script src="qrcode.js?v=20260924b"></script>
+  <script src="qrcode.js?v=20260924c"></script>
 </head>
 <body>
   <!-- 登入畫面 -->
@@ -174,6 +174,9 @@
             <span class="status-pill next-pill">⏳ 未來預計站點</span>
           </div>
 
+          <!-- 2026 流感疫苗動態適應症推薦卡片 (由 JS 依據計算年齡動態填入) -->
+          <div id="flu-rec-banner-container"></div>
+
           <!-- 垂直時間軸容器 -->
           <div class="vertical-timeline" id="timeline-container">
             <!-- 由 JS 動態渲染卡片與站點 -->
@@ -298,11 +301,17 @@
 
             <div class="filter-chips">
               <button class="chip active" data-filter="all">全部疫苗</button>
+              <button class="chip" data-filter="flu2026" style="background: rgba(234, 88, 12, 0.15); color: #c2410c; border-color: #f97316; font-weight: 700;">🍂 2026流感 (8大廠牌)</button>
               <button class="chip" data-filter="Routine">公費常規</button>
               <button class="chip" data-filter="SelfPaid">自費建議</button>
               <button class="chip" data-filter="child">兒童/幼兒</button>
               <button class="chip" data-filter="adult">成人/長者</button>
             </div>
+
+            <button id="open-flu2026-modal-btn" class="flu-guide-banner-btn" type="button">
+              <span>🍂 點擊查看【2026台灣流感疫苗大PK】8大廠牌規格、適用年齡與公自費比較攻略</span>
+              <span>詳細比較表 ➔</span>
+            </button>
           </div>
         </div>
 
@@ -378,6 +387,103 @@
         <button class="modal-close-btn" id="modal-close">✕</button>
         <div id="modal-content">
           <!-- 內容由 JS 動態生成 -->
+        </div>
+      </div>
+    </div>
+
+    <!-- 2026 流感疫苗 8 大廠牌 PK 比較 Modal -->
+    <div id="flu2026-modal" class="modal-overlay hidden">
+      <div class="modal-card fade-in" style="max-width: 840px; padding: 1.5rem; text-align: left; max-height: 90vh; overflow-y: auto;">
+        <button class="modal-close-btn" id="flu2026-modal-close">✕</button>
+        <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.5rem;">
+          <span style="font-size: 1.8rem;">🍂</span>
+          <h2 style="font-size: 1.35rem; color: #ea580c; margin: 0;">2026 台灣流感疫苗 8 大廠牌規格與年齡選用全攻略</h2>
+        </div>
+        <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 1.1rem; line-height: 1.5;">
+          資料來源：衛生福利部疾病管制署 (Taiwan CDC) 官方標準與最新流感疫苗指引。市售 8 款涵蓋傳統雞胚、細胞培養、長者加強型與免打針鼻噴型。
+        </p>
+
+        <h3 style="font-size: 1.05rem; color: var(--text-main); margin-bottom: 0.5rem;">📊 8 大廠牌規格與公自費一覽表</h3>
+        <div class="flu-table-wrapper">
+          <table class="flu-table">
+            <thead>
+              <tr>
+                <th>廠牌與品名</th>
+                <th>製造技術 / 劑型</th>
+                <th>適用年齡</th>
+                <th>公自費類別</th>
+                <th>特色與適應症</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>東洋 輔流威護</strong><br><small style="color:var(--text-muted);">Flucelvax Tetra</small></td>
+                <td>MDCK 細胞培養<br>(四價不活化)</td>
+                <td>滿 6 個月以上<br>(全齡通用)</td>
+                <td><span class="tag routine">公費</span> / <span class="tag self-paid">自費</span></td>
+                <td>零雞蛋蛋白殘留，避免雞蛋培養突變，抗原吻合度最高！適合雞蛋過敏者。</td>
+              </tr>
+              <tr>
+                <td><strong>東洋 輔流禦</strong><br><small style="color:var(--text-muted);">Fluad Tetra</small></td>
+                <td>MF59 專利佐劑加強型<br>(四價不活化)</td>
+                <td><strong>50 歲以上</strong><br>免疫低下/免疫抑制者</td>
+                <td><span class="tag self-paid">自費</span> / <span class="tag routine">公費(機構長照)</span></td>
+                <td>添加 MF59 專利佐劑，刺激抗體效價顯著增強且持久長達 12 個月，克服免疫老化。</td>
+              </tr>
+              <tr>
+                <td><strong>賽諾菲 菲優達</strong><br><small style="color:var(--text-muted);">Efluelda High-Dose</small></td>
+                <td>4倍抗原高劑量加強型<br>(四價不活化)</td>
+                <td><strong>65 歲以上長者專用</strong></td>
+                <td><span class="tag self-paid">自費</span> / <span class="tag routine">公費(機構長照)</span></td>
+                <td>每株含 60µg HA（一般劑型 4 倍），臨床證實重症防護力提升 24.2%，顯著降低肺炎與心血管住院率。</td>
+              </tr>
+              <tr>
+                <td><strong>AZ 能伏鼻</strong><br><small style="color:var(--text-muted);">FluMist / Fluenz</small></td>
+                <td>鼻噴式活性減毒 (LAIV)<br>(免打針無痛給藥)</td>
+                <td><strong>2 歲 ～ 未滿 18 歲</strong><br>(兒童青少年)</td>
+                <td><span class="tag self-paid">全自費</span><br>(無公費)</td>
+                <td><strong>唯一免打針無痛流感疫苗！</strong>在鼻咽黏膜直接誘發第一線 IgA 防禦。<br><small style="color:#ef4444;">⚠️ 禁忌：孕婦、免疫缺損、重度氣喘或近4週曾喘鳴、長期服用阿斯匹靈者不可使用。</small></td>
+              </tr>
+              <tr>
+                <td><strong>GSK 伏流感</strong><br><small style="color:var(--text-muted);">Fluarix Tetra</small></td>
+                <td>傳統雞胚胎培養<br>(四價不活化)</td>
+                <td>滿 6 個月以上<br>(全齡通用)</td>
+                <td><span class="tag routine">公費</span> / <span class="tag self-paid">自費</span></td>
+                <td>國際疫苗領導大廠德國原廠製造，全球使用量大，安全性數據完整。</td>
+              </tr>
+              <tr>
+                <td><strong>賽諾菲 菲流達</strong><br><small style="color:var(--text-muted);">Vaxigrip Tetra</small></td>
+                <td>傳統雞胚胎培養<br>(四價不活化)</td>
+                <td>滿 6 個月以上<br>(全齡通用)</td>
+                <td><span class="tag routine">公費</span> / <span class="tag self-paid">自費</span></td>
+                <td>法國賽諾菲原裝進口，兒科與家庭醫學科常規主力，孕婦及幼童均可安心接種。</td>
+              </tr>
+              <tr>
+                <td><strong>國光 安定伏</strong><br><small style="color:var(--text-muted);">AdimFlu-S</small></td>
+                <td>傳統雞胚胎培養<br>(四價不活化)</td>
+                <td><strong>滿 3 歲以上</strong><br>(兒童至成人)</td>
+                <td><span class="tag routine">公費</span> / <span class="tag self-paid">自費</span></td>
+                <td>台灣在地國產疫苗主力，供應半數以上公費防疫計畫，成熟穩定。3歲以下不適用。</td>
+              </tr>
+              <tr>
+                <td><strong>高端 福喜健</strong><br><small style="color:var(--text-muted);">GC Flu Quadrivalent</small></td>
+                <td>傳統雞胚胎培養<br>(四價不活化)</td>
+                <td><strong>滿 3 歲以上</strong><br>(兒童至成人)</td>
+                <td><span class="tag routine">公費</span> / <span class="tag self-paid">自費</span></td>
+                <td>引進韓國生技大廠 GC Biopharma WHO預認證抗原原液，符合國際規格。3歲以下不適用。</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3 style="font-size: 1.05rem; color: var(--text-main); margin: 1.25rem 0 0.5rem 0;">🎯 依年齡與體質「3 秒選購指南」</h3>
+        <div style="background: rgba(255,255,255,0.05); padding: 1.1rem; border-radius: 10px; border: 1px solid var(--card-border); font-size: 0.9rem; line-height: 1.8;">
+          <div>👶 <strong>滿 6 個月 ~ 未滿 2 歲</strong>：推薦標準型（東洋 輔流威護【細胞培養/無蛋】、GSK 伏流感、賽諾菲 菲流達）。未滿9歲初次接種需打 2 劑（間隔4週）。</div>
+          <div>🧒 <strong>2 歲 ~ 未滿 3 歲</strong>：一般注射可選標準型；<strong>害怕打針者首選</strong>：自費 <strong>AZ 能伏鼻 (FluMist)</strong> 鼻噴式免打針。</div>
+          <div>🎒 <strong>3 歲 ~ 17 歲兒童青少年</strong>：標準型可選國光、高端、東洋細胞、GSK、賽諾菲；<strong>害怕打針者首選</strong>：自費 <strong>AZ 能伏鼻 (FluMist)</strong>。</div>
+          <div>🧑 <strong>18 歲 ~ 49 歲一般成人</strong>：選擇標準型獲得完整保護力（東洋、GSK、賽諾菲、國光、高端）。</div>
+          <div>🧓 <strong>50 歲 ~ 64 歲熟齡 / 免疫低下者</strong>：首選推薦【<strong>含佐劑加強型 東洋 輔流禦 (Fluad)</strong>】，大幅活化持久抗體。</div>
+          <div>👵 <strong>65 歲以上銀髮長者</strong>：強烈推薦長者專用加強型：【<strong>高劑量加強型 賽諾菲 菲優達 (Efluelda)</strong>】或【<strong>含佐劑加強型 東洋 輔流禦 (Fluad)</strong>】，防護重症住院！</div>
         </div>
       </div>
     </div>
@@ -552,6 +658,6 @@
     </footer>
   </div>
 
-  <script type="module" src="app.js?v=20260924b"></script>
+  <script type="module" src="app.js?v=20260924c"></script>
 </body>
 </html>
