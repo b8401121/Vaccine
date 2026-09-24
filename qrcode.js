@@ -30,5 +30,6 @@
         this.el.appendChild(img);
     };
 
+    QRCode.CorrectLevel = { L: 1, M: 0, Q: 3, H: 2 };
     window.QRCode = QRCode;
 })();
