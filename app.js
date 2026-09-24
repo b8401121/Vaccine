@@ -579,6 +579,36 @@ function displayVaccines(data) {
     if (currentOrTargetNode && currentOrTargetNode.vaccines) {
       currentOrTargetNode.vaccines.unshift(...fluItems);
     }
+
+    // 遍歷所有站點，確保含有流感或口服疫苗時均有清晰部位與同次接種指引
+    milestones.forEach(m => {
+      if (!m.co_admin_guide) m.co_admin_guide = [];
+      const mAgeMonths = m.age_months !== undefined ? m.age_months : totalMonths;
+      const hasFlu = m.vaccines && m.vaccines.some(v => v.name.includes('流感'));
+      const hasOral = m.vaccines && m.vaccines.some(v => v.name.includes('輪狀病毒'));
+
+      if (hasFlu && !m.co_admin_guide.some(g => g.includes('流感'))) {
+        if (mAgeMonths >= 6 && mAgeMonths < 24) {
+          m.co_admin_guide.push(
+            "🍂 流感疫苗部位指南 (滿6個月~未滿2歲)：流感疫苗(不活化針劑)可與同次五合一、B肝或13價肺炎鏈球菌同時施打於『不同側大腿』或同側大腿距離至少 2.5cm 處。"
+          );
+        } else if (mAgeMonths >= 24 && mAgeMonths < 216) {
+          m.co_admin_guide.push(
+            "🍂 流感疫苗部位指南 (2~17歲兒少)：可選傳統上臂三角肌注射，或自費 AZ 能伏鼻 (FluMist 唯一雙側鼻孔黏膜噴入免打針活性減毒，若與常規針劑同日施打免受扎針之苦；若與水痘/MMR非同日施打需間隔28天)。"
+          );
+        } else {
+          m.co_admin_guide.push(
+            "🍂 流感疫苗部位指南 (成人/長者)：流感疫苗與新冠疫苗、PCV20肺炎鏈球菌或破傷風Tdap，建議『分左右兩上手臂三角肌』同次同時接種，安全省時抗體互不干擾。"
+          );
+        }
+      }
+
+      if (hasOral && !m.co_admin_guide.some(g => g.includes('口服'))) {
+        m.co_admin_guide.push(
+          "🍼 口服減毒疫苗指南：口服輪狀病毒疫苗經腸道吸收，與肌肉注射之針劑(流感/五合一/肺炎)作用途徑完全不同，建議於針劑注射前或注射安撫後口服投藥，兩者不互斥。"
+        );
+      }
+    });
   }
 
   // 渲染「當次建議接種 (Current Visit)」與「下次預計接種 (Next Visit)」卡片內的疫苗清單與流感專屬醒目標記
@@ -1630,6 +1660,23 @@ function prepareAndPrintReport(data, selectedCurrent, selectedNext) {
     });
   } else {
     nextTbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#718096;">（本次無勾選下一階段項目）</td></tr>';
+  }
+
+  // 填入同次接種組合與施打部位指南 (Co-administration Guide)
+  const printCoadminContainer = document.getElementById('print-coadmin-container');
+  const printCoadminList = document.getElementById('print-coadmin-list');
+  if (printCoadminContainer && printCoadminList) {
+    const currentMilestone = data.milestones ? data.milestones.find(m => m.status === 'Current') : null;
+    const guides = (currentMilestone && currentMilestone.co_admin_guide && currentMilestone.co_admin_guide.length > 0)
+      ? currentMilestone.co_admin_guide
+      : [
+          "不活化疫苗 (如五合一、肺炎鏈球菌、流感疫苗、B肝、A肝) 均可同次分開左右肢體部位接種，安全省時。",
+          "口服減毒疫苗 (如輪狀病毒疫苗) 經腸道吸收，與肌肉針劑不互相干擾，可在針劑施打前後順利服用。",
+          "鼻噴型流感疫苗 (AZ 能伏鼻 FluMist) 為活性減毒噴劑，免受扎針之苦；若與水痘/MMR等活性針劑未於同日完成需間隔至少 28 天。"
+        ];
+
+    printCoadminList.innerHTML = guides.map(g => `<li style="margin-bottom:0.25rem;">${g}</li>`).join('');
+    printCoadminContainer.style.display = 'block';
   }
 
   window.print();

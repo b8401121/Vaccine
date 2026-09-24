@@ -4,11 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>桃園 吳鎮宇親子耳鼻喉科診所 ‧ 預防接種指南助手</title>
-  <link rel="stylesheet" href="styles_final.css?v=20260924e">
+  <link rel="stylesheet" href="styles_final.css?v=20260924f">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
-  <script src="qrcode.js?v=20260924e"></script>
+  <script src="qrcode.js?v=20260924f"></script>
 </head>
 <body>
   <!-- 登入畫面 -->
@@ -643,11 +643,19 @@
         </table>
       </div>
 
+      <div class="print-coadmin-block" id="print-coadmin-container" style="margin-top: 1.25rem; background: #f8fafc; border: 1.5px solid #cbd5e1; border-radius: 8px; padding: 0.85rem 1.15rem;">
+        <h4 style="margin: 0 0 0.5rem 0; color: #1e293b; font-size: 0.95rem;">💉 同次同時接種部位與途徑衛教指南 (Co-administration Guide)：</h4>
+        <ul id="print-coadmin-list" style="margin: 0; padding-left: 1.25rem; font-size: 0.85rem; color: #334155; line-height: 1.5;">
+          <!-- JS 動態生成當次/下次部位與口服/鼻噴/針劑指南 -->
+        </ul>
+      </div>
+
       <div class="print-notes-block">
         <h4>⚠️ 接種前後衛教與安全叮嚀：</h4>
         <ol>
           <li>若有發燒 (≥38°C) 或急性中重度疾病，請延期至康復後再行接種。</li>
-          <li><strong>活性減毒疫苗間隔提醒</strong>：水痘、MMR、日本腦炎等活性減毒疫苗若未在同一天施打，需間隔至少 28 天以上。</li>
+          <li><strong>不活化疫苗與口服疫苗</strong>：流感疫苗、五合一、肺炎鏈球菌等不活化針劑，以及口服輪狀病毒疫苗，彼此完全不干擾，可於同日同次分開部位安心完成。</li>
+          <li><strong>活性減毒疫苗間隔提醒</strong>：水痘、MMR、活性日本腦炎、鼻噴流感疫苗若未在同一天施打，需間隔至少 28 天以上。</li>
           <li>接種後請在診所觀察 15-30 分鐘，確認無急性過敏反應後方可離開。</li>
           <li>接種部位紅腫疼痛為常見反應，可局部冰敷；若高燒不退超過 48 小時，請儘速回診就醫。</li>
         </ol>
@@ -664,6 +672,6 @@
     </footer>
   </div>
 
-  <script type="module" src="app.js?v=20260924e"></script>
+  <script type="module" src="app.js?v=20260924f"></script>
 </body>
 </html>
