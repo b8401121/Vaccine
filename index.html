@@ -507,13 +507,15 @@
           </p>
 
           <!-- QR Code 系統切換頁籤 -->
-          <div class="qr-tab-group" style="display: flex; justify-content: center; gap: 0.5rem; margin-bottom: 1rem;">
-            <button id="qr-tab-google" class="chip active" style="padding: 0.4rem 0.8rem; font-weight: 600; cursor: pointer;">🌐 Google 日曆 QR</button>
-            <button id="qr-tab-apple" class="chip" style="padding: 0.4rem 0.8rem; font-weight: 600; cursor: pointer; background: #333333; color: #ffffff; border-color: #555555;">🍏 iOS 相機直掃 QR</button>
+          <div class="qr-tab-group" style="display: flex; justify-content: center; gap: 0.6rem; margin-bottom: 1rem;">
+            <button id="qr-tab-google" type="button" class="chip active" style="padding: 0.5rem 1rem; font-weight: 700; cursor: pointer; border-radius: 20px; transition: all 0.2s ease;">🌐 Google 日曆 QR</button>
+            <button id="qr-tab-apple" type="button" class="chip" style="padding: 0.5rem 1rem; font-weight: 700; cursor: pointer; border-radius: 20px; transition: all 0.2s ease;">🍏 iOS 相機直掃 QR</button>
           </div>
 
-          <div id="qrcode-container" style="display: flex; justify-content: center; margin-bottom: 0.75rem;">
-            <!-- QR Code 圖檔 -->
+          <div style="display: flex; justify-content: center; margin-bottom: 0.75rem;">
+            <div id="qrcode-container" style="display: inline-flex; justify-content: center; align-items: center; padding: 12px; background: #ffffff; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.25);">
+              <!-- QR Code 圖檔 -->
+            </div>
           </div>
           <div id="qr-hint-text" style="font-size: 0.78rem; color: #34d399; margin-bottom: 1.25rem;">
             提示：iPhone 內建相機直接照向此 QR Code 即可加入 iOS 日曆！
@@ -672,6 +674,6 @@
     </footer>
   </div>
 
-  <script type="module" src="app.js?v=20260924f"></script>
+  <script type="module" src="app.js?v=20260924h"></script>
 </body>
 </html>
