@@ -522,11 +522,28 @@
           </div>
 
           <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 10px; border: 1px solid var(--card-border); margin-bottom: 1rem; text-align: left;">
-            <div style="font-size: 0.85rem; color: #94a3b8; margin-bottom: 0.2rem;">📌 提醒事件名稱：</div>
-            <div id="cal-modal-title" style="font-weight: 700; color: #f8fafc; margin-bottom: 0.6rem;">--</div>
+            <div style="font-size: 0.82rem; color: #94a3b8; margin-bottom: 0.2rem;">📌 提醒事件名稱：</div>
+            <div id="cal-modal-title" style="font-weight: 700; color: #f8fafc; font-size: 1.05rem; margin-bottom: 0.6rem;">--</div>
+
+            <!-- 本次接種項目 -->
+            <div style="font-size: 0.82rem; color: #94a3b8; margin-bottom: 0.3rem;">💉 本次接種疫苗項目 (將完整記錄於日曆)：</div>
+            <div id="cal-modal-current-vax" style="display: flex; flex-wrap: wrap; gap: 0.35rem; margin-bottom: 0.75rem;">
+              <!-- JS 動態生成 -->
+            </div>
+
+            <!-- 下次預估接種時程與項目提示框 -->
+            <div id="cal-modal-next-box" style="background: rgba(56, 189, 248, 0.08); border: 1px dashed rgba(56, 189, 248, 0.4); border-radius: 8px; padding: 0.65rem 0.8rem; margin-bottom: 0.85rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem;">
+                <span style="font-size: 0.82rem; font-weight: 700; color: #38bdf8;">🔔 下次預估接種時程 (亦記錄於備忘錄)：</span>
+                <button id="cal-set-next-date-btn" type="button" class="btn-secondary" style="padding: 0.2rem 0.5rem; font-size: 0.75rem; background: rgba(56, 189, 248, 0.2); border-color: #38bdf8; color: #38bdf8; border-radius: 4px; cursor: pointer; white-space: nowrap; display: none;">
+                  📅 切換為下次日期
+                </button>
+              </div>
+              <div id="cal-modal-next-info" style="font-size: 0.82rem; color: #cbd5e1; line-height: 1.45;">--</div>
+            </div>
             
             <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.4rem;">
-              <label for="cal-date-input" style="font-size: 0.85rem; color: #94a3b8;">📅 預約提醒日期 (可點擊修改)：</label>
+              <label for="cal-date-input" style="font-size: 0.85rem; color: #94a3b8;">📅 日曆預約日期 (可點擊修改)：</label>
               <span id="cal-min-date-badge" style="font-size: 0.75rem; color: #38bdf8; background: rgba(56, 189, 248, 0.1); padding: 2px 8px; border-radius: 4px;"></span>
             </div>
             
@@ -674,6 +691,6 @@
     </footer>
   </div>
 
-  <script type="module" src="app.js?v=20260924i"></script>
+  <script type="module" src="app.js?v=20260924j"></script>
 </body>
 </html>

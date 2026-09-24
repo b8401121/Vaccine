@@ -795,20 +795,34 @@ function displayVaccines(data) {
       });
     });
 
+    window.__lastMilestones = milestones;
+
     timelineContainer.querySelectorAll('.add-cal-btn').forEach(btn => {
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
         const title = btn.getAttribute('data-title');
         const targetDate = btn.getAttribute('data-date');
         const vaccines = btn.getAttribute('data-vaccines');
-        const idx = btn.getAttribute('data-index');
-        const milestoneObj = (idx !== null && milestones[idx]) ? milestones[idx] : {};
+        const idxStr = btn.getAttribute('data-index');
+        const idx = idxStr !== null ? parseInt(idxStr, 10) : -1;
+        const milestoneObj = (idx >= 0 && milestones[idx]) ? milestones[idx] : {};
         
+        // 尋找下一個具有疫苗項目的里程碑
+        let nextMilestoneObj = null;
+        if (idx >= 0 && milestones) {
+          for (let i = idx + 1; i < milestones.length; i++) {
+            if (milestones[i].vaccines && milestones[i].vaccines.length > 0) {
+              nextMilestoneObj = milestones[i];
+              break;
+            }
+          }
+        }
+
         const today = new Date();
         const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
         const dateToUse = (targetDate && targetDate.length === 10) ? targetDate : todayStr;
 
-        openCalendarModal(`預防接種提醒 — ${title}`, dateToUse, `建議接種疫苗：${vaccines}`, milestoneObj);
+        openCalendarModal(`預防接種 — ${title}`, dateToUse, `建議接種疫苗：${vaccines}`, milestoneObj, nextMilestoneObj);
       });
     });
 
@@ -1769,11 +1783,15 @@ function generateIcsQrString(title, startDateStr, details) {
   return `BEGIN:VCALENDAR\nVERSION:2.0\nBEGIN:VEVENT\nSUMMARY:${cleanSummary}\nDTSTART:${dtStart}\nDTEND:${dtEnd}\nDESCRIPTION:${cleanDetails}\nLOCATION:預防接種門診\nEND:VEVENT\nEND:VCALENDAR`;
 }
 
-function openCalendarModal(title, dateDisplayStr, details, milestoneData = {}) {
+function openCalendarModal(title, dateDisplayStr, details, milestoneData = {}, nextMilestoneData = null) {
   const modal = document.getElementById('calendar-modal');
   if (modal) modal.classList.remove('hidden');
 
   const modalTitle = document.getElementById('cal-modal-title');
+  const currentVaxContainer = document.getElementById('cal-modal-current-vax');
+  const nextVaxInfo = document.getElementById('cal-modal-next-info');
+  const setNextDateBtn = document.getElementById('cal-set-next-date-btn');
+
   const dateInput = document.getElementById('cal-date-input');
   const resetBtn = document.getElementById('cal-reset-date-btn');
   const minDateBadge = document.getElementById('cal-min-date-badge');
@@ -1801,6 +1819,75 @@ function openCalendarModal(title, dateDisplayStr, details, milestoneData = {}) {
     minDateBadge.textContent = (dateDisplayStr && dateDisplayStr.length === 10)
       ? `原建議基準：${origDateStr}`
       : `建議基準：${origDateStr}（今日預約）`;
+  }
+
+  // 1. 渲染本次接種疫苗項目清單徽章
+  if (currentVaxContainer) {
+    currentVaxContainer.innerHTML = '';
+    if (milestoneData && milestoneData.vaccines && milestoneData.vaccines.length > 0) {
+      milestoneData.vaccines.forEach(v => {
+        const pill = document.createElement('span');
+        pill.style.cssText = 'display:inline-flex; align-items:center; gap:4px; font-size:0.8rem; padding:0.25rem 0.6rem; border-radius:12px; background:rgba(15,118,110,0.25); border:1px solid #14b8a6; color:#ffffff; font-weight:500;';
+        if (v.name.includes('流感')) {
+          pill.style.background = 'rgba(234, 88, 12, 0.25)';
+          pill.style.borderColor = '#ea580c';
+        }
+        pill.textContent = `${v.name.includes('流感') ? '🍂' : '💉'} ${v.name}${v.dose_info ? ` (${v.dose_info})` : ''}`;
+        currentVaxContainer.appendChild(pill);
+      });
+    } else {
+      currentVaxContainer.innerHTML = `<span style="font-size:0.82rem; color:#94a3b8;">${details || '常規預防接種項目'}</span>`;
+    }
+  }
+
+  // 2. 渲染下次預估接種時程與項目提示
+  let nextTargetDate = '';
+  if (nextVaxInfo) {
+    if (nextMilestoneData) {
+      nextTargetDate = nextMilestoneData.target_date || '';
+      const nextVaxNames = (nextMilestoneData.vaccines && nextMilestoneData.vaccines.length > 0)
+        ? nextMilestoneData.vaccines.map(v => `${v.name}${v.dose_info ? ` (${v.dose_info})` : ''}`).join('、')
+        : '依年齡常規疫苗';
+      nextVaxInfo.innerHTML = `<strong>📅 預估日期：</strong>${nextTargetDate || '依兒科醫師預約'}（${nextMilestoneData.title || ''}）<br><strong>💉 預計疫苗：</strong>${nextVaxNames}`;
+
+      if (setNextDateBtn && nextTargetDate && nextTargetDate.length === 10) {
+        setNextDateBtn.style.display = 'inline-block';
+        setNextDateBtn.onclick = () => {
+          currentDateStr = nextTargetDate;
+          if (dateInput) dateInput.value = nextTargetDate;
+          updateCalendarLinksAndQr();
+        };
+      } else if (setNextDateBtn) {
+        setNextDateBtn.style.display = 'none';
+      }
+    } else {
+      nextVaxInfo.innerHTML = '已完成現階段常規時程，後續追加劑請依兒童健康手冊與兒科醫師衛教返診。';
+      if (setNextDateBtn) setNextDateBtn.style.display = 'none';
+    }
+  }
+
+  // 3. 建立同時記錄「當次接種項目」與「下次應該接種日期及疫苗名稱」的完整 Description
+  function buildCalendarEventDescription() {
+    let currVaxListText = '';
+    if (milestoneData && milestoneData.vaccines && milestoneData.vaccines.length > 0) {
+      currVaxListText = milestoneData.vaccines.map(v => `• ${v.name}${v.dose_info ? ` (${v.dose_info})` : ''}`).join('\n');
+    } else {
+      currVaxListText = `• ${details || '依兒科醫師建議排程接種'}`;
+    }
+
+    let nextVaxText = '';
+    if (nextMilestoneData) {
+      const nDate = nextMilestoneData.target_date || '依兒科醫師預約時間';
+      const nTitle = nextMilestoneData.title || '';
+      const nVaxes = (nextMilestoneData.vaccines && nextMilestoneData.vaccines.length > 0)
+        ? nextMilestoneData.vaccines.map(v => `${v.name}${v.dose_info ? ` (${v.dose_info})` : ''}`).join('、')
+        : '常規追加劑';
+      nextVaxText = `【🔔 下次預估接種時程】\n📅 建議日期：${nDate}${nTitle ? `（${nTitle}）` : ''}\n💉 預計疫苗：${nVaxes}`;
+    } else {
+      nextVaxText = `【🔔 下次預約提醒】\n若已完成本階段常規時程，後續追加劑請依兒童健康手冊與兒科醫師衛教時間返診。`;
+    }
+
+    return `【📋 本次接種項目】\n${currVaxListText}\n\n${nextVaxText}\n\n【🏥 吳鎮宇親子耳鼻喉科診所 ‧ 叮嚀】\n• 請攜帶兒童預防接種紀錄黃卡與健保卡就診。\n• 接種後請在診所留觀 15-30 分鐘，確認無急性不良反應。\n• 接種部位若紅腫疼痛可適度冰敷；若持續高燒超過 48 小時請儘速回診。`;
   }
 
   // 醫療安全評估函式 (檢查是否提早、提早之理由)
@@ -1856,8 +1943,9 @@ function openCalendarModal(title, dateDisplayStr, details, milestoneData = {}) {
   }
 
   function updateCalendarLinksAndQr() {
-    const calUrl = generateGoogleCalendarUrl(title, currentDateStr, details);
-    const appleIcsQrText = generateIcsQrString(title, currentDateStr, details);
+    const eventDetails = buildCalendarEventDescription();
+    const calUrl = generateGoogleCalendarUrl(title, currentDateStr, eventDetails);
+    const appleIcsQrText = generateIcsQrString(title, currentDateStr, eventDetails);
 
     // 1. 更新警示區塊
     const evalResult = validateAndExplainDate(currentDateStr, origDateStr);
@@ -1941,7 +2029,7 @@ function openCalendarModal(title, dateDisplayStr, details, milestoneData = {}) {
 
     if (appleBtn) {
       appleBtn.onclick = () => {
-        downloadIcsForAppleCalendar(title, currentDateStr, details);
+        downloadIcsForAppleCalendar(title, currentDateStr, eventDetails);
       };
     }
 
@@ -1949,7 +2037,7 @@ function openCalendarModal(title, dateDisplayStr, details, milestoneData = {}) {
       copyBtn.onclick = () => {
         if (navigator.clipboard && navigator.clipboard.writeText) {
           navigator.clipboard.writeText(calUrl).then(() => {
-            alert(`已成功複製 ${currentDateStr} 的手機行事曆提醒連結！`);
+            alert(`已成功複製 ${currentDateStr} 的手機行事曆提醒連結！\n內含當次疫苗與下次預約提醒。`);
           }).catch(() => {
             alert('行事曆連結：\n' + calUrl);
           });
@@ -2038,12 +2126,25 @@ function setupCalendarModalEvents() {
     const title = btn.getAttribute('data-title') || '預防接種';
     const targetDate = btn.getAttribute('data-date');
     const vaccines = btn.getAttribute('data-vaccines') || '';
+    const idxStr = btn.getAttribute('data-index');
+    const idx = idxStr !== null ? parseInt(idxStr, 10) : -1;
+    const milestoneObj = (idx >= 0 && window.__lastMilestones && window.__lastMilestones[idx]) ? window.__lastMilestones[idx] : {};
     
+    let nextMilestoneObj = null;
+    if (idx >= 0 && window.__lastMilestones) {
+      for (let i = idx + 1; i < window.__lastMilestones.length; i++) {
+        if (window.__lastMilestones[i].vaccines && window.__lastMilestones[i].vaccines.length > 0) {
+          nextMilestoneObj = window.__lastMilestones[i];
+          break;
+        }
+      }
+    }
+
     const today = new Date();
     const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
     const dateToUse = (targetDate && targetDate.length === 10) ? targetDate : todayStr;
 
-    openCalendarModal(`預防接種提醒 — ${title}`, dateToUse, `建議接種疫苗：${vaccines}`);
+    openCalendarModal(`預防接種 — ${title}`, dateToUse, `建議接種疫苗：${vaccines}`, milestoneObj, nextMilestoneObj);
   });
 }
 
