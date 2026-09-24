@@ -1,11 +1,12 @@
 import shutil
 import subprocess
 import os
+import tempfile
 from update_sri import update_html_sri
 
-src_dir = r'f:\Vaccine\vaccine-app\src'
-repo_dir = r'f:\Vaccine'
-worktree_dir = r'f:\vaccine-ghp-deploy'
+repo_dir = os.path.dirname(os.path.abspath(__file__))
+src_dir = os.path.join(repo_dir, 'vaccine-app', 'src')
+worktree_dir = os.path.join(tempfile.gettempdir(), 'vaccine-ghp-deploy')
 
 # 1. 自動更新 SRI (Subresource Integrity)
 update_html_sri(os.path.join(src_dir, 'index.html'))

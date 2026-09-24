@@ -8,6 +8,9 @@ def calculate_sri(file_path, algorithm="sha384"):
         return None
     with open(file_path, "rb") as f:
         data = f.read()
+    # Normalize CRLF to LF for text files so that git/GitHub Pages line-ending normalization won't break SRI verification!
+    if file_path.lower().endswith(('.css', '.js', '.html', '.json', '.svg', '.txt', '.md')):
+        data = data.replace(b'\r\n', b'\n')
     digest = getattr(hashlib, algorithm)(data).digest()
     b64 = base64.b64encode(digest).decode("utf-8")
     return f"{algorithm}-{b64}"
@@ -72,8 +75,10 @@ def update_html_sri(html_path, base_dir=None):
     print(f"Updated SRI for {html_path}")
 
 if __name__ == "__main__":
-    src_html = r"f:\Vaccine\vaccine-app\src\index.html"
-    update_html_sri(src_html)
-    root_html = r"f:\Vaccine\index.html"
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    src_html = os.path.join(script_dir, "vaccine-app", "src", "index.html")
+    if os.path.exists(src_html):
+        update_html_sri(src_html)
+    root_html = os.path.join(script_dir, "index.html")
     if os.path.exists(root_html):
-        update_html_sri(root_html, r"f:\Vaccine\vaccine-app\src")
+        update_html_sri(root_html, os.path.join(script_dir, "vaccine-app", "src"))

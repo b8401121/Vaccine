@@ -1,0 +1,17 @@
+# Enforce LF line endings for all text files to preserve SRI integrity
+* text=auto eol=lf
+
+# Binary files
+*.wasm binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.ico binary
+*.pdf binary
+*.pptx binary
+*.zip binary
+*.apk binary
+*.idsig binary
+*.dll binary
+*.exe binary
+*.so binary
