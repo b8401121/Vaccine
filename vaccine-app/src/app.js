@@ -796,7 +796,8 @@ function displayVaccines(data) {
     });
 
     timelineContainer.querySelectorAll('.add-cal-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
         const title = btn.getAttribute('data-title');
         const targetDate = btn.getAttribute('data-date');
         const vaccines = btn.getAttribute('data-vaccines');
@@ -1770,6 +1771,8 @@ function generateIcsQrString(title, startDateStr, details) {
 
 function openCalendarModal(title, dateDisplayStr, details, milestoneData = {}) {
   const modal = document.getElementById('calendar-modal');
+  if (modal) modal.classList.remove('hidden');
+
   const modalTitle = document.getElementById('cal-modal-title');
   const dateInput = document.getElementById('cal-date-input');
   const resetBtn = document.getElementById('cal-reset-date-btn');
@@ -1839,15 +1842,16 @@ function openCalendarModal(title, dateDisplayStr, details, milestoneData = {}) {
 
   function renderQrCode(text) {
     if (qrContainer && window.QRCode) {
-      qrContainer.innerHTML = '';
-      new window.QRCode(qrContainer, {
-        text: text,
-        width: 180,
-        height: 180,
-        colorDark: "#000000",
-        colorLight: "#ffffff",
-        correctLevel: window.QRCode.CorrectLevel.M
-      });
+      try {
+        qrContainer.innerHTML = '';
+        new window.QRCode(qrContainer, {
+          text: text,
+          width: 180,
+          height: 180
+        });
+      } catch (err) {
+        console.warn('QR Code generation warning:', err);
+      }
     }
   }
 
@@ -2001,7 +2005,11 @@ function openCalendarModal(title, dateDisplayStr, details, milestoneData = {}) {
   }
 
   // 初始化首次渲染
-  updateCalendarLinksAndQr();
+  try {
+    updateCalendarLinksAndQr();
+  } catch (err) {
+    console.error('Error rendering calendar links and QR:', err);
+  }
 
   if (modal) modal.classList.remove('hidden');
 }
@@ -2021,6 +2029,22 @@ function setupCalendarModalEvents() {
       }
     });
   }
+
+  // 全域委派監聽 .add-cal-btn 點擊事件，確保任何時程卡片上的按鈕皆能 100% 響應
+  document.addEventListener('click', (e) => {
+    const btn = e.target.closest('.add-cal-btn');
+    if (!btn) return;
+    
+    const title = btn.getAttribute('data-title') || '預防接種';
+    const targetDate = btn.getAttribute('data-date');
+    const vaccines = btn.getAttribute('data-vaccines') || '';
+    
+    const today = new Date();
+    const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+    const dateToUse = (targetDate && targetDate.length === 10) ? targetDate : todayStr;
+
+    openCalendarModal(`預防接種提醒 — ${title}`, dateToUse, `建議接種疫苗：${vaccines}`);
+  });
 }
 
 // ----------------------------------------------------
