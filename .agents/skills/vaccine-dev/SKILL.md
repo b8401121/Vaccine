@@ -27,8 +27,13 @@ description: 專案開發指南：預防接種指南助手 (Rust + Wasm + JS) �
 
 1. **🗓️ 年齡接種時間軸 (Timeline)**：
    - 支援西元 / 民國雙曆法，依出生年月日推算滿月/滿歲時程，自動標註公費常規、地方縣市補助、自費建議。
-   - 整合 **ACIP 同次同時接種 (Co-administration)** 組合與部位指引。
-   - 支援 **Google 日曆** 與 **🍏 iOS / Apple 原生行事曆 (.ics)** 提醒匯入，提供相機直掃 QR Code，並具備 **「自訂預約日期」** 與 **「提早/延後醫療安全間隔即時評估」** 功能。
+   - **🍂 2026 台灣流感疫苗 8 大廠牌整合**：涵蓋傳統雞胚 (GSK/賽諾菲/國光/高端)、細胞培養 (東洋 輔流威護)、長者加強型 (賽諾菲高劑量/東洋佐劑) 與鼻噴型 (AZ 能伏鼻)。依月齡/年齡精準推薦，並直接注入「當次建議接種 (Current Visit)」與時間軸置頂卡片。
+   - **💉 同次同時接種部位指南 (Co-administration Guide)**：針劑分左右上臂三角肌或左右大腿前外側；口服減毒 (輪狀病毒) 不互斥；活性減毒疫苗 (MMR/水痘/活性日腦/鼻噴流感) 若未同日施打嚴格間隔至少 28 天。
+   - **📱 📅 手機相機掃碼行事曆提醒 (Google / iOS VEVENT QR Code)**：
+     - **當次施打項目記錄**：完整記錄當次接種的所有疫苗品名與劑次。
+     - **下次預約提醒自動試算**：自動推算下次建議接種日期與預計施打疫苗名稱。
+     - **Google / iOS 雙格式即時切換**：iPhone 原生相機直掃直入行事曆；亦支援 `.ics` 檔案下載與連結複製。
+     - **自訂預約日期與醫療安全警示**：支援修改日期並即時評估「提早抗體效價不足警告」與「延後順延提醒」，支援一鍵切換為下次日期。
 2. **⏱️ 遲打/補打間隔試算 (Catch-Up)**：
    - 遵循衛福部疾管署與 ACIP 最小月齡與最短劑次安全間隔 (Minimum Intervals)。
 3. **✈️ 出國留學旅遊疫苗速查 (Travel)**：
@@ -74,30 +79,63 @@ Copy-Item ".\app\build\outputs\apk\arm64\release\app-arm64-release-unsigned.apk"
 & "E:\android-env\sdk\build-tools\35.0.0\apksigner.bat" sign --ks "E:\android-env\debug.keystore" --ks-pass pass:android --key-pass pass:android "E:\台灣疫苗指南助手.apk"
 ```
 
-### D. GitHub Pages 部署與 CDN 快取強刷 (Deployment & Cache Busting)
-- GitHub Pages 由 `gh-pages` 分支驅動。當前端 JS / HTML 更新時，需同步更新 `gh-pages` 分支。
-- 若 CDN 快取頑固，可透過實體檔案換名（如 `app.js`、`styles_final.css`）或更新 Query 參數以確保使用者載入最新版本。
+### D. 靜態資源防護：Cache-Buster 取代脆弱 SRI (避坑核心)
+- **避坑警示**：`integrity="sha384-..."` (SRI) 極易因 Git 換行符號（CRLF vs LF）或 CDN 壓縮導致雜湊不符，促使瀏覽器**直接阻斷整份 JS 與 CSS 載入（全頁變白、登入畫面消失、排版全毀）**。
+- **現行架構**：已全面改用動態時間戳 **Cache-Buster（如 `?v=20260924j`）**，兼顧強制破快取與極致穩定性。
 
-### E. 子資源完整性保護 (SRI - Subresource Integrity)
-- 前端 `index.html` 引入之 `<link rel="stylesheet">` 與 `<script>` 均配置 `integrity="sha384-..." crossorigin="anonymous"`。
-- 當修改 `app.js`、`styles_final.css` 或 `qrcode.js` 時，必須執行 `python update_sri.py` 重新計算並更新 `index.html` 中的 SHA-384 雜湊值，防止資源被竄改並避免瀏覽器因 SRI 雜湊不符合而拒絕載入。
+### E. QR Code 庫相容性規範
+- 專案使用輕量原生 `qrcode.js`，構造函數僅接收 `{ text, width, height }`。
+- **嚴禁直接存取 `window.QRCode.CorrectLevel.M`**（易造成 `TypeError: Cannot read properties of undefined` 中斷全域執行序）。
 
 ---
 
-## 4. 常用編譯與維護指令
+## 4. 系統高可用、不可修改穩定版本與秒級回滾體系 (High Availability & Rollback)
 
+為防止代碼修改導致網頁突發毀損，專案建置了四大防護防線：
+
+1. **🥇 不可修改黃金穩定版快照**：
+   - 實體快照目錄：`releases/gold-stable-v1/`（封存 100% 驗證通過之靜態檔）。
+   - Git 不可變標籤：`v1.0.0-gold-stable`。
+   - 保護分支：`stable-release`。
+2. **🔍 上線前自動健康檢查防線**：
+   - 指令：`python3 scripts/verify_app.py`
+   - 自動檢驗 Node.js 語法、24 個關鍵核心 DOM 節點、日曆 URL/QR 生成防護。發布前必須 100% 綠燈通過。
+3. **🚨 10 秒一鍵緊急回滾 (One-Click Emergency Rollback)**：
+   - **Linux / macOS**：`bash scripts/rollback_to_stable.sh`
+   - **Windows 桌面**：滑鼠雙點 `scripts/rollback_to_stable.bat`
+   - 自動從黃金快照還原，並於 10 秒內同步推送至 `gh-pages` 修復線上服務。
+4. **🚀 安全自動發布程序 (Safe Deploy Pipeline)**：
+   - 指令：`bash scripts/deploy_safely.sh`
+   - 自動執行健康防線 ➔ 更新時間戳版本號 ➔ 備份舊版至 `releases/backup-<時間戳>/` ➔ 同步推送至 `master` 與 `gh-pages`。
+
+---
+
+## 5. 常用維護與編譯指令速查
+
+- **線上緊急回滾 (10秒恢復穩定版)**：
+  ```bash
+  bash scripts/rollback_to_stable.sh
+  ```
+- **健康檢查驗證**：
+  ```bash
+  python3 scripts/verify_app.py
+  ```
+- **安全發布上線**：
+  ```bash
+  bash scripts/deploy_safely.sh
+  ```
 - **Windows 桌面版啟動測試**：
   ```powershell
-  cd E:\Vaccine\vaccine-app\src-tauri
+  cd vaccine-app/src-tauri
   cargo tauri dev
   ```
 - **Windows 單一免安裝獨立版編譯**：
   ```powershell
-  cd E:\Vaccine\portable-launcher
+  cd portable-launcher
   cargo build --release
-  Copy-Item "target\release\portable-launcher.exe" "E:\台灣疫苗指南助手_單一獨立版.exe" -Force
+  Copy-Item "target/release/portable-launcher.exe" "台灣疫苗指南助手_單一獨立版.exe" -Force
   ```
-- **GitHub 同步推送**：
+- **GitHub 手動同步推送**：
   ```powershell
   git add .
   git commit -m "feat/fix: <說明>"
